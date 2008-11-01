@@ -1,0 +1,44 @@
+﻿JThink 1.0
+
+JThink-Framework是由自由思考组织(Free Think Organization - FTO)开发的。
+以下为统一许可证。了解更多信息，访问： http://www.free-think.org。
+
+
+/*
+ * 由自由思考组织(Free Think Organization - FTO) 开源产品许可证，版本 1.0
+ * 
+ * 
+ * 版权所有 (c) 2005 自由思考组织。保留所有权利。
+ * 
+ * 重新发布或使用此产品原始或修改后的源代码和编译后的二进制码，必须接受以下条款：
+ * 
+ * 1. 重新发布此产品原始或修改后的源代码，必须保存上面的版权信息和下面的许可条款。
+ * 
+ * 2. 重新发布此产品原始或修改后的二进制代码，必须保存上面的版权信息和下面的许可
+ *    条款。在发布的文档或其它资料中必须包含此许可文档。
+ * 
+ * 3. 此产品相关文档的全部或部分在没有受权的情况下不能用于商业用途，如果确实要使
+ *    用，需要取得许可，请联系到 wjian@free-think.org 或 try_wen@yahoo.com.cn。
+ * 
+ * 4. “JThink”、“JThink-Framework”、“自由思考组织、“Free Think Organization”
+ *    “FTO”等名称在没有受权的情况下不能用在商业性质的书籍、报刊、杂志或其它文档上。
+ *    如果确实要使用，需要取得许可，请联系到 wjian@free-think.org 或 
+ *    try_wen@yahoo.com.cn。
+ * 
+ * 5. 最终用户或其它用户在使用此产品过程中发现的问题，不保证能及时给予解决。由此
+ *    造成的经济损失或其它损失应由用户自行承担。
+ * 
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+ * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */

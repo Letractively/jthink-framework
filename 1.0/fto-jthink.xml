@@ -1,0 +1,287 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<fto-jthink>
+
+	<!--
+	 JThink-Framework主配置文件，此配置文件的内容包括：事务配置，数据源配置	，EJB应用服务器配置,日志处理配置等。
+	-->
+
+	<!--
+	  事务配置，可以配置多个事务。
+	-->
+	<transactions>
+		<transaction id="DefaultJDBCTransaction">
+			<!-- 通用应用服务器使用此事务,比如Tomcat或桌面应用程序等且是非容器管理的事务时使用, 即采用直接数据库连接方式 -->
+			<factory-class>org.fto.jthink.jdbc.DefaultJDBCTransactionFactory</factory-class>
+			<config>
+			</config>
+		</transaction>
+		<transaction id="WebTransaction">
+			<!-- WEB端事务,企业应用服务器使用此事务,比如Jboss,Websphere, Weblogic
+				等WEB容器端采用JTA事务管理时用, 最版本的Tomcat也支持JTA事务
+			-->
+			<factory-class>org.fto.jthink.j2ee.ejb.JTATransactionFactory</factory-class>
+			<config>
+				<!--
+				    事务超时时间,当前只支持JTATransaction，实际上相当于调用
+				    javax.transaction.UserTransaction的setTransactionTimeout方法
+				-->
+				<timeout>60</timeout>
+			</config>
+		</transaction>
+		<transaction id="EJBTransaction">
+			<!-- EJB端事务,企业应用服务器使用此事务,比如Jboss,Websphere, Weblogic等且采用容器管理的事务时使用 -->
+			<!--
+			<factory-class>org.fto.jthink.j2ee.ejb.EJBTransactionFactory</factory-class>
+			 -->
+		</transaction>
+
+	</transactions>
+
+
+	<!--
+	   数据源配置，可以配置多个连接，每个连接可以连接到不同的数据库。
+	-->
+	<data-source>
+		<connection id="SAMPLE_DIRECT_DATASOURCE">
+			<connection-factory>
+				<!-- 工厂类定义 -->
+				<factory-class>org.fto.jthink.jdbc.DirectConnectionFactory</factory-class>
+				<!-- driver-class -->
+				<driver-class>org.gjt.mm.mysql.Driver</driver-class>
+				<!-- connection-url -->
+				<url>jdbc:mysql://localhost:3306/sample?useUnicode=true&amp;characterEncoding=UTF-8</url>
+				<!-- user-name -->
+				<user-name>root</user-name>
+				<!-- password -->
+				<password></password>
+				<!-- 
+				    事务隔离级别,此隔离级别需要具体JDBC驱动支持，有以下定义
+					TRANSACTION_NONE  不支持事务
+					TRANSACTION_READ_UNCOMMITTED 指示可以发生脏读 (dirty read)、不可重复读和虚读 (phantom read) 
+					TRANSACTION_READ_COMMITTED 指示不可以发生脏读的常量；不可重复读和虚读可以发生			
+					TRANSACTION_REPEATABLE_READ 指示不可以发生脏读和不可重复读的常量；虚读可以发生
+					TRANSACTION_SERIALIZABLE 指示不可以发生脏读、不可重复读和虚读的常量	
+				 -->
+				<isolation-level>TRANSACTION_READ_COMMITTED</isolation-level>
+				<!-- 是否自动提交,值：true/false,默认：false -->
+				<auto-commit>false</auto-commit>
+			</connection-factory>
+			<!-- 连接池配置　-->
+			<connection-pool>
+				<!-- 是否采用连接池管理,值有: yes, no　-->
+				<use-pool>yes</use-pool>
+				<!-- 池初始大小　-->
+				<min-pool-size>1</min-pool-size>
+				<!-- 池最大连接数量　-->
+				<max-pool-size>10</max-pool-size>
+				<!-- 池连接增量值，一次创建的连接数量　-->
+				<incremental-pool-size>3</incremental-pool-size>
+				<!-- 连接超时时间值，如果设置为0，将永远不会超时，单位：分钟　-->
+				<idle-timeout-minutes>10</idle-timeout-minutes>
+				<!-- 
+					用于验证连接是否有效的SQL，可以不提供此值, 但将不对连接进行验证
+					比如： select count(*) from authors
+				　-->
+				<check-connection-sql></check-connection-sql>
+			</connection-pool>
+			<!--SQLExecutor配置  -->
+			<sql-executor>
+				<!--SQLExecutorFactory工厂类  -->
+				<factory-class>org.fto.jthink.jdbc.DefaultSQLExecutorFactory</factory-class>
+				<config>
+					<!-- 为SQLExecutor指定一个结果集生成器，框架实现了两种类型的结果结构，一种是以xml格式结果集，以org.jdom.Element为载体，
+						构建器为：ElementResultMaker；别外是Map格式结果集，构建器为MapResultMaker，以下为指定了ResultMaker
+						的工厂类,如果不指定结果集构建器，将默认以ElementResultMaker来构建查询结果.
+						框架当前准备了以下结构构建工厂
+						org.fto.jthink.jdbc.ElementResultMakerFactory
+						org.fto.jthink.jdbc.MapResultMakerFactory
+						org.fto.jthink.jdbc.DataObjectResultMakerFactory
+					 -->
+					<result-maker>
+						<factory-class>org.fto.jthink.jdbc.ElementResultMakerFactory</factory-class>
+					</result-maker>
+					<!-- SQL执行超时时间,单位：秒, 0为不作超时处理 -->
+					<timeout>0</timeout>
+					<!-- 结果集最大行数限制,如果超过了该限制，则直接撤消多出的行 -->
+					<max-rows>0</max-rows>
+				</config>
+			</sql-executor>
+			<!-- SQLBuilder配置 -->
+			<sql-builder>
+				<!--SQLBuilderFactory工厂类  -->
+				<factory-class>org.fto.jthink.jdbc.DefaultSQLBuilderFactory</factory-class>
+			</sql-builder>
+		</connection>
+
+		<connection id="SAMPLE_JNDI_DATASOURCE">
+			<!-- 连接工厂配置 -->
+			<connection-factory>
+				<!-- 工厂类定义 -->
+				<factory-class>org.fto.jthink.jdbc.JNDIConnectionFactory</factory-class>
+				<!-- 在应用服务器中配置的数据源JNDI名称或者数据源资源引用名称 -->
+				<jndi-name>sample-mssql-datasource</jndi-name>
+				<!--是否缓存DataSoruce, 值:{yes,no}={是,否}  -->
+				<store-data-source>yes</store-data-source>
+ 			</connection-factory>
+			<!-- 连接池配置　-->
+			<connection-pool>
+				<!-- 是否采用连接池管理,如果应用服务器来管理数据源，建议在这里就不要使用连接池管理。值有: yes, no　-->
+				<use-pool>no</use-pool>
+			</connection-pool>
+			<!--SQLExecutor配置  -->
+			<sql-executor>
+				<!--SQLExecutorFactory工厂类  -->
+				<factory-class>org.fto.jthink.jdbc.DefaultSQLExecutorFactory</factory-class>
+				<config>
+					<!-- 为SQLExecutor指定一个结果集生成器，框架实现了两种类型的结果结构，一种是以xml格式结果集，以org.jdom.Element为载体，
+						构建器为：ElementResultMaker；别外是Map格式结果集，构建器为MapResultMaker，以下为指定了ResultMaker
+						的工厂类,如果不指定结果集构建器，将默认以ElementResultMaker来构建查询结果.
+						框架当前准备了以下结构构建工厂
+						org.fto.jthink.jdbc.ElementResultMakerFactory
+						org.fto.jthink.jdbc.MapResultMakerFactory
+						org.fto.jthink.jdbc.DataObjectResultMakerFactory
+					 -->
+					<result-maker>
+						<factory-class>org.fto.jthink.jdbc.ElementResultMakerFactory</factory-class>
+					</result-maker>
+				</config>
+			</sql-executor>
+			<!-- SQLBuilder配置 -->
+			<sql-builder>
+				<!--SQLBuilderFactory工厂类  -->
+				<factory-class>org.fto.jthink.jdbc.DefaultSQLBuilderFactory</factory-class>
+			</sql-builder>
+		</connection>
+
+
+	</data-source>
+
+	<!--
+	  EJB服务器配置, 如果要在当前环境中访问远程或本地EJB服务, 必须在此明确配置EJB服务器相关信息
+	  可以配置多个EJB服务器
+	-->
+	<ejb-servers>
+		<!--
+		//配置一个EJB服务器 
+		<server id="XXXX_EJB_SERVER">
+			//定位EJB服务器,在initial-context-config中描述了EJB服务器的相关信息,
+			//如果是本地服务,可以不用配置详细的initial-context-config信息
+			<initial-context-config>
+				<java.naming.provider.url></java.naming.provider.url>
+				<java.naming.factory.initial></java.naming.factory.initial>
+				<java.naming.security.principal></java.naming.security.principal>
+				<java.naming.security.credentials></java.naming.security.credentials>
+			</initial-context-config>
+			//声明如何访问EJB对象
+			<ejb-caller>
+				//用于访问EJB的工厂类, 当前在JThink中实现了三种工厂,分别是:
+				//EJB远程访问工厂:  org.fto.jthink.j2ee.ejb.EJBRemoteHomeFactory
+				//EJB本地访问工厂:  org.fto.jthink.j2ee.ejb.EJBLocalHomeFactory
+				//JThink/EJB工厂(运行于非EJB容器环境时使用此工厂): org.fto.jthink.j2ee.ejb.JThinkEJBHomeFactory
+				<factory-class></factory-class>
+				//JNDI的前缀或者资源引用名称的前缀部分,比如可以是: java:comp/env/ejb/或java:comp/env/ejb/local/
+				<jndi-prefixion></jndi-prefixion>
+				//是否缓存Home接口, 值:{yes,no}={是,否}
+				<store-home>yes</store-home>
+			</ejb-caller>	
+		</server>
+		-->
+		<!-- 本地JThink/EJB服务器, 如果配置为本地JThink/EJB服务器，必须在当前配置文件中设置数据源(data-source, 如果要访问数据库的话) -->
+		<server id="SAMPLE_EJB_SERVER">
+			<ejb-caller>
+				<factory-class>org.fto.jthink.j2ee.ejb.JThinkEJBHomeFactory</factory-class>
+				<store-home>yes</store-home>
+			</ejb-caller>	
+		</server>
+		
+		<!-- 本地EJB服务器 -->
+		<!--
+		<server id="SAMPLE_EJB_SERVER">
+			<ejb-caller>
+				<factory-class>org.fto.jthink.j2ee.ejb.EJBLocalHomeFactory</factory-class>
+				<jndi-prefixion>java:comp/env/ejb/local/</jndi-prefixion>
+				<store-home>yes</store-home>
+			</ejb-caller>	
+		</server>
+		-->
+		<!-- 远程EJB服务器,For JBosss -->
+		<!--
+		<server id="SAMPLE_EJB_SERVER">
+			<initial-context-config>
+				<java.naming.provider.url>jnp://localhost:1099</java.naming.provider.url>
+				<java.naming.factory.initial>org.jnp.interfaces.NamingContextFactory</java.naming.factory.initial>
+				<java.naming.security.principal></java.naming.security.principal>
+				<java.naming.security.credentials></java.naming.security.credentials>
+			</initial-context-config>
+			<ejb-caller>
+				<factory-class>org.fto.jthink.j2ee.ejb.EJBRemoteHomeFactory</factory-class>
+				<jndi-prefixion>java:comp/env/ejb/</jndi-prefixion>
+				<store-home>yes</store-home>
+			</ejb-caller>	
+		</server>
+		-->
+		<!-- 远程EJB服务器,For Weblogic -->
+		<!--
+		<server id="SAMPLE_EJB_SERVER">
+			<initial-context-config>
+				<java.naming.provider.url>t3://192.168.0.60:7001</java.naming.provider.url>
+				<java.naming.factory.initial>weblogic.jndi.WLInitialContextFactory</java.naming.factory.initial>
+				<java.naming.security.principal></java.naming.security.principal>
+				<java.naming.security.credentials></java.naming.security.credentials>
+			</initial-context-config>
+			<ejb-caller>
+				<factory-class>org.fto.jthink.j2ee.ejb.EJBRemoteHomeFactory</factory-class>
+				<jndi-prefixion>java:comp/env/ejb/</jndi-prefixion>
+				<store-home>yes</store-home>
+			</ejb-caller>	
+		</server>
+		-->
+		<!-- 远程EJB服务器,For Websphere -->
+		<!--
+		<server id="SAMPLE_EJB_SERVER">
+			<initial-context-config>
+				<java.naming.provider.url>IIOP://localhost:2809</java.naming.provider.url>
+				<java.naming.factory.initial>com.ibm.websphere.naming.WsnInitialContextFactory</java.naming.factory.initial>
+				<java.naming.security.principal></java.naming.security.principal>
+				<java.naming.security.credentials></java.naming.security.credentials>
+			</initial-context-config>
+			<ejb-caller>
+				<factory-class>org.fto.jthink.j2ee.ejb.EJBRemoteHomeFactory</factory-class>
+				<jndi-prefixion>java:comp/env/ejb/</jndi-prefixion>
+				<store-home>yes</store-home>
+			</ejb-caller>	
+		</server>
+		-->
+	
+	</ejb-servers>
+
+
+	<!-- 日志管理 -->
+	<log-manager>
+		<factory-class>org.fto.jthink.log.DefaultLogFactory</factory-class>
+		<!-- 与具体日志工厂相关的配置信息，对不同的日志实现，其配置可能完全不同, 以下是默认日志处理的配置信息 -->
+		<config>
+			<!-- 是否仅输出提示信息,值有: yes,no -->
+			<only-message>no</only-message>
+			<!-- 日志优先级别，主要有：FATAL,ERROR,WARN,INFO,DEBUG -->
+			<priority>DEBUG</priority>
+			<!-- 是否控制台输出日志信息,值有：yes,no -->
+			<console-output>yes</console-output>
+			<!-- 日志输出文件路径，如果不指定文件路径，将不输出日志到文件 -->
+			<log-file>test.log</log-file>
+			<!-- 日志文件的编码方式 -->
+			<log-file-encoding>gb2312</log-file-encoding>
+			<!-- 一个日志文件的最大大小，单位为(K字节)，默认为512K -->
+			<max-file-size>512</max-file-size>
+			<!-- 最多可备份的日志文件数量 -->
+			<max-backup-index>10</max-backup-index>
+			<!-- 是否异步输出日志信息到文件，值：yes,no -->
+			<asynchronism>yes</asynchronism>
+			<!-- 异步处理的时间间隔,单位(秒) -->
+			<time-interval>10</time-interval>
+
+		</config>
+
+	</log-manager>
+
+</fto-jthink>
