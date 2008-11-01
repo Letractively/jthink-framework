@@ -1,0 +1,78 @@
+
+/*
+ * DefaultSQLExecutorFactory.java	2005-7-1
+ *
+ * 版权所有: 自由思考组织(FTO)软件团队 2000-2005, 保留所有权利.
+ * 这个软件是自由思考组织(FTO)软件团队开发的，如果要使用这个软件，请首先阅读并接受许可协议。
+ *
+ * Copyright 2000-2005 FTO Software Team, Inc. All Rights Reserved.
+ * This software is the proprietary information of FTO Software Team, Inc.
+ * Use is subject to license terms.
+ *
+ * FTO站点：http://www.free-think.org
+ */
+package org.fto.jthink.jdbc;
+
+import org.fto.jthink.jdbc.SQLExecutor;
+import org.fto.jthink.jdbc.SQLExecutorFactory;
+
+
+/**
+ * 默认SQLExecutor工厂，此工厂直接创建SQLExecutor类型的实例。
+ * 
+ * <p><pre><b>
+ * 历史更新记录:</b>
+ * 2005-07-01  创建此类型
+ * 2008-08-20  增加对ResultMaker的配置支持，通过在fto-jthink.xml中配置ResultMaker来实现结果集的构建
+ * </pre></p>
+ * 
+ * 
+ * @author   wenjian
+ * @version  1.0
+ * @since    JThink 1.0
+ * 
+ */
+
+public class DefaultSQLExecutorFactory implements SQLExecutorFactory {
+
+	private String connId;
+	private JDBCTransaction transaction;
+//	private ResultMaker mker = null;
+	
+	/**
+	 * 创建DefaultSQLExecutorFactory类型的实例
+	 * 
+	 * @param transaction  JDBCTransaction事务对象
+	 * @param connId 在配置文件中配置的数据库连接ID
+	 */
+	public DefaultSQLExecutorFactory(JDBCTransaction transaction, String connId){
+		this.transaction = transaction;
+		this.connId = connId;
+		
+		/* 返回SQLExecutor的配置信息 */
+//		Element config = (Element)transaction.removeAttribute(connId);
+//		if(config!=null){
+//		  Element maker = config.getChild("result-maker");
+//		  if(maker!=null){
+//		    String factoryClass = maker.getChildTextTrim("factory-class");
+//		    Class factoryCls = ReflectHelper.forName(factoryClass);
+//		    ResultMakerFactory mackerFactory = (ResultMakerFactory)ReflectHelper.newInstance(factoryCls);
+//		    mker = mackerFactory.create();
+//		  }
+//		}
+	}
+	
+	/**
+	 * 创建并返回SQLExecutor类型的实例
+	 */
+	public SQLExecutor create() {
+	  SQLExecutor executor = new SQLExecutor(transaction, connId);
+//	  if(mker!=null){
+//	    executor.setResultMaker(mker);
+//	  }
+	  return executor;
+	}
+
+	
+	
+}
