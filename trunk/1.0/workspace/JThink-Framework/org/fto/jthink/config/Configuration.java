@@ -14,6 +14,7 @@
 package org.fto.jthink.config;
 
 import java.io.Serializable;
+import java.net.URL;
 
 import org.fto.jthink.exception.JThinkRuntimeException;
 import org.fto.jthink.util.XMLHelper;
@@ -26,6 +27,8 @@ import org.jdom.Element;
  * <p>
  * <pre><b>历史更新记录:</b>
  * 2005-07-16  创建此类型
+ * 2008-11-03  增加静态方法：getConfiguration(),configure()方法
+ * 2008-11-03  增加静态代码块，从资源根位置装载fto-jthink.xml配置文件
  * </pre>
  * </p>
  * 
@@ -42,7 +45,49 @@ public class Configuration implements Serializable {
   private Element configEL;
   
   private static Configuration cfg = null;
+  
+  /**
+   * 初始化配置文件
+   * @param cfgurl fto-jthink.xml配置文件URL
+   */
+  public synchronized static void configure(URL cfgurl){
+    cfg = new Configuration(XMLHelper.load(cfgurl));
+  }
 
+  /**
+   * 初始化配置文件
+   * @param cfgfilename fto-jthink.xml配置文件名
+   */
+  public synchronized static void configure(String cfgfilename){
+    cfg = new Configuration(XMLHelper.load(cfgfilename));
+  }
+  
+  /* 从资源根位置装载fto-jthink.xml配置文件 */
+  static{
+    if(cfg==null){
+      URL cfgurl = Class.class.getResource("/fto-jthink.xml");
+      if(cfgurl==null){
+        System.err.println("Cannot find \"fto-jthink.xml\", at root location.");
+      }else{
+        cfg = new Configuration(XMLHelper.load(cfgurl));
+      }
+    }
+  }
+  
+  
+  /**
+   * 返回fto-jthink.xml配置
+   * @return
+   */
+  public synchronized static Configuration getConfiguration(){
+    if(cfg==null){
+      throw new JThinkRuntimeException("还没有正确配置,fto-jthink.xml文件没有找到！");
+    }
+    return cfg;
+  }
+
+  
+  
 	/**
 	 * 创建Configuration类型的对象, 输入参数为配置文件fto-jthink.xml,包含全路径。
 	 * 
@@ -52,16 +97,6 @@ public class Configuration implements Serializable {
 		configEL = XMLHelper.load(configFile);
 	}
 
-	/**
-	 * 返回fto-jthink.xml配置
-	 * @return
-	 */
-	public static Configuration getConfiguration(){
-	  if(cfg==null){
-	    throw new JThinkRuntimeException("还没有正确配置,fto-jthink.xml文件没有找到！");
-	  }
-	  return cfg;
-	}
 	
 	/**
 	 * 创建Configuration类型的对象, 输入参数为配置文件fto-jthink.xml的org.jdom.Element对象形式。
