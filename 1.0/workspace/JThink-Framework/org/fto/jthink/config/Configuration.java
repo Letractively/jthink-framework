@@ -15,6 +15,7 @@ package org.fto.jthink.config;
 
 import java.io.Serializable;
 
+import org.fto.jthink.exception.JThinkRuntimeException;
 import org.fto.jthink.util.XMLHelper;
 import org.jdom.Element;
 
@@ -39,6 +40,8 @@ public class Configuration implements Serializable {
 
   private static final long serialVersionUID = -5068628861863428715L;
   private Element configEL;
+  
+  private static Configuration cfg = null;
 
 	/**
 	 * 创建Configuration类型的对象, 输入参数为配置文件fto-jthink.xml,包含全路径。
@@ -50,6 +53,17 @@ public class Configuration implements Serializable {
 	}
 
 	/**
+	 * 返回fto-jthink.xml配置
+	 * @return
+	 */
+	public static Configuration getConfiguration(){
+	  if(cfg==null){
+	    throw new JThinkRuntimeException("还没有正确配置,fto-jthink.xml文件没有找到！");
+	  }
+	  return cfg;
+	}
+	
+	/**
 	 * 创建Configuration类型的对象, 输入参数为配置文件fto-jthink.xml的org.jdom.Element对象形式。
 	 * 
 	 * @param configEL 配置文件fto-jthink.xml的org.jdom.Element对象形式
@@ -58,6 +72,8 @@ public class Configuration implements Serializable {
 		this.configEL = configEL;
 	}
 
+	
+	
 	/**
 	 * 返回JThink的配置信息。
 	 * 
