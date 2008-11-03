@@ -92,7 +92,7 @@
 				<user-name>sa</user-name>
 				<!-- password -->
 				<password>megajoy</password>
-				<isolation-level>TRANSACTION_SERIALIZABLE</isolation-level>
+				<isolation-level>TRANSACTION_READ_COMMITTED</isolation-level>
 			</connection-factory>
 			<!-- 连接池配置　-->
 			<connection-pool>
