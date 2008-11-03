@@ -22,8 +22,7 @@ JThink-Framework是由自由思考组织(Free Think Organization - FTO)开发的
  * 
  * 4. “JThink”、“JThink-Framework”、“自由思考组织、“Free Think Organization”
  *    “FTO”等名称在没有受权的情况下不能用在商业性质的书籍、报刊、杂志或其它文档上。
- *    如果确实要使用，需要取得许可，请联系到 wjian@free-think.org 或 
- *    try_wen@yahoo.com.cn。
+ *    如果确实要使用，需要取得许可，请联系到 try.jiwen@gmail.com 
  * 
  * 5. 最终用户或其它用户在使用此产品过程中发现的问题，不保证能及时给予解决。由此
  *    造成的经济损失或其它损失应由用户自行承担。
