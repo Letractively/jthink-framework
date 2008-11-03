@@ -100,9 +100,10 @@
 					<result-maker>
 						<factory-class>org.fto.jthink.jdbc.ElementResultMakerFactory</factory-class>
 					</result-maker>
-					<!-- SQL执行超时时间,单位：秒, 0为不作超时处理 -->
+					<!-- SQL执行超时时间,单位：秒。 0为不作超时处理 -->
 					<timeout>0</timeout>
-					<!-- 结果集最大行数限制,如果超过了该限制，则直接撤消多出的行 -->
+						<!-- 结果集最大行数限制,如果超过了该限制，则直接撤消多出的行,这样可以防
+					      止由于程序设计缺陷，导致返回上万条结果使内存溢出的情况。 0表式不作撤消处理 -->
 					<max-rows>0</max-rows>
 				</config>
 			</sql-executor>
