@@ -15,6 +15,7 @@ package org.fto.jthink.resource;
 
 import java.util.*;
 
+import org.fto.jthink.config.Configuration;
 import org.fto.jthink.context.ApplicationContext;
 
 
@@ -26,9 +27,14 @@ import org.fto.jthink.context.ApplicationContext;
  *
  * <p>注意：一个资源管理器不要跨越多个线程使用，否则有可能会出现意想不到的问题。</p>
  *
- * @author   wenjian, wenjian@free-think.org
+ * <p>
+ * 历史更新记录:<BR>
+ * 2005-06-24  创建此类型
+ * </p>
+ *
+ * @author   wenjian
  * @version  1.00
- * @since    JASF 1.0
+ * @since    JThink 1.0
  */
 
 public class ResourceManager {
@@ -48,7 +54,11 @@ public class ResourceManager {
 		/* 加入应用程序全局资源容器 */
 		setResourceContainer(ApplicationContext.class.getName(), ApplicationContext.getApplicationContext());
 		
+		//Configuration config = Configuration.getConfiguration();
+		
 	}
+	
+	
 	
 	/**
 	 * 设置资源容器

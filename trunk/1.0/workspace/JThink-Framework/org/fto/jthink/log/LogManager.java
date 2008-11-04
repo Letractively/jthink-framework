@@ -56,10 +56,19 @@ public class LogManager {
 	 * @return 日志工厂
 	 */
 	public static LogFactory getLogFactory(){
-		if(logFactory==null){
-			logFactory = new DefaultLogFactory(null);
+		if(logFactory!=null){
+		  return logFactory;
 		}
-		return logFactory;
+	  Configuration config = null;
+	  try{
+	    config = Configuration.getConfiguration();
+	  }catch(Exception e){}
+	  if(config==null){
+	    return new DefaultLogFactory(null);
+	  }else{
+	    configure(config);
+	    return logFactory;
+	  }
 	}
 
 	/**

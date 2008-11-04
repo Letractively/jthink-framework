@@ -95,6 +95,7 @@ public class Configuration implements Serializable {
 	 */
 	public Configuration(String configFile) {
 		configEL = XMLHelper.load(configFile);
+		cfg = this;
 	}
 
 	
@@ -105,6 +106,7 @@ public class Configuration implements Serializable {
 	 */
 	public Configuration(Element configEL) {
 		this.configEL = configEL;
+		cfg = this;
 	}
 
 	

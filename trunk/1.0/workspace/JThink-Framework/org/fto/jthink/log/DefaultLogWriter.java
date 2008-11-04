@@ -12,15 +12,19 @@
  */
 package org.fto.jthink.log;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.fto.jthink.config.Configuration;
-import org.fto.jthink.io.SmartAccessFile;
 import org.jdom.Element;
 
 /**
@@ -39,8 +43,7 @@ import org.jdom.Element;
  */
 class DefaultLogWriter extends Thread{
 	
-	/* 用于缓存日志信息的池 */
-	private List logPool = new LinkedList();
+
 	/* 是否在控制台输出日志信息, 在配置文件中设置 */
 	private boolean consoleOutput = true;
 	/* 日志输出文件名称, 在配置文件中设置 */
@@ -55,6 +58,11 @@ class DefaultLogWriter extends Thread{
 	private boolean asynchronism = false;
 	/* 异步处理的时间间隔, 在配置文件中设置 */
 	private int timeinterval = 1000;
+	/* 异步处理,一批日志最大数量 */
+	private int batchMaxCount=100;
+  /* 用于缓存日志信息的池 */
+  //private List logPool = new LinkedList(batchMaxCount);
+	private List logPool = new ArrayList(batchMaxCount);
 	
 	/**
 	 * 创建DefaultLogWriter的实例
@@ -95,6 +103,8 @@ class DefaultLogWriter extends Thread{
 			absoluteLogfileName = null;
 		}
 		
+    /* 系统退出进事件 */
+    Runtime.getRuntime().addShutdownHook(new ExitEvent(this));
 	}
 
 	/**
@@ -115,7 +125,7 @@ class DefaultLogWriter extends Thread{
 		if(consoleOutput){
 			writeLogToConsole(priority, message, t);
 		}
-		if(asynchronism){
+		if(asynchronism && logPool.size()<batchMaxCount){
 			logPool.add(0, new Object[]{priority, message, t});
 		}else{
 			writeLogToFile(priority, message, t);
@@ -149,18 +159,25 @@ class DefaultLogWriter extends Thread{
 		
 		ByteArrayOutputStream baostream = batchConnectLogs(logsCount);
 	
-  	SmartAccessFile logfile=null;
+  	//SmartAccessFile logfile=null;
+  	//BufferedWriter writer;
+  	BufferedOutputStream out=null;
     try {
-    	logfile = new SmartAccessFile(absoluteLogfileName, "a");
+      //writer = new BufferedWriter(new FileWriter(absoluteLogfileName,true));
+    	//logfile = new SmartAccessFile(absoluteLogfileName, "a");
+      out = new BufferedOutputStream(new FileOutputStream(absoluteLogfileName, true));
+      
+    	//logfile.append(baostream.toByteArray());
+      //writer.append(baostream.toByteArray());
+      out.write(baostream.toByteArray());
     	
-    	logfile.append(baostream.toByteArray());
-    	
+      out.flush();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally{
-			if(logfile!=null){
+			if(out!=null){
 				try {
-					logfile.close();
+				  out.close();
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -216,24 +233,30 @@ class DefaultLogWriter extends Thread{
 	 * 在日志输出文件中打印日志信息
 	 */
 	private void writeLogToFile(Priority priority, String message, Throwable t){
-
     /* 在日志输出文件中打印日志信息 */
     if(absoluteLogfileName!=null){
     	ByteArrayOutputStream os = null;
     	PrintStream ps = null;
-    	SmartAccessFile logfile=null;
+    	//SmartAccessFile logfile=null;
+    	BufferedOutputStream out=null;
 	    try {
-	    	logfile = new SmartAccessFile(absoluteLogfileName, "a");
+	      out = new BufferedOutputStream(new FileOutputStream(absoluteLogfileName, true));
+	    	//logfile = new SmartAccessFile(absoluteLogfileName, "a");
 	    	
-	    	logfile.append(message.getBytes(logfileencoding));
-	    	logfile.append(new byte[]{13,10});
+	    	out.write(message.getBytes(logfileencoding));
+	    	out.write(new byte[]{13,10});
+	    	
+	    	//logfile.append(message.getBytes(logfileencoding));
+	    	//logfile.append(new byte[]{13,10});
+	    	
 	    	if(t!=null){
 		    	os = new ByteArrayOutputStream();
 //		    	ps = new PrintStream(os, true, logfileencoding);
 		    	ps = new PrintStream(os, true);
 		    	t.printStackTrace(ps);
-		    	logfile.append(os.toString().getBytes(logfileencoding));
+		    	out.write(os.toString().getBytes(logfileencoding));
 	    	}
+	    	out.flush();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}finally{
@@ -247,9 +270,9 @@ class DefaultLogWriter extends Thread{
 						e1.printStackTrace();
 					}
 				}
-				if(logfile!=null){
+				if(out!=null){
 					try {
-						logfile.close();
+					  out.close();
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -310,6 +333,25 @@ class DefaultLogWriter extends Thread{
 			}
 		}
 
-
+  /**
+   *  程序退出时事件代码
+   */
+  class ExitEvent
+      extends Thread{
+    DefaultLogWriter writer;
+    public ExitEvent(DefaultLogWriter writer){
+      this.writer=writer; 
+      this.setDaemon(true);
+    }
+    public void run(){
+      try{
+        writer.synchronize();
+      }
+      catch(Exception ex){
+        ex.printStackTrace();
+        writer.write(Priority.WARN, ex.getMessage(), ex);
+      }
+    }
+  } 
 	}
 	
