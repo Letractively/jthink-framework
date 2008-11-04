@@ -156,6 +156,10 @@ public class ConnectionPool {
 	 * 关闭连接池
 	 */
 	public synchronized static void closeConnectionPool(){
+	  if(poolsHM==null || poolsHM.size()==0){
+	    /* 连接池已经被关闭 */
+	    return;
+	  }
 		logger.debug("关闭数据库连接池.");
     releasePoolConnections();
     poolsHM.clear();
@@ -163,7 +167,6 @@ public class ConnectionPool {
 		  idleTimeoutProcessor.close();
 			idleTimeoutProcessor = null;
 		}
-
 	}
 	
 	
@@ -613,8 +616,8 @@ public class ConnectionPool {
 	      ConnectionPool.closeConnectionPool();
 	    }
 	    catch(Exception ex){
-	      logger.warn(ex.getMessage(), ex);
 	      ex.printStackTrace();
+	      logger.warn(ex.getMessage(), ex);
 	    }
 	  }
 	}	

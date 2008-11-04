@@ -225,10 +225,9 @@ public class DefaultLogger implements Logger {
 	 * @param t Throwable的实例或其子类型的实例
 	 */
 	public void log(Priority priority, Object message, Throwable t) {
-		if(priority!=null && priority.getLevel()<cfgPriority.getLevel()){
+		if(priority!=null && cfgPriority!=null && priority.getLevel()<cfgPriority.getLevel()){
 			return;
 		}
-
     StringBuffer sb=new StringBuffer();
     if(onlyMessge==false){
   		String currentTime = "["+DateTimeHelper.formatDateTimetoString(DateTimeHelper.getSystemDate(), DateTimeHelper.FMT_yyyyMMddHHmmssS)+"]";
@@ -247,7 +246,9 @@ public class DefaultLogger implements Logger {
     	sb.append("null");
     }
     /* 写日志信息 */
-    logWriter.write(priority, sb.toString(), t);
+    if(logWriter!=null){
+      logWriter.write(priority, sb.toString(), t);
+    }
 
 	}
 
@@ -255,7 +256,9 @@ public class DefaultLogger implements Logger {
 	 * 同步所有日志信息的输出, 将其输出到文件或其它设备
 	 */
 	public void synchronize(){
-		logWriter.synchronize();
+	  if(logWriter!=null){
+	    logWriter.synchronize();
+	  }
 	}
 	
 	

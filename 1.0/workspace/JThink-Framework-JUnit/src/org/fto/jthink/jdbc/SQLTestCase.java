@@ -46,7 +46,7 @@ public class SQLTestCase extends TestCase {
         try {
           sender.sendMessage((Map)msgsHM.clone()); //发送留言
         } catch (Exception e) {
-          e.printStackTrace();
+          logger.error("发送留言异常，"+e.getMessage(), e);
         }
         msgsHM = new HashMap();
         msgsHM.put("Subject","日志问题,ID:"+Math.random());
@@ -58,24 +58,24 @@ public class SQLTestCase extends TestCase {
         msgsMaps[1] = msgsHM;
         try {
           sender.sendMessage((Map)msgsHM.clone()); //发送留言
-        } catch (Exception e1) {
-          e1.printStackTrace();
+        } catch (Exception e) {
+          logger.error(e.getMessage(), e);
         }
         try {
           sender.batchSendMessages(msgsMaps); //发送留言
-        } catch (Exception e1) {
-        e1.printStackTrace();
+        } catch (Exception e) {
+          logger.error(e.getMessage(), e);
         }  
         
         try {
           sender.modiMessage(msgsHM, "101"); //修改留言
-        } catch (Exception e1) {
-        e1.printStackTrace();
+        } catch (Exception e) {
+          logger.error(e.getMessage(), e);
         }  
         try {
           sender.deleteMessage("101"); //删除留言
-        } catch (Exception e1) {
-        e1.printStackTrace();
+        } catch (Exception e) {
+          logger.error(e.getMessage(), e);
         }  
 //        try{
 //          Thread.sleep(1000*60*3);

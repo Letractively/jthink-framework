@@ -26,7 +26,7 @@
 	<data-source>
 	
 		<!-- 连接到mssql数据库 -->
-		<connection id="SampleDataSource">
+		<connection id="SampleDataSource_bak">
 			<connection-factory>
 				<!-- 工厂类定义 -->
 				<factory-class>org.fto.jthink.jdbc.DirectConnectionFactory</factory-class>
@@ -134,7 +134,7 @@
 			</sql-builder>
 		</connection>
 		<!-- 连接到hsql数据库 -->
-		<connection id="SampleDataSource_bak">
+		<connection id="SampleDataSource">
 			<connection-factory>
 				<!-- 工厂类定义 -->
 				<factory-class>org.fto.jthink.jdbc.DirectConnectionFactory</factory-class>
