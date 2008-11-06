@@ -277,12 +277,15 @@ public class DefaultJDBCTransaction implements JDBCTransaction {
 	    	}else{
 	    	  conn.setAutoCommit(false);
 	    	}
+	    	if(openedConnsHM.containsKey(connId)){
+	    	  throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_DB_CANNOT_GET_CONNECTION, "在同一事务中此连接被重复创建! Connection id is "+connId);
+	    	}
 	      openedConnsHM.put(connId, conn);
 	    }
 	    
 	    /* 如果连接无效，抛异常 */
     	if(conn.isClosed()){
-    		throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_DB_CANNOT_GET_CONNECTION, "此连接已经被关闭! Connection is "+connId);
+    		throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_DB_CANNOT_GET_CONNECTION, "此连接已经被关闭! Connection id is "+connId);
     	}
 	    return conn;
 	    
@@ -514,6 +517,7 @@ public class DefaultJDBCTransaction implements JDBCTransaction {
     }
     
     try{
+      boolean status = true;
     	Iterator keysIT = openedConnsHM.keySet().iterator();
 	    while(keysIT.hasNext()){
 	    	String connId = (String)keysIT.next();
@@ -521,12 +525,14 @@ public class DefaultJDBCTransaction implements JDBCTransaction {
 	    	if(useConnectionPool(connId)){
 	    		ConnectionPool connPool = ConnectionPool.getConnectionPool(connId);
 	    		/* 将活动连接返回到连接池 */
-	    		if(connPool!=null){
+	    		if(connPool!=null && connPool.contains(conn)){
 	    		  connPool.returnConnection(conn);
+	    		}else{
+	    		  status = status && closeConnection(conn);
 	    		}
 	    	}else{
 		      /* 释放连接 */
-		      conn.close();
+	    	  status = status && closeConnection(conn);
 	    	}
 	    }
     }catch(JThinkRuntimeException e){
@@ -538,6 +544,15 @@ public class DefaultJDBCTransaction implements JDBCTransaction {
     }
 	}
 
+	private boolean closeConnection(Connection conn){
+	  try{
+	    conn.close();
+	    return true;
+    }catch(Exception e){
+      return false;
+    }
+	}
+	
 	/**
 	 * 设置事务提交方式
 	 * 
