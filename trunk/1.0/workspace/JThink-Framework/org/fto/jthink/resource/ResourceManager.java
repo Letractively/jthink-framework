@@ -17,6 +17,8 @@ import java.util.*;
 
 import org.fto.jthink.config.Configuration;
 import org.fto.jthink.context.ApplicationContext;
+import org.fto.jthink.transaction.DefaultTransactionManager;
+import org.fto.jthink.transaction.TransactionManager;
 
 
 
@@ -54,8 +56,24 @@ public class ResourceManager {
 		/* 加入应用程序全局资源容器 */
 		setResourceContainer(ApplicationContext.class.getName(), ApplicationContext.getApplicationContext());
 		
-		//Configuration config = Configuration.getConfiguration();
-		
+//		Configuration config = Configuration.getConfiguration();
+		/* 设置资源 */
+//		/* 基本配置信息 */
+//		setResource(ApplicationContext.class.getName(), Configuration.class.getName(), config);
+//		/* 事务 */
+//    if(getResource(TransactionManager.class.getName())==null){
+//      /* 设置资源, 初始化事务管理器, 将TransactionManager加入到ResourceManager中 */
+//      //logger.debug("初始化事务管理器, TransactionManager.");
+//      TransactionManager transactionManager = new DefaultTransactionManager(this, config);
+//      setResource(TransactionManager.class.getName(), transactionManager);
+//      
+//      // 加入WEB端事务到事务管理器
+//      //logger.debug("初始化Web端事务, WebTransaction.");
+//      TransactionFactory transactionFactory = transactionManager.getTransactionFactory("WebTransaction");
+//      JDBCTransaction transaction  = (JDBCTransaction)transactionFactory.create();
+//      transactionManager.addTransaction(JDBCTransaction.class.getName(), transaction);
+//      
+//    }
 	}
 	
 	

@@ -435,6 +435,20 @@ public class ConnectionPool {
 		}
 	}
 
+  /**
+   * 检查连接池中是否包含指定的连接
+   */
+  public synchronized boolean contains(Connection conn) {
+    Iterator connsIT = conns.iterator();
+    while(connsIT.hasNext()){
+      PooledConnection pConn = (PooledConnection)connsIT.next();
+      if(pConn.getConnection()==conn){
+        return true;
+      }
+    }
+    return false;
+  }
+	
 	/**
 	 * 返回当前连接池所有连接数量
 	 */

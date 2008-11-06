@@ -92,7 +92,7 @@ public final class ApplicationContext implements ResourceContainer {
 	 * 
 	 * @see org.fto.jthink.resource.ResourceContainer#getAttribute(java.lang.String)
 	 */
-	public Object getAttribute(String name) {
+	public synchronized Object getAttribute(String name) {
 		if (name == null){
 			throw new IllegalArgumentException(
 					"The name of an attribute cannot be null.");
@@ -125,7 +125,7 @@ public final class ApplicationContext implements ResourceContainer {
 	 * @see org.fto.jthink.resource.ResourceContainer#getAttributeNames()
 	 * @see java.util.Enumeration
 	 */
-	public Enumeration getAttributeNames() {
+	public synchronized Enumeration getAttributeNames() {
 		return EnumerationHelper.toEnumerator(resourcesHM.keySet().iterator());
 	}
 
