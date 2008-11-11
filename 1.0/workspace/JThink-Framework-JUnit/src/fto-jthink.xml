@@ -9,13 +9,13 @@
 		<transaction id="SampleTransaction">
 			<factory-class>org.fto.jthink.jdbc.DefaultJDBCTransactionFactory</factory-class>
 		</transaction>
-		<transaction id="SampleTransaction_bak">
+		<transaction id="JTASampleTransaction">
 			<factory-class>org.fto.jthink.j2ee.ejb.JTATransactionFactory</factory-class>
 			<config>
 				<timeout>50</timeout>
 			</config>
 		</transaction>
-		<transaction id="SampleTransaction_bak">
+		<transaction id="CMTSampleTransaction">
 			<factory-class>org.fto.jthink.j2ee.ejb.EJBContainerTransactionFactory</factory-class>
 		</transaction>
 	</transactions>

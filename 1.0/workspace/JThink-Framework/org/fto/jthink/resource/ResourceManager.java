@@ -15,10 +15,17 @@ package org.fto.jthink.resource;
 
 import java.util.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.fto.jthink.config.Configuration;
 import org.fto.jthink.context.ApplicationContext;
+import org.fto.jthink.j2ee.web.HttpRequest;
+import org.fto.jthink.j2ee.web.HttpSession;
+import org.fto.jthink.j2ee.web.WEBApplicationContext;
 import org.fto.jthink.transaction.DefaultTransactionManager;
+import org.fto.jthink.transaction.TransactionFactory;
 import org.fto.jthink.transaction.TransactionManager;
+import org.jdom.Element;
 
 
 
@@ -47,36 +54,70 @@ public class ResourceManager {
 	 */
 	private Map resContainersHM = new HashMap();
 	
+	private static String thisResContainerName = ThisResourceContainer.class.getName();
+	
 	/**
-	 * 构造方法
+	 * 构造方法, 初始化当前资源容器，全局静态资源容器ApplicationContext,和事务工厂
 	 */
 	public ResourceManager(){
 		/* 加入当前资源容器 */
-		setResourceContainer(ThisResourceContainer.class.getName(), new ThisResourceContainer());
+		setResourceContainer(thisResContainerName, new ThisResourceContainer());
 		/* 加入应用程序全局资源容器 */
 		setResourceContainer(ApplicationContext.class.getName(), ApplicationContext.getApplicationContext());
-		
-//		Configuration config = Configuration.getConfiguration();
-		/* 设置资源 */
-//		/* 基本配置信息 */
-//		setResource(ApplicationContext.class.getName(), Configuration.class.getName(), config);
-//		/* 事务 */
-//    if(getResource(TransactionManager.class.getName())==null){
-//      /* 设置资源, 初始化事务管理器, 将TransactionManager加入到ResourceManager中 */
-//      //logger.debug("初始化事务管理器, TransactionManager.");
-//      TransactionManager transactionManager = new DefaultTransactionManager(this, config);
-//      setResource(TransactionManager.class.getName(), transactionManager);
-//      
-//      // 加入WEB端事务到事务管理器
-//      //logger.debug("初始化Web端事务, WebTransaction.");
-//      TransactionFactory transactionFactory = transactionManager.getTransactionFactory("WebTransaction");
-//      JDBCTransaction transaction  = (JDBCTransaction)transactionFactory.create();
-//      transactionManager.addTransaction(JDBCTransaction.class.getName(), transaction);
-//      
-//    }
+
+		/* 事务 */
+    if(getResource(TransactionManager.class.getName())==null){
+      Configuration config = Configuration.getConfiguration();
+      /* 设置资源, 初始化事务管理器, 将TransactionManager加入到ResourceManager中 */
+      TransactionManager transactionManager = new DefaultTransactionManager(this, config);
+      setResource(TransactionManager.class.getName(), transactionManager);
+      
+      /* 设置资源，初始化事务工厂 */
+      Element transactions = config.getConfig().getChild("transactions");
+      if(transactions!=null){
+        Iterator transactionsIT = transactions.getChildren().iterator();
+        while(transactionsIT.hasNext()){
+          Element transaction = (Element)transactionsIT.next();
+          /* 创建事务工厂 */
+          transactionManager.getTransactionFactory(transaction.getAttributeValue("id"));
+        }
+      }
+    }
 	}
 	
-	
+	/**
+	 * 构造方法, 初始化WEBApplicationContext,HttpRequest，HttpSession等, 它们即是资源容器，也是资源,
+	 * 可以用以下方法返回此资源：<br>
+	 * getResource(WEBApplicationContext.class.getName())<br>
+	 * getResource(HttpSession.class.getName())<br>
+	 * getResource(HttpRequest.class.getName())<br>
+	 * 
+	 * @param req 标准HTTP请求
+	 */
+	public ResourceManager(HttpServletRequest req){
+	  this();
+    WEBApplicationContext webContext = new WEBApplicationContext(req.getSession().getServletContext());
+
+    /* 设置资源容器, WEBApplicationContext上下文 */
+    setResourceContainer(WEBApplicationContext.class.getName(), webContext);
+
+    /* 设置资源容器, HttpSession用户会话 */
+    HttpSession session = new HttpSession(((HttpServletRequest)req).getSession());
+    setResourceContainer(HttpSession.class.getName(), session);
+    
+    /* 设置资源容器, HttpRequest请求 */
+    HttpRequest request = new HttpRequest(req);
+    setResourceContainer(HttpRequest.class.getName(), request);
+    
+    /* 设置资源, WEBApplicationContext */
+    setResource(WEBApplicationContext.class.getName(), webContext);
+    
+    /* 设置资源, HttpSession */
+    setResource(HttpSession.class.getName(), session);
+    
+    /* 设置资源, HttpRequest */
+    setResource(HttpRequest.class.getName(), request);     
+ 	}
 	
 	/**
 	 * 设置资源容器
@@ -132,7 +173,7 @@ public class ResourceManager {
 					"The name of an resource cannot be null.");
 		}
 
-		setResource(ThisResourceContainer.class.getName(), name, resource);
+		setResource(thisResContainerName, name, resource);
 	}
 	
 	/**
@@ -167,7 +208,7 @@ public class ResourceManager {
 	 * @return 资源
 	 */
 	public Object getResource(String name){
-		return getResource(ThisResourceContainer.class.getName(), name);
+		return getResource(thisResContainerName, name);
 	}
 	
 	/**
@@ -201,7 +242,7 @@ public class ResourceManager {
 	 * 
 	 */
 	public Object removeResource(String name) {
-		return removeResource(ThisResourceContainer.class.getName(), name);
+		return removeResource(thisResContainerName, name);
 	}
 	/**
 	 * 移除资源
