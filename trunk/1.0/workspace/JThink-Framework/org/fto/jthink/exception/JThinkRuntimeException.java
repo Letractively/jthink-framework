@@ -142,11 +142,11 @@ public class JThinkRuntimeException extends RuntimeException {
 	  }
 
 	  /**
-	   * 返回实际的异常对象,如果没有,返回null
+	   * 返回实际的异常对象,如果没有,返回自己
 	   * 
 	   */
     public Throwable getCause() {
-      return detail;
+      return detail==null?this:detail;
     }
 
 	  /**
