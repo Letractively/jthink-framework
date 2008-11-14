@@ -65,7 +65,7 @@ public class Configuration implements Serializable {
   /* 从资源根位置装载fto-jthink.xml配置文件 */
   static{
     if(cfg==null){
-      URL cfgurl = Class.class.getResource("/fto-jthink.xml");
+      URL cfgurl = Configuration.class.getResource("/fto-jthink.xml");
       if(cfgurl==null){
         System.err.println("WARN:Cannot find \"fto-jthink.xml\", at root location.");
       }else{
