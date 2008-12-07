@@ -126,6 +126,22 @@ public class RandomHelper {
     return rands;
   }
   
+  /**
+   * 返回两个数之间的随机数, 范围可以为负数
+   */
+  public static double randomDouble(int start, int end){
+    if(start>end){
+    	int t = start;
+    	start = end;
+    	end = t;
+    }
+    long scope = ((long)end-(long)start);
+    return rnGenerator.nextDouble()*scope+start;
+  }
+  
+  
+  
+  
   private RandomHelper(){}
   private static Random rnGenerator;
   static {
