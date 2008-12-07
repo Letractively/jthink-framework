@@ -52,29 +52,29 @@ public class HsqlSQLExecutor extends SQLExecutor {
 
   /**
    * 执行查询操作的SQL，比如：Select等操作, 用此查询方法可实现数据分页。
-   *
-   * @param sql          			 查询操作的SQL串
-   * @param values						 值对象数组,用于填充SQL中的“?”
-   * @param startIndex        选择出的结果集的行开始索引
-   * @param rowlen            选择出的结果集的行数
-   *
-   * @return   结果集               
-   *
+   * 此方法必须要在实际应用中根据具体数据库在此类的子类型中覆盖，以便实现分页功能
+   * 
+   * @param sql 查询操作的SQL语句
+   * @param values 值数组,用于替换SQL语句中的?, values可以为null对象
+   * @param startIndex 结果集的开始索引位置
+   * @param rowlen 需要选择出的结果集的长度
+   * @param doClazz 数据对象类型，只有采用DataObjectResultMaker时此参数才有意义
+   * 
+   * @return 结果集, 结果集的数据结构由ResultMaker来决定
    */
-	public Object executeQuery(String sql, Object[] values, int startIndex, int rowlen)  {
-			
+  public Object executeQuery(String sql, Object[] values, int startIndex, int rowlen, Class doClazz)  {
     PreparedStatement pstmt = null;
     ResultSet rs = null;
     try {
-    	executeCommand(sql, values, SQL.SELECT);
+      executeCommand(sql, values, SQL.SELECT);
       pstmt = prepareStatement(sql);
       if(values!=null){
-				for (int i = 0; i < values.length; i++) {
-					pstmt.setObject(i + 1, values[i]);
-				}
+        for (int i = 0; i < values.length; i++) {
+          pstmt.setObject(i + 1, values[i]);
+        }
       }
       rs = pstmt.executeQuery();
-      return getResultMaker().create(rs);
+      return getResultMaker().create(rs, doClazz);
     }
     catch (SQLException ex) {
       throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_DB_EXEC_SQL_EXCEPTION, ex);
@@ -83,5 +83,6 @@ public class HsqlSQLExecutor extends SQLExecutor {
       releaseResultSet(rs);
       releasePreparedStatement(pstmt);
     }
-	}
+  }
+  
 }

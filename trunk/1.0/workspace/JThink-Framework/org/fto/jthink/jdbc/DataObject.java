@@ -50,6 +50,19 @@ public abstract class DataObject implements java.io.Serializable {
   /** 表名称 */
   protected String tableName=null;
   
+  /** 断言在DataObject中使用的字段名称大小写与数据库中的字段名称是一致的 */
+  protected boolean fieldNameCoincident=true;
+  
+  /**
+   * 设置DataObject中使用的字段名称大小写与数据库中(返回结果集)的字段名称是否一致的,如果是不致的，请
+   * 设置flag为false，默认true。主要是为了解决有些数据库会将所有的字段名自动变换成大小或小写形式。
+   * 
+   * @param flag
+   */
+  public void setFieldNameCoincident(boolean flag){
+    fieldNameCoincident = flag;
+  }
+  
   /**
    * 返回表名称
    */
@@ -101,7 +114,8 @@ public abstract class DataObject implements java.io.Serializable {
    * @param fieldName 字段名称
    */
   public String get(String fieldName) {
-    return (String)values.get(fieldName.toUpperCase());
+    
+    return (String)values.get(fieldNameCoincident?fieldName:fieldName.toUpperCase());
   }
   /**
    * 设置字段值
@@ -109,7 +123,7 @@ public abstract class DataObject implements java.io.Serializable {
    * @param value 字段值
    */
   public void set(String fieldName, String value) {
-    values.put(fieldName.toUpperCase(), value);
+    values.put(fieldNameCoincident?fieldName:fieldName.toUpperCase(), value);
   }
   /**
    * 以Map结构返回字段和值
@@ -122,7 +136,7 @@ public abstract class DataObject implements java.io.Serializable {
    * @param fieldName 字段名称
    */
   public boolean exist(String fieldName) {
-    return values.containsKey(fieldName.toUpperCase());
+    return values.containsKey(fieldNameCoincident?fieldName:fieldName.toUpperCase());
   }
   
   /**

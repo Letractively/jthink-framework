@@ -562,8 +562,7 @@ public class SQLExecutor {
 	 * @return 结果集, 结果集的数据结构由ResultMaker来决定
 	 */
 	public Object executeQuery(String sql, Object[] values, int startIndex, int rowlen)  {
-		throw new java.lang.UnsupportedOperationException(
-				"Method executeQuery() not yet implemented.");
+    return executeQuery(sql, values, startIndex, rowlen, null);
 	}
 
   /**
