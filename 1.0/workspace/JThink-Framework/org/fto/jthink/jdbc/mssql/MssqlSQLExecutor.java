@@ -58,11 +58,12 @@ public class MssqlSQLExecutor extends SQLExecutor {
    * @param values						 值对象数组,用于填充SQL中的“?”
    * @param startIndex        选择出的结果集的行开始索引
    * @param rowlen            选择出的结果集的行数
+   * @param doClazz           数据对象类型，只有采用DataObjectResultMaker时此参数才有意义
    *
    * @return   结果集               
    *
    */
-	public Object executeQuery(String sql, Object[] values, int startIndex, int rowlen) {
+	public Object executeQuery(String sql, Object[] values, int startIndex, int rowlen, Class doClazz) {
     PreparedStatement pstmt = null;
     ResultSet rs = null;
     try {
@@ -74,7 +75,7 @@ public class MssqlSQLExecutor extends SQLExecutor {
 				}
       }
       rs = pstmt.executeQuery();
-      return getResultMaker().create(rs, startIndex, rowlen);
+      return getResultMaker().create(rs, doClazz, startIndex, rowlen);
     }
     catch (SQLException ex) {
       throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_DB_EXEC_SQL_EXCEPTION, ex);
