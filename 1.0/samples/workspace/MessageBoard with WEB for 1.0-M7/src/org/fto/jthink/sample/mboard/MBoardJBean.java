@@ -64,6 +64,8 @@ public class MBoardJBean {
 	private SQLExecutor sqlExecutor;
 	/* 用于构建SQL语句 */
 	private SQLBuilder sqlBuilder;
+  /* 在fto-jthink.xml中定义的事务ID */
+  private static final String transId = "WebTransaction";
 	/* 在fto-jthink.xml中定义的数据源连接ID */
 	private static final String connId = "SampleDataSource";
 	
@@ -89,7 +91,7 @@ public class MBoardJBean {
 		/* 返回客户请求 */
 		request = (HttpRequest)resManager.getResource(HttpRequest.class.getName());
 		/* 返回定义的JDBC事务工厂，并创建事务 */
-		transaction = (JDBCTransaction)((TransactionFactory)resManager.getResource("WebTransaction")).create();
+		transaction = (JDBCTransaction)((TransactionFactory)resManager.getResource(transId)).create();
 		/* 创建SQLExecutor */
 		sqlExecutor = transaction.getSQLExecutorFactory(connId).create();
 		/* 设置SQLExecutor监听器 */

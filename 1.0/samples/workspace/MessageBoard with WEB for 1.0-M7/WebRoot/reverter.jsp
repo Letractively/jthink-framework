@@ -14,8 +14,6 @@
 	} 
 
 	Message message = mboardJBean.getRevertInfo();
-	
-	System.out.println("revertInfo:"+message);
 %>
 <html>
 <head>
