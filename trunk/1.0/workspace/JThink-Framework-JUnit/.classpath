@@ -13,7 +13,6 @@
 	<classpathentry kind="lib" path="E:/MyWorkSpace/My Projects/JThink-Framework/1.0/workspace/lib/servlet.jar"/>
 	<classpathentry kind="lib" path="E:/MyWorkSpace/My Projects/JThink-Framework/1.0/workspace/lib/xerces.jar"/>
 	<classpathentry kind="lib" path="E:/MyWorkSpace/My Projects/JThink-Framework/1.0/workspace/lib/jdbc/mysql/mysql-connector-java-3.1.10-bin.jar"/>
-	<classpathentry kind="lib" path="E:/MyWorkSpace/My Projects/JThink-Framework/1.0/workspace/lib/jdbc/mssql/jtds-1.2.jar"/>
 	<classpathentry kind="lib" path="E:/MyWorkSpace/My Projects/JThink-Framework/1.0/workspace/lib/jdbc/hsql/hsqldb.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
