@@ -24,7 +24,6 @@ import org.fto.jthink.jdbc.Column;
 import org.fto.jthink.jdbc.Condition;
 import org.fto.jthink.jdbc.ConditionItem;
 import org.fto.jthink.jdbc.DataObject;
-import org.fto.jthink.jdbc.DefaultDataObject;
 import org.fto.jthink.jdbc.JDBCTransaction;
 import org.fto.jthink.jdbc.SQL;
 import org.fto.jthink.jdbc.SQLBuilder;
@@ -37,7 +36,6 @@ import org.fto.jthink.resource.ResourceManager;
 import org.fto.jthink.sample.mboard.po.Message;
 import org.fto.jthink.transaction.TransactionFactory;
 import org.fto.jthink.util.DateTimeHelper;
-import org.jdom.Element;
 
 
 /**
@@ -148,11 +146,11 @@ public class MBoardJBean {
 			
 			HashMap msgsHM = new HashMap();
 			msgsHM.put("ID",generateID());
-			putToHashMap(msgsHM, "Subject", request.getParameter("Subject"));
-			putToHashMap(msgsHM, "Content", request.getParameter("Content"));
-			putToHashMap(msgsHM, "Sender", request.getParameter("Sender"));
-			putToHashMap(msgsHM, "Email", request.getParameter("Email"));
-			putToHashMap(msgsHM, "Contact", request.getParameter("Contact"));
+			msgsHM.put("Subject", request.getParameter("Subject"));
+			msgsHM.put("Content", request.getParameter("Content"));
+			msgsHM.put("Sender", request.getParameter("Sender"));
+			msgsHM.put("Email", request.getParameter("Email"));
+			msgsHM.put("Contact", request.getParameter("Contact"));
 			
 			msgsHM.put("IP", request.getServletRequest().getRemoteAddr());
 			msgsHM.put("SendTime", DateTimeHelper.formatDateTimetoString(DateTimeHelper.getSystemDate()));
@@ -339,12 +337,4 @@ public class MBoardJBean {
 		return (getPageOffset()-1)*getPageRows()+i+1;
 	}
 	
-	/**
-	 * 向HashMap中压入对象，如果value等于null, 将被忽略
-	 */
-	private void putToHashMap(HashMap hm, String name, Object value){
-		if(value!=null){
-			hm.put(name, value);
-		}
-	}
 }
