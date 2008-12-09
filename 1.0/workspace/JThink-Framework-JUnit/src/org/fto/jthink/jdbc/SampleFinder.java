@@ -11,6 +11,7 @@ import org.fto.jthink.jdbc.SQLExecutor;
 import org.fto.jthink.log.LogManager;
 import org.fto.jthink.log.Logger;
 import org.fto.jthink.resource.ResourceManager;
+import org.fto.jthink.transaction.TransactionFactory;
 import org.fto.jthink.transaction.TransactionManager;
 
 /**
@@ -31,7 +32,8 @@ public class SampleFinder {
     
     logger.info("统计数量。");
     
-    JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    //JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    JDBCTransaction transaction = (JDBCTransaction)((TransactionFactory)resManager.getResource("SampleTransaction")).create();
     /* 返回SQLExecutor工厂，并创建SQLExecutor对象 */
     SQLExecutor sqlExecutor = transaction.getSQLExecutorFactory("SampleDataSource").create();
     //sqlExecutor.setPoolable(true);
@@ -58,7 +60,8 @@ public class SampleFinder {
     
     logger.info("返回数据库表中所有的数据。");
     
-    JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    //JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    JDBCTransaction transaction = (JDBCTransaction)((TransactionFactory)resManager.getResource("SampleTransaction")).create();
     /* 返回SQLExecutor工厂，并创建SQLExecutor对象 */
     SQLExecutor sqlExecutor = transaction.getSQLExecutorFactory("SampleDataSource").create();
     //sqlExecutor.setPoolable(true);
@@ -83,9 +86,11 @@ public class SampleFinder {
     
     logger.info("返回数据库表中与ID匹配的数据。");
     
-    JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    //JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    JDBCTransaction transaction = (JDBCTransaction)((TransactionFactory)resManager.getResource("SampleTransaction")).create();
     /* 返回SQLExecutor工厂，并创建SQLExecutor对象 */
     SQLExecutor sqlExecutor = transaction.getSQLExecutorFactory("SampleDataSource").create();
+    
     /* 返回SQLBuilder工厂，并创建SQLBuilder对象 */
     SQLBuilder sqlBuilder = transaction.getSQLBuilderFactory("SampleDataSource").create("");
     

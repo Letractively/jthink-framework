@@ -50,7 +50,7 @@ public class SQLBuilderTestCase extends TestCase {
 		
 		DataObject data = new DefaultDataObject();
 		data.setTableName("departments");
-		//data.set("DeptId", "1");
+		data.set("DeptId", "1");
 		sqlStatement = sqlBuilder.constructSQLForInsert(data);
     System.out.println(sqlStatement.getSQLString());
     printObjects(sqlStatement.getValues());
