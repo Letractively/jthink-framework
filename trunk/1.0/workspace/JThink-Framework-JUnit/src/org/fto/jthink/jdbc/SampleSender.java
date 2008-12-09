@@ -14,6 +14,7 @@ import org.fto.jthink.jdbc.SQLExecutor;
 import org.fto.jthink.log.LogManager;
 import org.fto.jthink.log.Logger;
 import org.fto.jthink.resource.ResourceManager;
+import org.fto.jthink.transaction.TransactionFactory;
 import org.fto.jthink.transaction.TransactionManager;
 import org.fto.jthink.util.DateTimeHelper;
 import org.fto.jthink.util.XMLHelper;
@@ -38,7 +39,8 @@ public class SampleSender {
   public void batchSendMessages(Map[] messagesMaps) throws Exception{
     logger.info("向数据库表中插入数据。");
     String connId = "SampleDataSource";
-    JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    //JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    JDBCTransaction transaction = (JDBCTransaction)((TransactionFactory)resManager.getResource("SampleTransaction")).create();
     /* 返回SQLExecutor工厂，并创建SQLExecutor对象 */
     SQLExecutor sqlExecutor = transaction.getSQLExecutorFactory(connId).create();
     /* 返回SQLBuilder工厂，并创建SQLBuilder对象 */
@@ -99,7 +101,9 @@ public class SampleSender {
     
     logger.info("向数据库表中插入数据。");
     
-    JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    //JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    JDBCTransaction transaction = (JDBCTransaction)((TransactionFactory)resManager.getResource("SampleTransaction")).create();
+    
     /* 返回SQLExecutor工厂，并创建SQLExecutor对象 */
     SQLExecutor sqlExecutor = transaction.getSQLExecutorFactory("SampleDataSource").create();
     //sqlExecutor.setTimeout(60);
@@ -148,7 +152,8 @@ public class SampleSender {
     
     logger.info("修改数据。");
     
-    JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    //JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    JDBCTransaction transaction = (JDBCTransaction)((TransactionFactory)resManager.getResource("SampleTransaction")).create();
     /* 返回SQLExecutor工厂，并创建SQLExecutor对象 */
     SQLExecutor sqlExecutor = transaction.getSQLExecutorFactory("SampleDataSource").create();
     /* 返回SQLBuilder工厂，并创建SQLBuilder对象 */
@@ -190,7 +195,8 @@ public class SampleSender {
     
     logger.info("修改数据。");
     
-    JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    //JDBCTransaction transaction = (JDBCTransaction)resManager.getResource(JDBCTransaction.class.getName());
+    JDBCTransaction transaction = (JDBCTransaction)((TransactionFactory)resManager.getResource("SampleTransaction")).create();
     /* 返回SQLExecutor工厂，并创建SQLExecutor对象 */
     SQLExecutor sqlExecutor = transaction.getSQLExecutorFactory("SampleDataSource").create();
     /* 返回SQLBuilder工厂，并创建SQLBuilder对象 */

@@ -29,7 +29,8 @@ public class SQLTestCase extends TestCase {
       public void test() throws Exception{ 
         System.out.println("\n[正在测试: SQL相关功能()...]");
 
-        ResourceManager resManager = new ResourceManagerInitialization().initResourceManager();
+        //ResourceManager resManager = new ResourceManagerInitialization().initResourceManager();
+        ResourceManager resManager = new ResourceManager();
         
         /* --向数据库表中加入数据--------------------------------------------------------------------- */
         SampleSender sender = new SampleSender(resManager);
