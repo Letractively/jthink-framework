@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fto-jthink>
+
+	<!--
+	  事务配置。
+	-->
+	<transactions>
+		<transaction id="WebTransaction">
+			<factory-class>org.fto.jthink.jdbc.DefaultJDBCTransactionFactory</factory-class>
+		</transaction>
+	</transactions>
+
+	<!--
+	   数据源配置
+	-->
+	<data-source>
+		<!-- 连接到hsql数据库 -->
+		<connection id="SampleDataSource">
+			<connection-factory>
+				<!-- 工厂类定义 -->
+				<factory-class>org.fto.jthink.jdbc.DirectConnectionFactory</factory-class>
+				<!-- driver-class -->
+				<driver-class>org.hsqldb.jdbcDriver</driver-class>
+				<!-- connection-url -->
+				<url>jdbc:hsqldb:hsql://localhost/xdb</url>
+				<!-- user-name -->
+				<user-name>sa</user-name>
+				<!-- password -->
+				<password></password>
+				<!-- 设置事务隔离级别 -->
+				<isolation-level>TRANSACTION_READ_COMMITTED</isolation-level>
+				<!-- 是否自动提交,值：true/false,默认：false -->
+				<auto-commit>false</auto-commit>
+			</connection-factory>
+			<!-- 连接池配置　-->
+			<connection-pool>
+				<!-- 是否采用连接池管理,值有: yes, no　-->
+				<use-pool>yes</use-pool>
+				<!-- 池初始大小　-->
+				<min-pool-size>3</min-pool-size>
+				<!-- 池最大连接数量　-->
+				<max-pool-size>10</max-pool-size>
+				<!-- 池连接增量值，一次创建的连接数量　-->
+				<incremental-pool-size>2</incremental-pool-size>
+				<!-- 连接超时时间值，如果设置为0，将永远不会超时，单位：分钟　-->
+				<idle-timeout-minutes>2</idle-timeout-minutes>
+				<!-- 
+					用于验证连接是否有效的SQL，可以不提供此值, 但将不对连接进行验证
+					比如： select count(*) from authors
+				　-->
+				<check-connection-sql></check-connection-sql>
+			</connection-pool>
+			<!--SQLExecutor配置  -->
+			<sql-executor>
+				<!--SQLExecutorFactory工厂类  -->
+				<factory-class>org.fto.jthink.jdbc.hsql.HsqlSQLExecutorFactory</factory-class>
+				<config>
+					<!-- 为SQLExecutor指定一个结果集生成器，框架实现了两种类型的结果结构，一种是以xml格式结果集，以org.jdom.Element为载体，
+						构建器为：ElementResultMaker；别外是Map格式结果集，构建器为MapResultMaker，以下为指定了ResultMaker
+						的工厂类,如果不指定结果集构建器，将默认以ElementResultMaker来构建查询结果.
+						框架当前准备了以下结构构建工厂
+						org.fto.jthink.jdbc.ElementResultMakerFactory
+						org.fto.jthink.jdbc.MapResultMakerFactory
+						org.fto.jthink.jdbc.DataObjectResultMakerFactory
+					 -->
+					<result-maker>
+						<factory-class>org.fto.jthink.jdbc.DataObjectResultMakerFactory</factory-class>
+					</result-maker>
+					<!-- SQL执行超时时间,单位：秒, 0为不作超时处理 -->
+					<timeout>60</timeout>
+					<!-- 结果集最大行数限制,如果超过了该限制，则直接撤消多出的行,这样可以防
+					      止由于程序设计缺陷，导致返回上万条结果使内存溢出的情况 -->
+					<max-rows>1000</max-rows>
+				</config>
+			</sql-executor>
+			<!-- SQLBuilder配置 -->
+			<sql-builder>
+				<!--SQLBuilderFactory工厂类  -->
+				<factory-class>org.fto.jthink.jdbc.hsql.HsqlSQLBuilderFactory</factory-class>
+			</sql-builder>
+		</connection>
+			
+		<!-- 连接到Mysql数据库 -->
+		<connection id="SampleDataSource_bak">
+			<connection-factory>
+				<!-- 工厂类定义 -->
+				<factory-class>org.fto.jthink.jdbc.DirectConnectionFactory</factory-class>
+				<!-- driver-class -->
+				<driver-class>org.gjt.mm.mysql.Driver</driver-class>
+				<!-- connection-url -->
+				<url>jdbc:mysql://localhost:3306/MessageBoard?useUnicode=true&amp;characterEncoding=UTF-8</url>
+				<!-- user-name -->
+				<user-name>root</user-name>
+				<!-- password -->
+				<password>sa</password>
+			</connection-factory>
+			<!-- 连接池配置　-->
+			<connection-pool>
+				<!-- 是否采用连接池管理,值有: yes, no　-->
+				<use-pool>yes</use-pool>
+				<!-- 池初始大小　-->
+				<min-pool-size>1</min-pool-size>
+				<!-- 池最大连接数量　-->
+				<max-pool-size>10</max-pool-size>
+				<!-- 池连接增量值，一次创建的连接数量　-->
+				<incremental-pool-size>3</incremental-pool-size>
+				<!-- 连接超时时间值，如果设置为0，将永远不会超时，单位：分钟　-->
+				<idle-timeout-minutes>1</idle-timeout-minutes>
+				<!-- 
+					用于验证连接是否有效的SQL，可以不提供此值, 但将不对连接进行验证
+					比如： select count(*) from authors
+				　-->
+				<check-connection-sql></check-connection-sql>
+			</connection-pool>
+			<!--SQLExecutor配置  -->
+			<sql-executor>
+				<!--SQLExecutorFactory工厂类  -->
+				<factory-class>org.fto.jthink.jdbc.mysql.MysqlSQLExecutorFactory</factory-class>
+			</sql-executor>
+			<!-- SQLBuilder配置 -->
+			<sql-builder>
+				<!--SQLBuilderFactory工厂类  -->
+				<factory-class>org.fto.jthink.jdbc.mysql.MysqlSQLBuilderFactory</factory-class>
+			</sql-builder>
+		</connection>
+		
+		<!-- 连接到Mssql数据库 -->
+		<connection id="SampleDataSource_bak">
+			<connection-factory>
+				<!-- 工厂类定义 -->
+				<factory-class>org.fto.jthink.jdbc.DirectConnectionFactory</factory-class>
+				<!-- driver-class -->
+				<driver-class>net.sourceforge.jtds.jdbc.Driver</driver-class>
+				<!-- connection-url -->
+				<url>jdbc:jtds:sqlserver://10.0.0.44:1433;DatabaseName=MessageBoard</url>
+				<!-- user-name -->
+				<user-name>sa</user-name>
+				<!-- password -->
+				<password>megajoy</password>
+			</connection-factory>
+			<!-- 连接池配置　-->
+			<connection-pool>
+				<!-- 是否采用连接池管理,值有: yes, no　-->
+				<use-pool>yes</use-pool>
+				<!-- 池初始大小　-->
+				<min-pool-size>1</min-pool-size>
+				<!-- 池最大连接数量　-->
+				<max-pool-size>10</max-pool-size>
+				<!-- 池连接增量值，一次创建的连接数量　-->
+				<incremental-pool-size>3</incremental-pool-size>
+				<!-- 连接超时时间值，如果设置为0，将永远不会超时，单位：分钟　-->
+				<idle-timeout-minutes>10</idle-timeout-minutes>
+				<!-- 
+					用于验证连接是否有效的SQL，可以不提供此值, 但将不对连接进行验证
+					比如： select count(*) from authors
+				　-->
+				<check-connection-sql></check-connection-sql>
+			</connection-pool>
+			<!--SQLExecutor配置  -->
+			<sql-executor>
+				<!--SQLExecutorFactory工厂类  -->
+				<factory-class>org.fto.jthink.jdbc.mssql.MssqlSQLExecutorFactory</factory-class>
+			</sql-executor>
+			<!-- SQLBuilder配置 -->
+			<sql-builder>
+				<!--SQLBuilderFactory工厂类  -->
+				<factory-class>org.fto.jthink.jdbc.mssql.MssqlSQLBuilderFactory</factory-class>
+			</sql-builder>
+		</connection>		
+	</data-source>
+	
+	<!-- 日志管理配置 -->
+	<log-manager>
+		<factory-class>org.fto.jthink.log.DefaultLogFactory</factory-class>
+		<!-- 与具体日志工厂相关的配置信息，对不同的日志实现，其配置可能完全不同, 以下是默认日志处理的配置信息 -->
+		<config>
+			<!-- 是否仅输出提示信息,值有: yes,no -->
+			<only-message>no</only-message>
+			<!-- 日志优先级别，主要有：FATAL,ERROR,WARN,INFO,DEBUG -->
+			<priority>DEBUG</priority>
+			<!-- 是否控制台输出日志信息,值有：yes,no -->
+			<console-output>yes</console-output>
+			<!-- 日志输出文件路径，如果不指定文件路径，将不输出日志到文件 -->
+			<log-file>d:\sample.log</log-file>
+			<!-- 日志文件的编码方式 -->
+			<log-file-encoding>gb2312</log-file-encoding>
+			<!-- 一个日志文件的最大大小，单位为(K字节)，默认为512K -->
+			<max-file-size>512</max-file-size>
+			<!-- 最多可备份的日志文件数量 -->
+			<max-backup-index>10</max-backup-index>
+			<!-- 是否异步输出日志信息到文件，值：yes,no -->
+			<asynchronism>yes</asynchronism>
+			<!-- 异步处理的时间间隔,单位(秒) -->
+			<time-interval>10</time-interval>
+		</config>
+	</log-manager>
+
+</fto-jthink>
