@@ -11,6 +11,7 @@
 	if(action.equals("EDIT")){
 		mboardJBean.revertMessage();
 		response.sendRedirect("index.jsp");
+		return;
 	} 
 
 	Message message = mboardJBean.getRevertInfo();
