@@ -12,8 +12,8 @@
 <%
 	Logger logger = LogManager.getLogger("error.jsp");
 	if(exception!=null){
-		out.println(exception.getMessage());
 		logger.error(exception.getMessage(), exception);
+		out.println(exception.getMessage());
 	}
 %>
 	<hr size="1" noshade>
