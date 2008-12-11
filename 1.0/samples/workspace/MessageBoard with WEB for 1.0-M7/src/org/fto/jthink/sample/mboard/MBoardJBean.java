@@ -12,7 +12,6 @@
  */
 package org.fto.jthink.sample.mboard;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -129,13 +128,13 @@ public class MBoardJBean {
 	/**
 	 * 生成ID
 	 */
-	private Integer generateID(){
+	private String generateID(){
 		List maxIdLT = (List)sqlExecutor.executeQuery("SELECT MAX(ID) AS MAX_ID FROM Messages");
 		DataObject maxIdDO = (DataObject)maxIdLT.iterator().next();
 		if(maxIdDO.get("MAX_ID")==null){
-			return new Integer(1);
+			return "1";
 		}
-		return new Integer(Integer.parseInt(maxIdDO.get("MAX_ID"))+1);
+		return String.valueOf(Integer.parseInt(maxIdDO.get("MAX_ID"))+1);
 	}
 	
 	/**
@@ -146,19 +145,26 @@ public class MBoardJBean {
 			/* 开始事务 */
 			transaction.begin(); 
 			
-			HashMap msgsHM = new HashMap();
-			msgsHM.put("ID",generateID());
-			msgsHM.put("Subject", request.getParameter("Subject"));
-			msgsHM.put("Content", request.getParameter("Content"));
-			msgsHM.put("Sender", request.getParameter("Sender"));
-			msgsHM.put("Email", request.getParameter("Email"));
-			msgsHM.put("Contact", request.getParameter("Contact"));
+//			HashMap msgsHM = new HashMap();
+//			msgsHM.put("ID",generateID());
+//			msgsHM.put("Subject", request.getParameter("Subject"));
+//			msgsHM.put("Content", request.getParameter("Content"));
+//			msgsHM.put("Sender", request.getParameter("Sender"));
+//			msgsHM.put("Email", request.getParameter("Email"));
+//			msgsHM.put("Contact", request.getParameter("Contact"));
+//			msgsHM.put("IP", request.getServletRequest().getRemoteAddr());
+//			msgsHM.put("SendTime", DateTimeHelper.formatDateTimetoString(DateTimeHelper.getSystemDate()));
 			
-			msgsHM.put("IP", request.getServletRequest().getRemoteAddr());
-			msgsHM.put("SendTime", DateTimeHelper.formatDateTimetoString(DateTimeHelper.getSystemDate()));
-			
-			SQL sql = sqlBuilder.constructSQLForInsert("Messages", msgsHM);
-			
+			Message message = new Message();
+			message.setId(generateID());
+			message.setSubject(request.getParameter("Subject"));
+			message.setContent(request.getParameter("Content"));
+			message.setSender(request.getParameter("Sender"));
+			message.setEmail(request.getParameter("Email"));
+			message.setContact(request.getParameter("Contact"));
+			message.setIP(request.getServletRequest().getRemoteAddr());
+			message.setSendTime(DateTimeHelper.formatDateTimetoString(DateTimeHelper.getSystemDate()));
+			SQL sql = sqlBuilder.constructSQLForInsert(message);
 			/* 执行SQL语句 */
 			sqlExecutor.execute(sql);
 			
@@ -219,30 +225,32 @@ public class MBoardJBean {
 			/* 开始事务 */
 			transaction.begin(); 
 			
-			HashMap msgsHM = new HashMap();
+//			HashMap msgsHM = new HashMap();
+//			String revertContent = request.getParameter("RevertContent");
+//			if(revertContent!=null){
+//				msgsHM.put("RevertContent",revertContent);
+//			}else{
+//				msgsHM.put("RevertContent","");
+//			}
+//			String reverter = request.getParameter("Reverter");
+//			if(reverter!=null){
+//				msgsHM.put("Reverter",reverter);
+//			}else{
+//				msgsHM.put("Reverter","");
+//			}
+//			msgsHM.put("RevertTime", DateTimeHelper.formatDateTimetoString(DateTimeHelper.getSystemDate()));
+//
+//			Condition condition = new Condition();
+//			condition.add(new ConditionItem("ID","=", request.getParameter("ID")));
+//			
 			
-			String revertContent = request.getParameter("RevertContent");
-			if(revertContent!=null){
-				msgsHM.put("RevertContent",revertContent);
-			}else{
-				msgsHM.put("RevertContent","");
-			}
-			
-			String reverter = request.getParameter("Reverter");
-			if(reverter!=null){
-				msgsHM.put("Reverter",reverter);
-			}else{
-				msgsHM.put("Reverter","");
-			}
-			
-			msgsHM.put("RevertTime", DateTimeHelper.formatDateTimetoString(DateTimeHelper.getSystemDate()));
-
-			Condition condition = new Condition();
-			condition.add(new ConditionItem("ID","=", request.getParameter("ID")));
-
-
-			SQL sql = sqlBuilder.constructSQLForUpdate("Messages", msgsHM, condition);
-			
+      Message message = new Message();
+      message.setRevertContent(request.getParameter("RevertContent"));
+      message.setReverter(request.getParameter("Reverter"));
+      message.setRevertTime(DateTimeHelper.formatDateTimetoString(DateTimeHelper.getSystemDate()));
+      message.setId(request.getParameter("ID"));
+      
+      SQL sql = sqlBuilder.constructSQLForUpdate(message);
 			/* 执行SQL语句 */
 			sqlExecutor.execute(sql);
 			
@@ -263,16 +271,15 @@ public class MBoardJBean {
 	 * 删除留言信息
 	 */
 	public void deleteMessage() throws Exception{
-		
-		
 		try{
 			/* 开始事务 */
 			transaction.begin(); 
 			
-			Condition condition = new Condition();
-			condition.add(new ConditionItem("ID","=", request.getParameter("ID")));
-			
-			SQL sql = sqlBuilder.constructSQLForDelete("Messages", condition);
+//			Condition condition = new Condition();
+//			condition.add(new ConditionItem("ID","=", request.getParameter("ID")));
+      Message message = new Message();
+      message.setId(request.getParameter("ID"));
+			SQL sql = sqlBuilder.constructSQLForDelete(message);
 			
 			/* 执行SQL语句 */
 			sqlExecutor.execute(sql);
@@ -301,9 +308,7 @@ public class MBoardJBean {
 			
 			/* 构建SQL语句 */
 			SQL sql = sqlBuilder.constructSQLForCount("Messages", "*", "ROW_COUNT", null); 
-			
 			DataObject countDO = (DataObject)((List)sqlExecutor.execute(sql)).iterator().next();
-			
 			return Integer.parseInt(countDO.get("ROW_COUNT"));
 			
 		}finally{
