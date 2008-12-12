@@ -140,7 +140,6 @@
 </table>
 <s:fielderror></s:fielderror> 
 <s:form name="SendForm" action="send" method="post">
-	
 	<s:textfield name="Subject" label="%{getText('SendForm.Subject')}" size="50" maxlength="100"/>
 	<s:textarea name="Content" label="%{getText('SendForm.Content')}" cols="60" rows="5"/>
 	<s:textfield name="Sender" label="%{getText('SendForm.Sender')}" size="20" maxlength="20"/>
