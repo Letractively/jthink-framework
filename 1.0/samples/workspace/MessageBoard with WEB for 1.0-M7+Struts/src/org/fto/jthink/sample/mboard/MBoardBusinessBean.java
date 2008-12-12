@@ -18,6 +18,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.struts2.ServletActionContext;
 import org.fto.jthink.exception.JThinkRuntimeException;
 import org.fto.jthink.j2ee.web.HttpRequest;
 import org.fto.jthink.j2ee.web.util.HTMLHelper;
@@ -142,31 +143,15 @@ public class MBoardBusinessBean {
   /**
    * 发送留言信息
    */
-  public void sendMessage() throws Exception{
+  public void sendMessage(Message message) throws Exception{
     try{
       /* 开始事务 */
       transaction.begin(); 
       
-//      HashMap msgsHM = new HashMap();
-//      msgsHM.put("ID",generateID());
-//      msgsHM.put("Subject", request.getParameter("Subject"));
-//      msgsHM.put("Content", request.getParameter("Content"));
-//      msgsHM.put("Sender", request.getParameter("Sender"));
-//      msgsHM.put("Email", request.getParameter("Email"));
-//      msgsHM.put("Contact", request.getParameter("Contact"));
-//      msgsHM.put("IP", request.getServletRequest().getRemoteAddr());
-//      msgsHM.put("SendTime", DateTimeHelper.formatDateTimetoString(DateTimeHelper.getSystemDate()));
-      
-      Message message = new Message();
       message.setId(generateID());
-      message.setSubject(request.getParameter("Subject"));
-      message.setContent(request.getParameter("Content"));
-      message.setSender(request.getParameter("Sender"));
-      message.setEmail(request.getParameter("Email"));
-      message.setContact(request.getParameter("Contact"));
-      message.setIP(request.getServletRequest().getRemoteAddr());
       message.setSendTime(DateTimeHelper.formatDateTimetoString(DateTimeHelper.getSystemDate()));
       SQL sql = sqlBuilder.constructSQLForInsert(message);
+      
       /* 执行SQL语句 */
       sqlExecutor.execute(sql);
       
