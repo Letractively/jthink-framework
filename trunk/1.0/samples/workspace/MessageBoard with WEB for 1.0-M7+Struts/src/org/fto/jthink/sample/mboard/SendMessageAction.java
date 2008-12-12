@@ -1,5 +1,9 @@
 package org.fto.jthink.sample.mboard;
 
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.struts2.ServletActionContext;
 import org.fto.jthink.sample.mboard.po.Message;
 
 import com.opensymphony.xwork2.ActionContext;
@@ -12,13 +16,10 @@ import com.opensymphony.xwork2.ActionContext;
  *
  */
 public class SendMessageAction extends Message{
-  
+
   public String execute() throws Exception {
-    //new MBoardBusinessBean().sendMessage();
-    
-    System.out.println("send message ...");
-    System.out.println("Subject:"+getSubject());
-    System.out.println("Content:"+getContent());
+    setIP(ServletActionContext.getRequest().getRemoteAddr());
+    new MBoardBusinessBean().sendMessage(this);
     return "success";
   }
 

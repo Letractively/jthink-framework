@@ -3,18 +3,20 @@
         "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
         "http://struts.apache.org/dtds/struts-2.0.dtd">
 <struts>
-<package name="message4m7Struts" extends="struts-default">
-	<action name="messages" class="org.fto.jthink.sample.mboard.GetMessagesAction">
-		<result name="error">/error.jsp</result>
-		<result name="success">/index.jsp</result>
-	</action>
-	<action name="send" class="org.fto.jthink.sample.mboard.SendMessageAction">
-		<result name="input">/index.jsp</result>
-		<result name="error">/error.jsp</result>
-		<result name="success">/index.jsp</result>
-	</action>
-	
-</package>
+	<include file="struts-default.xml"/>
+	<package name="message4m7Struts" extends="struts-default">
+		<action name="messages" class="org.fto.jthink.sample.mboard.GetMessagesAction" >
+			<result name="error">/error.jsp</result>
+			<result name="success">/index.jsp</result>
+		</action>
+		<action name="send" class="org.fto.jthink.sample.mboard.SendMessageAction" >
+			<result name="input">/input.jsp</result>
+			<result name="error">/error.jsp</result>
+			<result name="success" type="redirect">messages.action</result> 
+			<!-- <result name="success" type="chain">messages</result>-->
+		</action>
+		
+	</package>
 <!--  
     <package name="example" namespace="/example" extends="struts-default">
         <action name="HelloWorld" class="example.HelloWorld">
