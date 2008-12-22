@@ -17,6 +17,8 @@ import com.opensymphony.xwork2.ActionContext;
  */
 public class SendMessageAction extends Message{
 
+  private static final long serialVersionUID = -3893519792398428369L;
+
   public String execute() throws Exception {
     setIP(ServletActionContext.getRequest().getRemoteAddr());
     new MBoardBusinessBean().sendMessage(this);

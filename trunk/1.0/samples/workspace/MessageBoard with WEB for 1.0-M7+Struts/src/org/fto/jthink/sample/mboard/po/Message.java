@@ -7,7 +7,7 @@ public class Message extends DataObject {
   private static final long serialVersionUID = 8914525096052347979L;
   
   public Message(){
-  	setTableName("Messages");
+  	this.setTableName("Messages");
   	this.setPrimaryKey("ID");
   	this.setFieldNameCoincident(false);
   }
