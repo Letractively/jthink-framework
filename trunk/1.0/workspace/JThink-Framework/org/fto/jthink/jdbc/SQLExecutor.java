@@ -368,7 +368,7 @@ public class SQLExecutor {
 			    return getResultMaker().create(rs, doClazz);
 			  }
 			} else {
-				return new Integer(pstmt.getUpdateCount());;
+				return new Integer(pstmt.getUpdateCount());
 			}
 		} catch (SQLException ex) {
 			throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_DB_EXEC_SQL_EXCEPTION,

@@ -34,8 +34,10 @@ public class DefaultLogger implements Logger {
 
 	/* 输出日志的类名称 */
 	private String className;
-	/* 在配置文件中设置的日志输出优先级 */
-	private Priority cfgPriority;
+//	/* 在配置文件中设置的日志输出优先级 */
+//	private Priority cfgPriority;
+	/* 优先级别 */
+	private int level=0;
 	/* 仅输出日志信息 */
 	private boolean onlyMessge = false;
 
@@ -53,7 +55,8 @@ public class DefaultLogger implements Logger {
 		this.className = name;
 		this.logWriter = logWriter; 
 		if(config==null){
-			cfgPriority = Priority.INFO;
+//			cfgPriority = Priority.INFO;
+			level = Priority.INFO.getLevel();
 			return;
 		}
 		
@@ -65,24 +68,28 @@ public class DefaultLogger implements Logger {
 		/* 返回配置的日志优先级 */
 		String priorityStr = logConfig.getChildText("priority");
 		if(priorityStr.equalsIgnoreCase(Priority.DEBUG.getLevelString())){
-			cfgPriority = Priority.DEBUG;
+//			cfgPriority = Priority.DEBUG;
+			level = Priority.DEBUG.getLevel();
 			
 		}else if(priorityStr.equalsIgnoreCase(Priority.INFO.getLevelString())){
-			cfgPriority = Priority.INFO;
+			//cfgPriority = Priority.INFO;
+			level = Priority.INFO.getLevel();
 			
 		}else if(priorityStr.equalsIgnoreCase(Priority.WARN.getLevelString())){
-			cfgPriority = Priority.WARN;
+			//cfgPriority = Priority.WARN;
+			level = Priority.WARN.getLevel();
 			
 		}else if(priorityStr.equalsIgnoreCase(Priority.ERROR.getLevelString())){
-			cfgPriority = Priority.ERROR;
+			//cfgPriority = Priority.ERROR;
+			level = Priority.ERROR.getLevel();
 			
 		}else if(priorityStr.equalsIgnoreCase(Priority.FATAL.getLevelString())){
-			cfgPriority = Priority.FATAL;
+			//cfgPriority = Priority.FATAL;
+			level = Priority.FATAL.getLevel();
 			
 		}else{
 			throw new JThinkRuntimeException("错误的日志优先级定义(priority)定义!");
 		}
-		
 	}
 
 	/**
@@ -225,7 +232,7 @@ public class DefaultLogger implements Logger {
 	 * @param t Throwable的实例或其子类型的实例
 	 */
 	public void log(Priority priority, Object message, Throwable t) {
-		if(priority!=null && cfgPriority!=null && priority.getLevel()<cfgPriority.getLevel()){
+		if(priority!=null && level!=0 && priority.getLevel()<level){
 			return;
 		}
     StringBuffer sb=new StringBuffer();
@@ -266,14 +273,14 @@ public class DefaultLogger implements Logger {
 	 * 判断当前配置的日志输出优先级别是否是DEBUG
 	 */
 	public boolean isDebugEnabled() {
-		return cfgPriority.getLevel()<=Priority.DEBUG.getLevel();
+		return level<=Priority.DEBUG.getLevel();
 	}
 
 	/**
 	 * 判断当前配置的日志输出优先级别是否是INFO
 	 */
 	public boolean isInfoEnabled() {
-		return cfgPriority.getLevel()<=Priority.INFO.getLevel();
+		return level<=Priority.INFO.getLevel();
 	}
 	
 }
