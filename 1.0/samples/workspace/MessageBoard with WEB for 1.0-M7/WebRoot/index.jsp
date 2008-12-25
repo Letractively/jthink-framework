@@ -62,7 +62,7 @@
 <table width="100%" height="35" border="0" cellpadding="0" cellspacing="0" bgcolor="#006699">
   <tr> 
     <td width="200">&nbsp;&nbsp;<strong><font color="#FFFFFF">留言板</font></strong></td>
-    <td align="right" valign="bottom"><a href="http://cosoft.org.cn/projects/jthink" target="_blank"><font color="#99FF00" size="2">JThink-Framework</font></a><font color="#99FF00" size="2">&nbsp;例子程序</font><font color="#99FF00" size="2">，作者：</font><a href="mailto:try_wen@yahoo.com.cn"><font color="#99FF00" size="2">wenjian</font></a></td>
+    <td align="right" valign="bottom"><a href="http://code.google.com/p/jthink-framework/" target="_blank"><font color="#99FF00" size="2">JThink-Framework</font></a><font color="#99FF00" size="2">&nbsp;例子程序</font><font color="#99FF00" size="2">，作者：</font><a href="mailto:try.jiwen@gmail.com"><font color="#99FF00" size="2">WenJian(QQ:32312569,Mail:try.jiwen@gmail.com)</font></a></td>
   </tr>
 </table>
 <table width="100%" height="20" border="0" cellpadding="0" cellspacing="0">
