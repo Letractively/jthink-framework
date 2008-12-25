@@ -6,7 +6,9 @@
     <constant name="struts.enable.DynamicMethodInvocation" value="false" />
     <constant name="struts.devMode" value="false" />
 
-	<include file="message.xml"/>
+	<include file="struts_message.xml"/>
+
+
 
 </struts>
 
