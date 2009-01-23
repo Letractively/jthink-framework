@@ -138,7 +138,6 @@
     <td height="25" colspan="2" bgcolor="#999999">&nbsp;&nbsp;<strong><s:text name="SendForm.MessageTitle"/></strong></td>
   </tr>
 </table>
-<s:fielderror></s:fielderror> 
 <s:form name="SendForm" action="send" method="post">
 	<s:textfield name="Subject" label="%{getText('SendForm.Subject')}" size="50" maxlength="100"/>
 	<s:textarea name="Content" label="%{getText('SendForm.Content')}" cols="60" rows="5"/>
