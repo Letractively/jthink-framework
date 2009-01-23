@@ -77,7 +77,6 @@ public class Configuration implements Serializable {
   
   /**
    * 返回fto-jthink.xml配置
-   * @return
    */
   public synchronized static Configuration getConfiguration(){
     if(cfg==null){
