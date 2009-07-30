@@ -72,28 +72,7 @@ public class SQLBuilderTestCase extends TestCase {
       }
       System.out.println("constructSQLForInsert测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
 		}
-    /* 测试结束 */
-    /* constructSQLForInsert_Old测试开始 */
-//		{
-//      double totalUseTime = 0;
-//      int count = 0;
-//      for(int i=0;i<100;i++){//在此设置测试次数
-//          long stime = System.nanoTime();        
-//          
-//          /* 测试代码 开始 */
-//          sqlBuilder.constructSQLForInsert_Old("departments", columns);
-//          /* 测试代码 结束 */
-//          
-//          double usetime = (System.nanoTime()-stime)/1000000f;
-//          if(usetime<0.1 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
-//              totalUseTime += usetime;
-//              count++;
-//          }
-//          //System.out.println("time:"+(NumberHelper.formatNumber(usetime, NumberHelper.NUMBER_I_6_0)));
-//      }
-//      System.out.println("constructSQLForInsert_Old测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
-//		}
-    /* 测试结束 */
+
 	  SQL sqlStatement = sqlBuilder.constructSQLForInsert("departments", columns);
 		System.out.println(sqlStatement.getSQLString());
 		if(!"INSERT INTO departments (F1,DeptName,DeptId,F3,F2) VALUES (?,?,?,?,?) ".equals(sqlStatement.getSQLString())){
@@ -124,24 +103,52 @@ public class SQLBuilderTestCase extends TestCase {
 		
 		
 		Condition condn = new Condition();
-		
 		Condition condn1 = new Condition();
 		condn1.add(new ConditionItem("DeptId", "!=", "3"));
 		
 		Condition condn2 = new Condition();
-//		condn2.add(Condition.OR, "DeptId", "!=", (Object)null);
 		condn2.add(Condition.OR, new ConditionItem("DeptId", "Between", new Object[]{"6", "9"}));
-		
 		condn1.add("OR", condn2);
-		
 		condn.add(Condition.AND_NOT, new ConditionItem("DeptName", "like", "%部%"));
 		condn.add(Condition.AND, condn1);
 		condn.add(Condition.AND_NOT, new ConditionItem("DeptDesc", "like", "%技术%"));
+
+		
+    /* constructSQLForUpdate测试开始 */
+    {
+      double totalUseTime = 0;
+      int count = 0;
+      for(int i=0;i<100;i++){//在此设置测试次数
+          long stime = System.nanoTime();        
+          
+          /* 测试代码 开始 */
+          sqlBuilder.constructSQLForUpdate("departments", columns, condn);
+          /* 测试代码 结束 */
+          
+          double usetime = (System.nanoTime()-stime)/1000000f;
+          if(usetime<0.1 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+              totalUseTime += usetime;
+              count++;
+          }
+      }
+      System.out.println("constructSQLForUpdate测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
+    }		
 		
 		SQL sqlStatement = sqlBuilder.constructSQLForUpdate("departments", columns, condn);
-		
 		System.out.println(sqlStatement.getSQLString());
+		
+		if(!"UPDATE departments SET DeptName=?,DeptDesc=NULL  WHERE  NOT DeptName like ? AND ( DeptId != ? OR ( DeptId Between ? AND ? ) ) AND NOT DeptDesc like ? ".equals(sqlStatement.getSQLString())){
+		  super.fail();
+		}
 		printObjects(sqlStatement.getValues());
+		
+		
+    sqlStatement = sqlBuilder.constructSQLForUpdate("departments", columns, null);
+    System.out.println(sqlStatement.getSQLString());
+    if(!"UPDATE departments SET DeptName=?,DeptDesc=NULL ".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
+    printObjects(sqlStatement.getValues());
 	}
 
 
