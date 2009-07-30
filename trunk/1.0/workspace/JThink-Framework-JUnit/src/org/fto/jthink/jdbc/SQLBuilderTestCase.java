@@ -9,12 +9,17 @@ package org.fto.jthink.jdbc;
 
 
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+
+import javax.servlet.ServletInputStream;
 
 import org.fto.jthink.jdbc.Column;
 import org.fto.jthink.jdbc.Condition;
 import org.fto.jthink.jdbc.SQL;
 import org.fto.jthink.jdbc.SQLBuilder;
+import org.fto.jthink.util.NumberHelper;
 
 import junit.framework.TestCase;
 
@@ -42,10 +47,58 @@ public class SQLBuilderTestCase extends TestCase {
 		columns.put("DeptId", "1");
 		columns.put("DeptName", "3");
 		columns.put("DeptDesc", null);
+		columns.put("F1", "1");
+		columns.put("F2", "2");
+		columns.put("F3", "3");
 		
-		SQL sqlStatement = sqlBuilder.constructSQLForInsert("departments", columns);
 		
+		/* constructSQLForInsert测试开始 */
+		{
+      double totalUseTime = 0;
+      int count = 0;
+      for(int i=0;i<100;i++){//在此设置测试次数
+          long stime = System.nanoTime();        
+          
+          /* 测试代码 开始 */
+          sqlBuilder.constructSQLForInsert("departments", columns);
+          /* 测试代码 结束 */
+          
+          double usetime = (System.nanoTime()-stime)/1000000f;
+          if(usetime<0.1 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+              totalUseTime += usetime;
+              count++;
+          }
+          //System.out.println("time:"+(NumberHelper.formatNumber(usetime, NumberHelper.NUMBER_I_6_0)));
+      }
+      System.out.println("constructSQLForInsert测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
+		}
+    /* 测试结束 */
+    /* constructSQLForInsert_Old测试开始 */
+//		{
+//      double totalUseTime = 0;
+//      int count = 0;
+//      for(int i=0;i<100;i++){//在此设置测试次数
+//          long stime = System.nanoTime();        
+//          
+//          /* 测试代码 开始 */
+//          sqlBuilder.constructSQLForInsert_Old("departments", columns);
+//          /* 测试代码 结束 */
+//          
+//          double usetime = (System.nanoTime()-stime)/1000000f;
+//          if(usetime<0.1 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+//              totalUseTime += usetime;
+//              count++;
+//          }
+//          //System.out.println("time:"+(NumberHelper.formatNumber(usetime, NumberHelper.NUMBER_I_6_0)));
+//      }
+//      System.out.println("constructSQLForInsert_Old测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
+//		}
+    /* 测试结束 */
+	  SQL sqlStatement = sqlBuilder.constructSQLForInsert("departments", columns);
 		System.out.println(sqlStatement.getSQLString());
+		if(!"INSERT INTO departments (F1,DeptName,DeptId,F3,F2) VALUES (?,?,?,?,?) ".equals(sqlStatement.getSQLString())){
+		  super.fail();
+		}
 		printObjects(sqlStatement.getValues());
 		
 		DataObject data = new DefaultDataObject();
@@ -54,6 +107,9 @@ public class SQLBuilderTestCase extends TestCase {
 		sqlStatement = sqlBuilder.constructSQLForInsert(data);
     System.out.println(sqlStatement.getSQLString());
     printObjects(sqlStatement.getValues());
+    
+    //List a;
+    //a.addAll(c)
 	}
 
 	/**
