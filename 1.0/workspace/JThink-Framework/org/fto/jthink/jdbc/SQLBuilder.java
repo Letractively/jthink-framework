@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.fto.jthink.exception.JThinkRuntimeException;
 import org.fto.jthink.util.StringHelper;
@@ -29,8 +30,13 @@ import org.fto.jthink.util.StringHelper;
  * <p><pre><b>
  * 历史更新记录:</b>
  * 2005-07-15  创建此类型
+ * 2009-07-29  优化SQL构建
  * </pre></p>
  * 
+ * </pre>
+ *   想法：
+ *       
+ * </pre>
  * 
  * @author   wenjian
  * @version  1.0
@@ -64,7 +70,119 @@ public class SQLBuilder {
 	 * 
 	 * @return 包含SQL串和值的SQL声明
 	 */
-	public SQL constructSQLForInsert(String tableName, Map columns){
+  public SQL constructSQLForInsert(String tableName, Map columns){
+    
+    if(tableName==null){
+      throw new IllegalArgumentException(
+          "The name of an table cannot be null.");
+    }
+    if(columns.size()==0){
+      throw new IllegalArgumentException(
+          "The value of an columns cannot be empty.");
+    }
+    
+    StringBuffer names = new StringBuffer();
+    StringBuffer valueStatement = new StringBuffer();
+    List values  = new ArrayList(columns.size());
+    Iterator columnsIT = columns.entrySet().iterator();
+    while(columnsIT.hasNext()){
+      Map.Entry column = (Map.Entry)columnsIT.next();
+      Object value = column.getValue();
+      if(value!=null){
+        if(values.size()==0){
+          names.append(column.getKey());
+          valueStatement.append("?");
+        }else{
+          names.append(",").append(column.getKey());
+          valueStatement.append(",?");
+        }
+        values.add(value);
+      };      
+    }
+    StringBuffer sql = new StringBuffer("INSERT INTO ") 
+      .append(tableName)
+      .append(" (").append(names)
+      .append(") VALUES (").append(valueStatement)
+      .append(") ");
+    
+    return new SQL(SQL.UPDATE, sql.toString(), values.toArray());
+  } 	
+  /**
+   * @deprecated
+   */  
+  public SQL constructSQLForInsert_Old3(String tableName, Map columns){
+    
+    if(tableName==null){
+      throw new IllegalArgumentException(
+          "The name of an table cannot be null.");
+    }
+    if(columns.size()==0){
+      throw new IllegalArgumentException(
+          "The value of an columns cannot be empty.");
+    }
+    
+    StringBuffer names = new StringBuffer();
+    StringBuffer valueStatement = new StringBuffer();
+    List values  = new ArrayList(columns.size());
+    Iterator columnNamesIT = columns.keySet().iterator();
+    while(columnNamesIT.hasNext()){
+      String columnName = (String)columnNamesIT.next();
+      Object value = columns.get(columnName);
+      if(value!=null){
+        names.append(",").append(columnName);
+        valueStatement.append(",?");
+        values.add(value);
+      };
+    }
+    
+    StringBuffer sql = new StringBuffer("INSERT INTO ") 
+      .append(tableName)
+      .append(" (").append(names.substring(1))
+      .append(") VALUES (").append(valueStatement.substring(1))
+      .append(") ");
+    
+    return new SQL(SQL.UPDATE, sql.toString(), values.toArray());
+  }	
+  /**
+   * @deprecated
+   */
+  public SQL constructSQLForInsert_Old2(String tableName, Map columns){
+    
+    if(tableName==null){
+      throw new IllegalArgumentException(
+          "The name of an table cannot be null.");
+    }
+    if(columns.size()==0){
+      throw new IllegalArgumentException(
+          "The value of an columns cannot be empty.");
+    }
+
+    StringBuffer sql = new StringBuffer(); 
+    sql.append("INSERT INTO ")
+      .append(tableName)
+      .append(" (#NAMES#) VALUES (#VALUES#) ");
+    
+    StringBuffer names = new StringBuffer();
+    StringBuffer valueStatement = new StringBuffer();
+    List values  = new ArrayList(columns.size());
+    Iterator columnNamesIT = columns.keySet().iterator();
+    while(columnNamesIT.hasNext()){
+      String columnName = (String)columnNamesIT.next();
+      Object value = columns.get(columnName);
+      if(value!=null){
+        names.append(",").append(columnName);
+        valueStatement.append(",?");
+        values.add(value);
+      };
+    }
+    String sqlstr = StringHelper.replace(sql.toString(), "#NAMES#", names.substring(1));
+    sqlstr = StringHelper.replace(sqlstr, "#VALUES#", valueStatement.substring(1));
+    return new SQL(SQL.UPDATE, sqlstr, values.toArray());
+  } 
+  /**
+   * @deprecated
+   */
+	public SQL constructSQLForInsert_Old(String tableName, Map columns){
 		
 		if(tableName==null){
 			throw new IllegalArgumentException(
@@ -101,6 +219,8 @@ public class SQLBuilder {
 		
 	}
 	
+	
+	
   /**
    * 构建Insert操作的SQL声明
    * 
@@ -135,7 +255,7 @@ public class SQLBuilder {
         + tableName
         + " SET #NAME_AND_VALUES# ";
     
-    List values  = new ArrayList(columns.size()+condition.size());
+    List values  = new ArrayList(columns.size()+(condition!=null?condition.size():0));
     
     /* 处理被更新的字段 */
     String namesAndValues = "";
