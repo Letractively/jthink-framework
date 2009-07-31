@@ -32,6 +32,7 @@ import org.jdom.input.SAXBuilder;
  * 历史更新记录:</b>
  * 2004-04-05  创建此类型
  * 2004-10-02  修改了一些方法 
+ * 2009-06-08  优化了toXMLString和save方法， 增加了save方法保存org.jdom.Document文档
  * 
  * </pre></p>
  * 
@@ -246,12 +247,42 @@ public final class XMLHelper {
    */
   public static  synchronized void save(Element el, String fileName, String encoding){
     try {
-      toXmlFile(buildDocument(el), encoding, fileName);
+      toXmlFile(el, encoding, fileName);
     }
     catch (Exception e) {
       throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_XML_XML_FILE_SAVE_FAILED,  "Save xml error!", e);
     }
   }
+  
+  
+  /**
+   * 将org.jdom.Document文档保存为一个文件，字符编码为默认方式
+   *
+   * @param el         org.jdom.Element元素
+   * @param fileName   文件名称，包括路径
+   *
+   */
+  public static void save(org.jdom.Document doc, String fileName) {
+    save(doc, fileName, encoding);
+  }
+
+  /**
+   * 将org.jdom.Document元素保存为一个文件
+   *
+   * @param doc         org.jdom.Document文档
+   * @param fileName   文件名称，包括路径
+   * @param encoding   字符编码方式
+   *
+   */
+  public static  synchronized void save(org.jdom.Document doc, String fileName, String encoding){
+    try {
+      toXmlFile(doc, encoding, fileName);
+    }
+    catch (Exception e) {
+      throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_XML_XML_FILE_SAVE_FAILED,  "Save xml error!", e);
+    }
+  }
+  
 
   /**
    * 将Xorg.jdom.Element元素输出为XML串，采用默认编码方式
@@ -698,13 +729,13 @@ public final class XMLHelper {
   
   /**
    * 将XML文档保存到文件
-   * @param xmlJDoc
+   * @param el
    * @param encoding
    * @param fileName
    * @throws FileNotFoundException
    * @throws IOException
    */
-   static void toXmlFile(org.jdom.Document xmlJDoc, String encoding,
+   static void toXmlFile(org.jdom.Element el, String encoding,
                                     String fileName) throws FileNotFoundException,
         IOException {
 
@@ -713,13 +744,41 @@ public final class XMLHelper {
       XMLOutputter xmlOutput = new XMLOutputter();
       Format format = Format.getPrettyFormat();
       format.setEncoding(encoding);
-      format.setIndent("   ");
+      format.setIndent("  ");
+      format.setEncoding(encoding);
+      format.setIgnoreTrAXEscapingPIs(true);
       xmlOutput.setFormat(format);
-      OutputStream os = new java.io.FileOutputStream(fileName, false);
-      xmlOutput.output(xmlJDoc, os);
+      
+      OutputStream os = new BufferedOutputStream(new java.io.FileOutputStream(fileName, false));
+      xmlOutput.output(el, os);
       os.close();
 
     }
+   
+   /**
+    * 将XML文档保存到文件
+    * @param doc
+    * @param encoding
+    * @param fileName
+    * @throws FileNotFoundException
+    * @throws IOException
+    */
+    static void toXmlFile(org.jdom.Document doc, String encoding,
+                                     String fileName) throws FileNotFoundException,
+         IOException {
+
+//       boolean writefileStatus = true;
+
+       XMLOutputter xmlOutput = new XMLOutputter();
+       Format format = Format.getPrettyFormat();
+       format.setEncoding(encoding);
+       format.setIndent("  ");
+       xmlOutput.setFormat(format);
+       OutputStream os = new BufferedOutputStream(new java.io.FileOutputStream(fileName, false));
+       xmlOutput.output(doc, os);
+       os.close();
+
+     }
 
     /**
      * Out xml document string
@@ -732,22 +791,37 @@ public final class XMLHelper {
      */
      static String toXmlString(Element xmlEL,
                                         String encoding) throws IOException {
-      return toXmlString(buildDocument(xmlEL), encoding);
+       //return toXmlString(buildDocument(xmlEL), encoding);
+       XMLOutputter xmlOutput = new XMLOutputter();
+       Format format = Format.getPrettyFormat();
+       format.setEncoding(encoding);
+       format.setIndent("   ");
+       xmlOutput.setFormat(format);
+       return xmlOutput.outputString(xmlEL);
      }
 
 
-     static String toXmlString(org.jdom.Document xmlJDoc,
-                                        String encoding) throws IOException {
-      XMLOutputter xmlOutput = new XMLOutputter();
-      Format format = Format.getPrettyFormat();
-      format.setEncoding(encoding);
-      format.setIndent("   ");
-      xmlOutput.setFormat(format);
-      return xmlOutput.outputString(xmlJDoc);
-
-    }
-
-
+//     static String toXmlString(org.jdom.Document xmlJDoc,
+//                                        String encoding) throws IOException {
+//      XMLOutputter xmlOutput = new XMLOutputter();
+//      Format format = Format.getPrettyFormat();
+//      format.setEncoding(encoding);
+//      format.setIndent("   ");
+//      xmlOutput.setFormat(format);
+//      return xmlOutput.outputString(xmlJDoc);
+//
+//    }
+//
+//     static String toXmlString(org.jdom.Element el,
+//         String encoding) throws IOException {
+//        XMLOutputter xmlOutput = new XMLOutputter();
+//        Format format = Format.getPrettyFormat();
+//        format.setEncoding(encoding);
+//        format.setIndent("   ");
+//        xmlOutput.setFormat(format);
+//        return xmlOutput.outputString(el);
+//     }
+     
     /**
      * get InputStream data
      *
@@ -761,17 +835,17 @@ public final class XMLHelper {
     }
 
 
-     static Document buildDocument(Element el) {
-      Document doc = null;
-      if (el.getParentElement() != null) {
-        el = (Element) el.clone();
-      }
-      doc = el.getDocument();
-      if (doc == null) {
-        doc = new Document(el);
-      }
-      return doc;
-    }
+//     static Document buildDocument(Element el) {
+//      Document doc = null;
+//      if (el.getParentElement() != null) {
+//        el = (Element) el.clone();
+//      }
+//      doc = el.getDocument();
+//      if (doc == null) {
+//        doc = new Document(el);
+//      }
+//      return doc;
+//    }
 
     //mode
     //join element list, join mode: and, unite element's all attribute.

@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.fto.jthink.exception.JThinkRuntimeException;
 import org.fto.jthink.util.StringHelper;
@@ -260,16 +259,36 @@ public class SQLBuilder {
 			throw new IllegalArgumentException(
 					"The name of an table cannot be null.");
 		}
-		String sqlstr = "DELETE FROM " + tableName;
+		StringBuffer sqlstr = new StringBuffer().append("DELETE FROM ").append(tableName);
 		Object[] values = null;
 		if (condition != null && condition.size()>0) {
-			sqlstr += " WHERE " + condition.getConditionString();
+			sqlstr.append(" WHERE ").append(condition.getConditionString());
 			values = condition.getValues();
 		}else{
 			values = new Object[0];
 		}
-		return new SQL(SQL.UPDATE, sqlstr, values);
+		return new SQL(SQL.UPDATE, sqlstr.toString(), values);
 	}
+  
+  /**
+   * @deprecated
+   */
+  SQL constructSQLForDelete_old1(String tableName, Condition condition){
+    if(tableName==null){
+      throw new IllegalArgumentException(
+          "The name of an table cannot be null.");
+    }
+    String sqlstr = "DELETE FROM " + tableName;
+    Object[] values = null;
+    if (condition != null && condition.size()>0) {
+      sqlstr += " WHERE " + condition.getConditionString();
+      values = condition.getValues();
+    }else{
+      values = new Object[0];
+    }
+    return new SQL(SQL.UPDATE, sqlstr, values);
+  }
+  
   /**
    * 构建删除记录操作的SQL声明
    * 
