@@ -137,28 +137,57 @@ public class Condition implements java.io.Serializable{
    */
   public String getConditionString(){
   	Iterator conditionsIT = conditions.iterator();
-  	String whereStr = "";
+  	StringBuffer whereStr = new StringBuffer();
   	while(conditionsIT.hasNext()){
   		Object[] CondiItem = (Object[])conditionsIT.next();
   		String logicOperator = (String)CondiItem[0];
+      if(whereStr.length()==0){
+        if(logicOperator.equals(AND) || logicOperator.equals(OR)){
+          logicOperator = "";
+        }else if(logicOperator.equals(AND_NOT) || logicOperator.equals(OR_NOT)){
+          logicOperator = "NOT";
+        }
+      }
+      logicOperator = (whereStr.length()==0 && (logicOperator.equals(AND) || logicOperator.equals(OR)))?"":logicOperator;
   		if (CondiItem[1] instanceof ConditionItem) {
   			ConditionItem item = (ConditionItem) CondiItem[1];
-  			whereStr += logicOperator +" "+item.getConditionItemString();
+  			whereStr.append(logicOperator).append(" ").append(item.getConditionItemString());
   		}else{
   			Condition condition = (Condition) CondiItem[1];
   			String subCondnStr = condition.getConditionString();
   			if(subCondnStr.length()>0){
-  				whereStr += logicOperator +" ("+subCondnStr+") ";
+  				whereStr.append(logicOperator).append(" (").append(subCondnStr).append(") ");
   			}
   		}
   		
   	}
-  	if(whereStr.startsWith(AND)){
-  		whereStr = whereStr.substring(3);
-  	}else	if(whereStr.startsWith(OR)){
-  		whereStr = whereStr.substring(2);
-  	}
-  	return whereStr;
+  	return whereStr.toString();
+  }
+  
+  String getConditionString_old1(){
+    Iterator conditionsIT = conditions.iterator();
+    String whereStr = "";
+    while(conditionsIT.hasNext()){
+      Object[] CondiItem = (Object[])conditionsIT.next();
+      String logicOperator = (String)CondiItem[0];
+      if (CondiItem[1] instanceof ConditionItem) {
+        ConditionItem item = (ConditionItem) CondiItem[1];
+        whereStr += logicOperator +" "+item.getConditionItemString();
+      }else{
+        Condition condition = (Condition) CondiItem[1];
+        String subCondnStr = condition.getConditionString();
+        if(subCondnStr.length()>0){
+          whereStr += logicOperator +" ("+subCondnStr+") ";
+        }
+      }
+      
+    }
+    if(whereStr.startsWith(AND)){
+      whereStr = whereStr.substring(3);
+    }else if(whereStr.startsWith(OR)){
+      whereStr = whereStr.substring(2);
+    }
+    return whereStr;
   }
   
   /**
