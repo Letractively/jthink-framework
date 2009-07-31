@@ -137,7 +137,7 @@ public class SQLBuilderTestCase extends TestCase {
 		SQL sqlStatement = sqlBuilder.constructSQLForUpdate("departments", columns, condn);
 		System.out.println(sqlStatement.getSQLString());
 		
-		if(!"UPDATE departments SET DeptName=?,DeptDesc=NULL  WHERE  NOT DeptName like ? AND ( DeptId != ? OR ( DeptId Between ? AND ? ) ) AND NOT DeptDesc like ? ".equals(sqlStatement.getSQLString())){
+		if(!"UPDATE departments SET DeptName=?,DeptDesc=NULL  WHERE NOT DeptName like ? AND ( DeptId != ? OR ( DeptId Between ? AND ? ) ) AND NOT DeptDesc like ? ".equals(sqlStatement.getSQLString())){
 		  super.fail();
 		}
 		printObjects(sqlStatement.getValues());
@@ -162,20 +162,41 @@ public class SQLBuilderTestCase extends TestCase {
 		
 		Condition condn1 = new Condition();
 		condn1.add(new ConditionItem("DeptId", "!=", "3"));
-		
 		Condition condn2 = new Condition();
-//		condn2.add(Condition.OR, "DeptId", "!=", (Object)null);
 		condn2.add(Condition.OR, new ConditionItem("DeptId", "Between", new Object[]{"6", "9"}));
-		
 		condn1.add("OR", condn2);
-		
 		condn.add(Condition.AND_NOT, new ConditionItem("DeptName", "like", "%部%"));
 		condn.add(Condition.AND, condn1);
-//		condn.add(Condition.AND_NOT, "DeptDesc", "like", "%技术%");
+
+    /* constructSQLForDelete测试开始 */
+    {
+      double totalUseTime = 0;
+      int count = 0;
+      for(int i=0;i<200;i++){//在此设置测试次数
+          long stime = System.nanoTime();        
+          
+          /* 测试代码 开始 */
+          sqlBuilder.constructSQLForDelete("departments", condn);
+          /* 测试代码 结束 */
+          
+          double usetime = (System.nanoTime()-stime)/1000000f;
+          if(usetime<0.03 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+              totalUseTime += usetime;
+              count++;
+          }
+      }
+      System.out.println("constructSQLForDelete测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
+    }   
 		
 		SQL sqlStatement = sqlBuilder.constructSQLForDelete("departments", condn);
+    System.out.println(sqlStatement.getSQLString());
+        //DELETE FROM departments WHERE  DeptName like ? AND ( DeptId != ? OR ( DeptId Between ? AND ? ) ) 
+    if(!"DELETE FROM departments WHERE NOT DeptName like ? AND ( DeptId != ? OR ( DeptId Between ? AND ? ) ) ".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
+    
 		
-		System.out.println(sqlStatement.getSQLString());
+		
 		printObjects(sqlStatement.getValues());
 	}
 	/**
