@@ -100,7 +100,11 @@ public class SQLBuilderTestCase extends TestCase {
     HashMap columns = new HashMap();
     columns.put("DeptName", "test1");
     columns.put("DeptDesc", null);//"desc test1");
-    
+    columns.put("F1", "1");
+    columns.put("F2", "2");
+    columns.put("F3", "3");
+    columns.put("F4", "4");
+    columns.put("F5", "5");
     
     Condition condn = new Condition();
     Condition condn1 = new Condition();
@@ -118,7 +122,7 @@ public class SQLBuilderTestCase extends TestCase {
     {
       double totalUseTime = 0;
       int count = 0;
-      for(int i=0;i<100;i++){//在此设置测试次数
+      for(int i=0;i<200;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
@@ -136,7 +140,7 @@ public class SQLBuilderTestCase extends TestCase {
     
     SQL sqlStatement = sqlBuilder.constructSQLForUpdate("departments", columns, condn);
     System.out.println(sqlStatement.getSQLString());
-    if(!"UPDATE departments SET DeptName=?,DeptDesc=NULL  WHERE NOT DeptName like ? AND ( DeptId != ? OR ( DeptId Between ? AND ? ) ) AND NOT DeptDesc like ? ".equals(sqlStatement.getSQLString())){
+    if(!"UPDATE departments SET F1=?,DeptName=?,F5=?,F4=?,F3=?,F2=?,DeptDesc=NULL WHERE NOT DeptName like ? AND ( DeptId != ? OR ( DeptId Between ? AND ? ) ) AND NOT DeptDesc like ? ".equals(sqlStatement.getSQLString())){
       super.fail();
     }
     printObjects(sqlStatement.getValues());
@@ -145,7 +149,7 @@ public class SQLBuilderTestCase extends TestCase {
     sqlStatement = sqlBuilder.constructSQLForUpdate("departments", columns, null);
     System.out.println(sqlStatement.getSQLString());
     //UPDATE departments SET DeptName=?,DeptDesc=NULL
-    if(!"UPDATE departments SET DeptName=?,DeptDesc=NULL".equals(sqlStatement.getSQLString())){
+    if(!"UPDATE departments SET F1=?,DeptName=?,F5=?,F4=?,F3=?,F2=?,DeptDesc=NULL".equals(sqlStatement.getSQLString())){
       super.fail();
     }
     printObjects(sqlStatement.getValues());
