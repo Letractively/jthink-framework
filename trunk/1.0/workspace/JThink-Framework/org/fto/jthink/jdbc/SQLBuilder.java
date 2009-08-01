@@ -137,31 +137,27 @@ public class SQLBuilder {
           "The value of an columns cannot be empty.");
     }
     
-    String sqlstr = "UPDATE "
-        + tableName
-        + " SET #NAME_AND_VALUES# ";
-    
     List values  = new ArrayList(columns.size()+(condition!=null?condition.size():0));
+    StringBuffer sql = new StringBuffer("UPDATE ")
+    .append(tableName)
+    .append(" SET ");
     
     /* 处理被更新的字段 */
-    String namesAndValues = "";
-    Iterator columnNamesIT = columns.keySet().iterator();
-    while(columnNamesIT.hasNext()){
-      String columnName = (String)columnNamesIT.next();
-      Object value = columns.get(columnName);
+    Iterator columnsIT = columns.entrySet().iterator();
+    while(columnsIT.hasNext()){
+      Map.Entry column = (Map.Entry)columnsIT.next();
+      Object value = column.getValue();
+      int valuesSize = values.size();
       if(value==null){
-        namesAndValues += "," + columnName + "=NULL";
+        sql.append(valuesSize>0?",":"").append(column.getKey()).append("=NULL");
       }else{
-        namesAndValues += "," + columnName + "=?";
+        sql.append(valuesSize>0?",":"").append(column.getKey()).append("=?");
         values.add(value);
       }
     }
-    namesAndValues = namesAndValues.substring(1);
-    sqlstr = StringHelper.replace(sqlstr, "#NAME_AND_VALUES#", namesAndValues);
-    
     /* 处理条件 */
     if(condition!=null && condition.size()>0){
-      sqlstr += " WHERE "+condition.getConditionString();
+      sql.append(" WHERE ").append(condition.getConditionString());
       Object[] objs = condition.getValues();
       int len=objs.length;
       for(int i=0;i<len;i++){
@@ -169,13 +165,57 @@ public class SQLBuilder {
       }
     }
     
-    return new SQL(SQL.UPDATE, sqlstr, values.toArray());
+    return new SQL(SQL.UPDATE, sql.toString(), values.toArray());
+  }  
+  /**
+   *  @deprecated
+   */
+  SQL constructSQLForUpdate_old2(String tableName, Map columns, Condition condition){
+    if(tableName==null){
+      throw new IllegalArgumentException(
+          "The name of an table cannot be null.");
+    }
+    if(columns.size()==0){
+      throw new IllegalArgumentException(
+          "The value of an columns cannot be empty.");
+    }
+    
+    List values  = new ArrayList(columns.size()+(condition!=null?condition.size():0));
+    StringBuffer sql = new StringBuffer("UPDATE ")
+    .append(tableName)
+    .append(" SET ");
+    
+    /* 处理被更新的字段 */
+    Iterator columnNamesIT = columns.keySet().iterator();
+    while(columnNamesIT.hasNext()){
+      String columnName = (String)columnNamesIT.next();
+      Object value = columns.get(columnName);
+      int valuesSize = values.size();
+      if(value==null){
+        sql.append(valuesSize>0?",":"").append(columnName).append("=NULL");
+      }else{
+        sql.append(valuesSize>0?",":"").append(columnName).append("=?");
+        values.add(value);
+      }
+    }
+    
+    /* 处理条件 */
+    if(condition!=null && condition.size()>0){
+      sql.append(" WHERE ").append(condition.getConditionString());
+      Object[] objs = condition.getValues();
+      int len=objs.length;
+      for(int i=0;i<len;i++){
+        values.add(objs[i]);
+      }
+    }
+    
+    return new SQL(SQL.UPDATE, sql.toString(), values.toArray());
   }
   
   /**
    *  @deprecated
    */
-  public SQL constructSQLForUpdate_old1(String tableName, Map columns, Condition condition){
+  SQL constructSQLForUpdate_old1(String tableName, Map columns, Condition condition){
 		if(tableName==null){
 			throw new IllegalArgumentException(
 					"The name of an table cannot be null.");
@@ -187,7 +227,7 @@ public class SQLBuilder {
   	
     String sqlstr = "UPDATE "
         + tableName
-        + " SET #NAME_AND_VALUES# ";
+        + " SET #NAME_AND_VALUES#";
     
     List values  = new ArrayList(columns.size()+(condition!=null?condition.size():0));
     
@@ -259,7 +299,7 @@ public class SQLBuilder {
 			throw new IllegalArgumentException(
 					"The name of an table cannot be null.");
 		}
-		StringBuffer sqlstr = new StringBuffer().append("DELETE FROM ").append(tableName);
+		StringBuffer sqlstr = new StringBuffer("DELETE FROM ").append(tableName);
 		Object[] values = null;
 		if (condition != null && condition.size()>0) {
 			sqlstr.append(" WHERE ").append(condition.getConditionString());
