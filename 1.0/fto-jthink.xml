@@ -17,7 +17,7 @@
 		</transaction>
 		<transaction id="WebTransaction">
 			<!-- WEB端事务,企业应用服务器使用此事务,比如Jboss,Websphere, Weblogic
-				等WEB容器端采用JTA事务管理时用, 最版本的Tomcat也支持JTA事务
+				等WEB容器端采用JTA事务管理时用, 最新版本的Tomcat也支持JTA事务
 			-->
 			<factory-class>org.fto.jthink.j2ee.ejb.JTATransactionFactory</factory-class>
 			<config>
