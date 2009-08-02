@@ -19,6 +19,9 @@ import org.fto.jthink.jdbc.Column;
 import org.fto.jthink.jdbc.Condition;
 import org.fto.jthink.jdbc.SQL;
 import org.fto.jthink.jdbc.SQLBuilder;
+import org.fto.jthink.jdbc.hsql.HsqlSQLBuilder;
+import org.fto.jthink.jdbc.mssql.MssqlSQLBuilder;
+import org.fto.jthink.jdbc.mysql.MysqlSQLBuilder;
 import org.fto.jthink.util.NumberHelper;
 
 import junit.framework.TestCase;
@@ -36,12 +39,15 @@ public class SQLBuilderTestCase extends TestCase {
   }
 
   private SQLBuilder sqlBuilder = new DefaultSQLBuilder(); 
+  private SQLBuilder hsqlBuilder = new HsqlSQLBuilder(); 
+  private SQLBuilder mssqlSQLBuilder = new MssqlSQLBuilder(); 
+  private SQLBuilder mysqlSQLBuilder = new MysqlSQLBuilder(); 
   
   /**
    *方法测试
    */
   public void testConstructSQLForInsert() {
-    System.out.println("\n[正在测试方法: SQLBuilderTestCase.ConstructSQLForInsert()...]");
+    System.out.println("\n[正在测试方法: SQLBuilder.ConstructSQLForInsert()...]");
     
     HashMap columns = new HashMap();
     columns.put("DeptId", "1");
@@ -95,7 +101,7 @@ public class SQLBuilderTestCase extends TestCase {
    *方法测试
    */
   public void testconstructSQLForUpdate() {
-    System.out.println("\n[正在测试方法: SQLBuilderTestCase.constructSQLForUpdate()...]");
+    System.out.println("\n[正在测试方法: SQLBuilder.constructSQLForUpdate()...]");
     
     HashMap columns = new HashMap();
     columns.put("DeptName", "test1");
@@ -160,7 +166,7 @@ public class SQLBuilderTestCase extends TestCase {
    *方法测试
    */
   public void testconstructSQLForDelete() {
-    System.out.println("\n[正在测试方法: SQLBuilderTestCase.constructSQLForDelete()...]");
+    System.out.println("\n[正在测试方法: SQLBuilder.constructSQLForDelete()...]");
     
     Condition condn = new Condition();
     
@@ -207,7 +213,7 @@ public class SQLBuilderTestCase extends TestCase {
    *方法测试
    */
   public void testconstructSQL_ForSelect$Condition() {
-    System.out.println("\n[正在测试方法: SQLBuilderTestCase.testconstructSQL_ForSelect$Condition()...]");
+    System.out.println("\n[正在测试方法: SQLBuilder.testconstructSQL_ForSelect$Condition()...]");
     
     Condition condn = new Condition();
     condn.add(new ConditionItem("DEPT_NAME", "IN", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)));
@@ -264,7 +270,7 @@ public class SQLBuilderTestCase extends TestCase {
    *方法测试
    */
   public void testconstructSQL_ForSelect() {
-    System.out.println("\n[正在测试方法: SQLBuilderTestCase.constructSQL_ForSelect()...]");
+    System.out.println("\n[正在测试方法: SQLBuilder.constructSQL_ForSelect()...]");
     
     Condition condn = new Condition();
     
@@ -331,7 +337,7 @@ public class SQLBuilderTestCase extends TestCase {
    *方法测试
    */
   public void testconstructSQLForCount() {
-    System.out.println("\n[正在测试方法: SQLBuilderTestCase.constructSQLForCount()...]");
+    System.out.println("\n[正在测试方法: SQLBuilder.constructSQLForCount()...]");
     
     Condition condn = new Condition();
     
@@ -387,6 +393,173 @@ public class SQLBuilderTestCase extends TestCase {
   }
 
   
+  public void testHsqlSQLBuilder(){
+    System.out.println("\n[正在测试方法: HsqlSQLBuilder.constructSQLForSelect()...]");
+    
+    
+    Condition condn = new Condition();
+    condn.add(new ConditionItem("DEPT_NAME", "IN", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)));
+    condn.add(new ConditionItem("DEPT_NO", "IS", "NOT NULL"));
+    condn.add(new ConditionItem("F1", "=", "1"));
+    condn.add(new ConditionItem("F2", "=", "2"));
+    condn.add(new ConditionItem("F3", "=", "3"));
+    condn.add(new ConditionItem("F4", "=", "4"));
+    condn.add(new ConditionItem("F5", "=", "5"));
+    condn.add(new ConditionItem("F6", "in", new Object[]{"1", "2", "3", "4"}));
+    
+    
+    Column[] columns = new Column[]{
+        new Column("DEPT_ID"),
+        new Column("DEPT_NAME", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)),
+        new Column("F1"),
+        new Column("F2"),
+        new Column("F3"),
+        new Column("F4"),
+        new Column("F5"),
+        new Column("F6"),
+    };
+    
+    /* constructSQLForSelect测试开始 */
+    {
+      double totalUseTime = 0;
+      int count = 0;
+      for(int i=0;i<200;i++){//在此设置测试次数
+          long stime = System.nanoTime();        
+          
+          /* 测试代码 开始 */
+          hsqlBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
+          /* 测试代码 结束 */
+          
+          double usetime = (System.nanoTime()-stime)/1000000f;
+          if(usetime<0.09 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+              totalUseTime += usetime;
+              count++;
+          }
+      }
+      System.out.println("constructSQLForSelect 测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
+    }  
+    
+    SQL sqlStatement = hsqlBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
+    System.out.println(sqlStatement.getSQLString());
+    if(!"SELECT  LIMIT 5 20 DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID)AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? )  GROUP BY DeptId ORDER BY DeptName".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
+    printObjects(sqlStatement.getValues());   
+    
+    
+  }
+  
+  public void testMssqlSQLBuilder(){
+    System.out.println("\n[正在测试方法: MssqlSQLBuilder.constructSQLForSelect()...]");
+    
+    
+    Condition condn = new Condition();
+    condn.add(new ConditionItem("DEPT_NAME", "IN", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)));
+    condn.add(new ConditionItem("DEPT_NO", "IS", "NOT NULL"));
+    condn.add(new ConditionItem("F1", "=", "1"));
+    condn.add(new ConditionItem("F2", "=", "2"));
+    condn.add(new ConditionItem("F3", "=", "3"));
+    condn.add(new ConditionItem("F4", "=", "4"));
+    condn.add(new ConditionItem("F5", "=", "5"));
+    condn.add(new ConditionItem("F6", "in", new Object[]{"1", "2", "3", "4"}));
+    
+    
+    Column[] columns = new Column[]{
+        new Column("DEPT_ID"),
+        new Column("DEPT_NAME", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)),
+        new Column("F1"),
+        new Column("F2"),
+        new Column("F3"),
+        new Column("F4"),
+        new Column("F5"),
+        new Column("F6"),
+    };
+    
+    /* constructSQLForSelect测试开始 */
+    {
+      double totalUseTime = 0;
+      int count = 0;
+      for(int i=0;i<200;i++){//在此设置测试次数
+          long stime = System.nanoTime();        
+          
+          /* 测试代码 开始 */
+          mssqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
+          /* 测试代码 结束 */
+          
+          double usetime = (System.nanoTime()-stime)/1000000f;
+          if(usetime<0.09 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+              totalUseTime += usetime;
+              count++;
+          }
+      }
+      System.out.println("constructSQLForSelect 测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
+    }  
+    
+    SQL sqlStatement = mssqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
+    System.out.println(sqlStatement.getSQLString());
+    if(!"SELECT  TOP 25 DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID)AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? )  GROUP BY DeptId ORDER BY DeptName".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
+    printObjects(sqlStatement.getValues());   
+    
+    
+  }
+ 
+  public void testMysqlSQLBuilder(){
+    System.out.println("\n[正在测试方法: MssqlSQLBuilder.constructSQLForSelect()...]");
+    
+    
+    Condition condn = new Condition();
+    condn.add(new ConditionItem("DEPT_NAME", "IN", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)));
+    condn.add(new ConditionItem("DEPT_NO", "IS", "NOT NULL"));
+    condn.add(new ConditionItem("F1", "=", "1"));
+    condn.add(new ConditionItem("F2", "=", "2"));
+    condn.add(new ConditionItem("F3", "=", "3"));
+    condn.add(new ConditionItem("F4", "=", "4"));
+    condn.add(new ConditionItem("F5", "=", "5"));
+    condn.add(new ConditionItem("F6", "in", new Object[]{"1", "2", "3", "4"}));
+    
+    
+    Column[] columns = new Column[]{
+        new Column("DEPT_ID"),
+        new Column("DEPT_NAME", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)),
+        new Column("F1"),
+        new Column("F2"),
+        new Column("F3"),
+        new Column("F4"),
+        new Column("F5"),
+        new Column("F6"),
+    };
+    
+    /* constructSQLForSelect测试开始 */
+    {
+      double totalUseTime = 0;
+      int count = 0;
+      for(int i=0;i<2000;i++){//在此设置测试次数
+          long stime = System.nanoTime();        
+          
+          /* 测试代码 开始 */
+          mysqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
+          /* 测试代码 结束 */
+          
+          double usetime = (System.nanoTime()-stime)/1000000f;
+          if(usetime<0.09 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+              totalUseTime += usetime;
+              count++;
+          }
+      }
+      System.out.println("constructSQLForSelect 测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
+    }  
+    
+    SQL sqlStatement = mysqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
+    System.out.println(sqlStatement.getSQLString());
+    if(!"SELECT DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID)AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? )  GROUP BY DeptId ORDER BY DeptName LIMIT 5,20".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
+    printObjects(sqlStatement.getValues());   
+    
+    
+  }
   
   private void printObjects(Object[] objs){
     for(int i=0;i<objs.length;i++){
