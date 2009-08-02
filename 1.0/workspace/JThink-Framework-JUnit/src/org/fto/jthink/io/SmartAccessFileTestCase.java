@@ -8,6 +8,7 @@ package org.fto.jthink.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.fto.jthink.io.SmartAccessFile;
 
@@ -23,6 +24,7 @@ public class SmartAccessFileTestCase extends TestCase {
 	String  testedfileA = "SmartAccessFile_a.txt";
 	public static void main(String[] args) {
 		junit.textui.TestRunner.run(SmartAccessFileTestCase.class);
+     
 	}
 	
 	
@@ -33,21 +35,29 @@ public class SmartAccessFileTestCase extends TestCase {
 		System.out.println("\n[正在测试方法: SmartAccessFile.indexOf()...]");
 		SmartAccessFile saf = null;
 		try {
-			saf = new SmartAccessFile(testedfileRW, "rw");
-//			saf.setLength(0);
-//			saf.insert("0123456789".getBytes());
+			saf = new SmartAccessFile("SmartAccessFile_testIndexOf.txt", "rw");
+		
 			byte[] bs = "pqrstuvwxyz".getBytes();
-			
-			System.out.println("bs.length:"+bs.length);
-			long indexs = 0;
-//			for(int i=1;i<100;i++){
-				long index = saf.indexOf(bs, 0, bs.length);
-				System.out.println("saf.indexOf(bs):"+index);
-//				if(index==6){
-//					indexs++;
-//				}
-//			}
-			System.out.println("saf.indexOf(bs): count "+indexs);
+			long index = saf.indexOf(bs, 0, bs.length);
+			System.out.println("saf.indexOf(bs):"+index);
+			if(index!=-1){
+			  super.fail();
+      }
+      
+      bs = "0123456789".getBytes();
+      index = saf.indexOf(bs, 0, bs.length);
+      System.out.println("saf.indexOf(bs):"+index);
+      if(index!=3){
+        super.fail();
+      }
+      
+      bs = "试索引".getBytes();
+      index = saf.indexOf(bs, 0, bs.length);
+      System.out.println("saf.indexOf(bs):"+index);
+      if(index!=17){
+        super.fail();
+      }
+
 			printFileAllData(saf);
 			
 		} catch (Exception e) {
@@ -99,37 +109,33 @@ public class SmartAccessFileTestCase extends TestCase {
 		/* 测试"rw"模式 */
 		try {
 			safrw = new SmartAccessFile(testedfileRW, "rw");
-//			safrw.printFileBlockInfo();
 			byte[] bs = null;
 			safrw.seek(safrw.length());
-//			safrw.printFileInfo(false);
-//			safrw.printFileBlockInfo();
-		
+			long beginLen = safrw.length();
 			safrw.insert("测试直接调用RandomAccessFile的write方法!".getBytes());
-			bs = new byte[(int)safrw.length()];
+			bs = new byte[(int)safrw.length()-(int)beginLen];
+      safrw.seek(beginLen);
+      safrw.read(bs);
 			System.out.println("测试直接调用write方法:"+new String(bs));
-//			safrw.printFileInfo(false);
-//			safrw.printFileBlockInfo();
-	
-			
-//			safrw.setLength(0);
+			if(!"测试直接调用RandomAccessFile的write方法!".equals(new String(bs))){
+			  super.fail();
+      }
+      long p = safrw.getFilePointer();
 			safrw.insert("Test insert!".getBytes("UTF-8"));
 			safrw.insert(0x30);
 			safrw.insert("123456789".getBytes("UTF-8"), 1,2);
 			safrw.insert("测试!".getBytes("UTF-8"));
-//			assertEquals(safrw.length(), 22);
-			bs = new byte[(int)safrw.length()];
-			safrw.seek(0);
+
+			bs = new byte[(int)safrw.length()-(int)p];
+			safrw.seek(p);
 			int readedcount = safrw.read(bs);
 			System.out.println("测试\"rw\"模式,实际读出字节数量:"+readedcount);
 			printBytes("测试\"rw\"模式,", bs);
 			String str = new String(bs,"UTF-8");
 			System.out.println("测试\"rw\"模式,打印文件内容:"+str);
-//			assertTrue(str.equals("Test insert!023测试!"));
-//			safrw.printFileBlockInfo();
-			
-//			safrw.printFileInfo(false);
-//			safrw.printFileBlockInfo();
+      if(!"Test insert!023测试!".equals(str)){
+        super.fail();
+      }
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -165,6 +171,79 @@ public class SmartAccessFileTestCase extends TestCase {
 	}
 
 	
+  
+  
+  /**
+   *方法测试
+   */
+  public void testWrite() {
+    System.out.println("\n[正在测试方法: SmartAccessFile.write()...]");
+    SmartAccessFile safrw = null;
+    SmartAccessFile safr = null;
+    SmartAccessFile safa = null;
+    
+    /* 测试"rw"模式 */
+    try {
+      safrw = new SmartAccessFile(testedfileRW, "rw");
+      
+      byte[] bs = "测试在文件头部写入数据".getBytes();
+      safrw.write(bs);
+      safrw.seek(0);
+      Arrays.fill(bs, (byte)0);
+      safrw.read(bs);
+      System.out.println("测试在文件头部写入数据:"+new String(bs));
+      if(!"测试在文件头部写入数据".equals(new String(bs))){
+        super.fail();
+      }
+      long p = safrw.getFilePointer();
+      safrw.write("Test insert!".getBytes("UTF-8"));
+      safrw.write(0x30);
+      safrw.write("123456789".getBytes("UTF-8"), 1,2);
+      safrw.write("测试!".getBytes("UTF-8"));
+      bs = new byte[(int)safrw.getFilePointer()-(int)p];
+      safrw.seek(p);
+      int readedcount = safrw.read(bs);
+      System.out.println("测试\"rw\"模式,实际读出字节数量:"+readedcount);
+      printBytes("测试\"rw\"模式,", bs);
+      String str = new String(bs,"UTF-8");
+      System.out.println("测试\"rw\"模式,打印文件内容:"+str);
+      if(!"Test insert!023测试!".equals(str)){
+        super.fail();
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail(e.getMessage());
+      
+    }finally{
+      closeFile(safrw);
+    }
+    
+    /* 测试"r"模式 */
+    try{
+      safr = new SmartAccessFile(testedfileR, "r");
+      safr.insert("Test insert!".getBytes());
+      fail("测试\"r\"模式: 不应该到达此点!");
+    }catch(Exception e){
+      System.out.println("测试\"r\"模式,应该到达此点!  "+e.getMessage());
+    }finally{
+      closeFile(safr);
+    }
+
+    /* 测试"a"模式 */
+    try{
+      safa = new SmartAccessFile(testedfileA, "a");
+      safa.append("Test insert!".getBytes());
+      System.out.println("测试\"a\"模式: 应该到达此点!");
+    }catch(Exception e){
+      fail("测试\"a\"模式,不应该到达此点!  "+e.getMessage());
+    }finally{
+      closeFile(safa);
+    }
+    
+    System.out.println("方法insert()通过测试.");
+  }
+  
 
 //	/**
 //	 *方法测试
@@ -228,11 +307,10 @@ public class SmartAccessFileTestCase extends TestCase {
 		try{
 			System.out.println("文件长度："+saf.length());
 	    System.out.print("文件所有数据：");
-	    for (int i = 0; i < (int) saf.length(); i++) {
-	    	saf.seek(i);
-	      System.out.print( (char) saf.read());
-	    }
-	    System.out.println();
+      saf.seek(0);
+      byte[] data = new byte[(int)saf.length()];
+      saf.read(data);
+      System.out.println(new String(data));
 		}catch(Exception e){
 			e.printStackTrace();
 			fail(e.getMessage());
