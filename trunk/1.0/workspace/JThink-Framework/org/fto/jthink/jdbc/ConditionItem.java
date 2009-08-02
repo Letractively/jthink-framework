@@ -158,46 +158,45 @@ public class ConditionItem implements java.io.Serializable{
 		return sql.getValues();
 	}
 
-	/**
-	 * 返回SQL串形式的条件单项
-	 */
-	public String getConditionItemString(){
-		if(sql!=null){
-			return name+" "+operator+" ("+ sql.getSQLString()+")";
-		}
-		if(isValidOperator(OPERATOR_SIGNS_SINGLE, operator)){
-			if(isQuote){
-				return name+" "+operator+" "+value+" ";
-			}else{
-				return name+" "+operator+" ? ";
-			}
-		}else{
-			if(isValidOperator(OPERATOR_SIGNS_BETWEEN, operator)){
-          return name+" "+operator+ " ? " + "AND" + " ? ";
-			}else{
-				String value = ""; 
+  /**
+   * 返回SQL串形式的条件单项
+   */
+  public String getConditionItemString(){
+    if(sql!=null){
+      return new StringBuffer(name).append(" ").append(operator).append(" (").append(sql.getSQLString()).append(")").toString();
+    }
+    if(isValidOperator(OPERATOR_SIGNS_SINGLE, operator)){
+      if(isQuote){
+        return new StringBuffer(name).append(" ").append(operator).append(" ").append(value).append(" ").toString();
+      }else{
+        return new StringBuffer(name).append(" ").append(operator).append(" ? ").toString();
+      }
+    }else{
+      if(isValidOperator(OPERATOR_SIGNS_BETWEEN, operator)){
+          return new StringBuffer(name).append(" ").append(operator).append(" ? AND ? ").toString();
+      }else{
+        StringBuffer valuesStr = new StringBuffer(name).append(" ").append(operator).append(" ("); 
         for(int i=0; i<values.length; i++){
-          value += ",? ";
+          valuesStr.append(i==0?"? ":",? ");
         }
-        value = value.substring(1);
-        return name+" "+operator+" ("+value+") ";
-			}
-		}
-	}
+        return valuesStr.append(") ").toString();
+      }
+    }
+  }
 	
 
 	/* 在构建SQL条件单项时用到的运算符号: "=", ">=", "<=", ">", "<", "<>", "!=", "LIKE", "NOT LIKE" ,"IS"*/
-	private static String[] OPERATOR_SIGNS_SINGLE = {
+	private final static String[] OPERATOR_SIGNS_SINGLE = {
       "=", ">=", "<=", ">", "<", "<>", "!=", "LIKE", "NOT LIKE", "IS"};
 	
 	/* 在构建SQL条件单项时用到的运算符号: "Between","NOT Between", "IN", "NOT IN" */
-	private static String[] OPERATOR_SIGNS_MORE = {
+	private final static String[] OPERATOR_SIGNS_MORE = {
 			"Between","NOT Between", "IN", "NOT IN"};
 	/* 在构建SQL条件单项时用到的运算符号: "Between","NOT Between" */
-	private static String[] OPERATOR_SIGNS_BETWEEN = {
+	private final static String[] OPERATOR_SIGNS_BETWEEN = {
 			"Between","NOT Between"};
 	/* 在构建SQL条件单项时用到的运算符号: "IN", "NOT IN" */
-	private static String[] OPERATOR_SIGNS_IN = {
+	private final static String[] OPERATOR_SIGNS_IN = {
 			"IN", "NOT IN"};
 	
   /**
@@ -208,7 +207,8 @@ public class ConditionItem implements java.io.Serializable{
    * @return true,是, false,否
    */
 	private boolean isValidOperator(String[] definedSigns, String oprtor){
-    for(int i=0; i<definedSigns.length;i++){
+    int len = definedSigns.length;
+    for(int i=0; i<len;i++){
         if(definedSigns[i].equalsIgnoreCase(oprtor.trim())){
           return true;
         }
