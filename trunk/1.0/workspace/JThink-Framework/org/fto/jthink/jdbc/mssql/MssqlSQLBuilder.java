@@ -68,80 +68,60 @@ public class MssqlSQLBuilder extends SQLBuilder{
     	throw new JThinkRuntimeException("rowLen不能小于0!");
     }
 
-  	String distinctStr = null;
-    String topRowStr = null;
-    String columnNamesStr = null;
-    String conditionStr = null;
-    String groupbyStr = null;
-    String orderbyStr = null;
-    String fromStr = null;
-
+    
+    org.fto.jthink.lang.StringBuffer sqlStr = new org.fto.jthink.lang.StringBuffer("SELECT ");
+    //StringBuffer sqlStr = new StringBuffer("SELECT ");
     List values = new ArrayList();
+
     
     /* 生成DISTINCT串 */
     if (distinct) {
-      distinctStr = " DISTINCT ";
+      sqlStr.append(" DISTINCT ");
     }
-    else {
-      distinctStr = "";
-    }
-    /* 生成返回列的串 */
-    if (columns != null && columns.length != 0) {
-    	SQL columnSQL = constructSelectedColumn(columns);
-      columnNamesStr = columnSQL.getSQLString();
-    	Object[] objs = columnSQL.getValues();
-    	int len=objs.length;
-    	for(int i=0;i<len;i++){
-    		values.add(objs[i]);
-    	}
-    }else{
-      columnNamesStr = "*";
-    }
+    
     /* 生成TOP串 */
     if (rowLen != -1) {
-      topRowStr = " TOP "+(startIndex + rowLen)+" ";
-    }
-    else {
-      topRowStr = "";
-    }
-    /* 生成查询条件串 */
-    if (condition != null && condition.size() != 0) {
-      conditionStr = " WHERE " + condition.getConditionString();
-    	Object[] objs = condition.getValues();
-    	int len=objs.length;
-    	for(int i=0;i<len;i++){
-    		values.add(objs[i]);
-    	}      
-    }else{
-      conditionStr = "";
-    }
-    /* 生成GROUP BY串 */
-    if (groupby != null && groupby.length() != 0) {
-      groupbyStr = " GROUP BY " + groupby;
-    }else{
-      groupbyStr = "";
-    }
-    /* 生成ORDER BY串 */
-    if (orderby != null && orderby.length() != 0) {
-      orderbyStr = " ORDER BY " + orderby;
-    }else{
-      orderbyStr = "";
+      sqlStr.append(" TOP ").append(String.valueOf((startIndex + rowLen))).append(" ");
     }
     
+    /* 生成返回列的串 */
+    if (columns != null && columns.length != 0) {
+      SQL columnSQL = constructSelectedColumn(columns);
+      sqlStr.append(columnSQL.getSQLString());
+      Object[] objs = columnSQL.getValues();
+      int len=objs.length;
+      for(int i=0;i<len;i++){
+        values.add(objs[i]);
+      }
+    }
+
     /* 生成FROM子串, 如果tableName为空,将不构建FROM子句 */
     if (tableName != null && tableName.length() != 0) {
-      fromStr = " FROM " + tableName;
-    }else{
-      fromStr = "";
+      sqlStr.append(" FROM ").append(tableName);
     }
     
+    /* 生成查询条件串 */
+    if (condition != null && condition.size() != 0) {
+      sqlStr.append(" WHERE ").append(condition.getConditionString());
+      Object[] objs = condition.getValues();
+      int len=objs.length;
+      for(int i=0;i<len;i++){
+        values.add(objs[i]);
+      }      
+    }
     
-    /* 生成SQL查询串 */
-    String sqlstr = "SELECT " + distinctStr + topRowStr  + columnNamesStr
-        + fromStr
-        + conditionStr + groupbyStr + orderbyStr;
+    /* 生成GROUP BY串 */
+    if (groupby != null && groupby.length() != 0) {
+      sqlStr.append(" GROUP BY ").append(groupby);
+    }
     
-    return new SQL(SQL.SELECT, sqlstr, values.toArray(), startIndex, rowLen);
+    /* 生成ORDER BY串 */
+    if (orderby != null && orderby.length() != 0) {
+      sqlStr.append(" ORDER BY ").append(orderby);
+    }
+    
+    return new SQL(SQL.SELECT, sqlStr.toString(), values.toArray(), startIndex, rowLen);
+
   }
   
 }
