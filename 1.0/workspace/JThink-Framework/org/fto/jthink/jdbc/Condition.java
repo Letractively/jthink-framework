@@ -164,32 +164,6 @@ public class Condition implements java.io.Serializable{
   	return whereStr.toString();
   }
   
-  String getConditionString_old1(){
-    Iterator conditionsIT = conditions.iterator();
-    String whereStr = "";
-    while(conditionsIT.hasNext()){
-      Object[] CondiItem = (Object[])conditionsIT.next();
-      String logicOperator = (String)CondiItem[0];
-      if (CondiItem[1] instanceof ConditionItem) {
-        ConditionItem item = (ConditionItem) CondiItem[1];
-        whereStr += logicOperator +" "+item.getConditionItemString();
-      }else{
-        Condition condition = (Condition) CondiItem[1];
-        String subCondnStr = condition.getConditionString();
-        if(subCondnStr.length()>0){
-          whereStr += logicOperator +" ("+subCondnStr+") ";
-        }
-      }
-      
-    }
-    if(whereStr.startsWith(AND)){
-      whereStr = whereStr.substring(3);
-    }else if(whereStr.startsWith(OR)){
-      whereStr = whereStr.substring(2);
-    }
-    return whereStr;
-  }
-  
   /**
    * 返回所有条件表达式的值
    * 

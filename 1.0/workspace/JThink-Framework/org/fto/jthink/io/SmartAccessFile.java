@@ -70,7 +70,7 @@ public class SmartAccessFile {
   /* 文件块(FileBlock)列表 */
   private List fileBlocks = new LinkedList();
   /* 初始化时的块数量 */
-  private int initBlocksCount = 0;
+  //private int initBlocksCount = 0;
   /* 文件当前长度 */
   private long curtFileLength = 0;
   /* 文件当前指针位置 */
@@ -80,6 +80,9 @@ public class SmartAccessFile {
   /* 文件当前块中的指针位置 */
   private int curtFBPointer = 0;
 
+  /* 用于读写一个字节数据临时缓冲 */
+  private byte[] oneByte = new byte[1];
+  
   /**
    * 创建SmartAccessFile的一个实例。
    * 
@@ -133,7 +136,7 @@ public class SmartAccessFile {
       fileBlocks.add(new FileBlock(raf, 0, tmpLen<=intMaxValue?(int)tmpLen:intMaxValue));
       tmpLen -= intMaxValue;
     }
-    this.initBlocksCount = fileBlocks.size();
+    //this.initBlocksCount = fileBlocks.size();
     curtFileBlock = (FileBlock)fileBlocks.get(0);//当前文件块
   }
 
@@ -345,10 +348,10 @@ public class SmartAccessFile {
       return -1;
     }
     curtFileBlock.seek((int)curtFBPointer);
-    byte[] b = new byte[1];
-    curtFileBlock.read(b, 0 ,1);
+    //byte[] b = new byte[1];
+    curtFileBlock.read(oneByte, 0 ,1);
     seek(getFilePointer()+1);
-    return b[0];
+    return oneByte[0];
   }
 
   /**
@@ -423,7 +426,8 @@ public class SmartAccessFile {
    * @see  java.io.RandomAccessFile#write(int)
    */
   public void write(int b) throws IOException{
-    write(new byte[]{(byte)b}, 0,1);
+    oneByte[0] = (byte)b;
+    write(oneByte, 0,1);
   }
   /**
    * 向当前文件指针位置写入一组字节。

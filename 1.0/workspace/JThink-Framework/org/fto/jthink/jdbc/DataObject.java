@@ -28,7 +28,7 @@ import org.fto.jthink.util.ReflectHelper;
  * 
  * <p><pre><b>
  * 历史更新记录:</b>
- * 2005-09-22  创建此类型
+ * 2008-09-22  创建此类型
  * </pre></p>
  * 
  * 

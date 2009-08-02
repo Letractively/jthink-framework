@@ -135,11 +135,11 @@ public class Column  implements java.io.Serializable{
 			if(columnValue==null || columnName.equalsIgnoreCase((String)columnValue)){
 				column = columnName;
 			}else{
-				column = "("+columnValue+") AS "+columnName;
+				column = new StringBuffer().append("(").append(columnValue).append(") AS ").append(columnName).toString();
 			}
 		}else{
 			SQL sql = (SQL)columnValue;
-			column = "("+sql.getSQLString()+") AS "+columnName;
+			column = new StringBuffer().append("(").append(sql.getSQLString()).append(") AS ").append(columnName).toString();
 			values = sql.getValues();
 		}
 		return new SQL(SQL.UNDEFINED, column, values);

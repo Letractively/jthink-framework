@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.fto.jthink.exception.JThinkRuntimeException;
-import org.fto.jthink.util.StringHelper;
 
 /**
  * 构建SQL。 此类型已经提供了构建常用SQL语句的方法，但如果要构建复杂SQL，
@@ -167,98 +166,6 @@ public class SQLBuilder {
     
     return new SQL(SQL.UPDATE, sql.toString(), values.toArray());
   }  
-  /**
-   *  @deprecated
-   */
-  SQL constructSQLForUpdate_old2(String tableName, Map columns, Condition condition){
-    if(tableName==null){
-      throw new IllegalArgumentException(
-          "The name of an table cannot be null.");
-    }
-    if(columns.size()==0){
-      throw new IllegalArgumentException(
-          "The value of an columns cannot be empty.");
-    }
-    
-    List values  = new ArrayList(columns.size()+(condition!=null?condition.size():0));
-    StringBuffer sql = new StringBuffer("UPDATE ")
-    .append(tableName)
-    .append(" SET ");
-    
-    /* 处理被更新的字段 */
-    Iterator columnNamesIT = columns.keySet().iterator();
-    while(columnNamesIT.hasNext()){
-      String columnName = (String)columnNamesIT.next();
-      Object value = columns.get(columnName);
-      int valuesSize = values.size();
-      if(value==null){
-        sql.append(valuesSize>0?",":"").append(columnName).append("=NULL");
-      }else{
-        sql.append(valuesSize>0?",":"").append(columnName).append("=?");
-        values.add(value);
-      }
-    }
-    
-    /* 处理条件 */
-    if(condition!=null && condition.size()>0){
-      sql.append(" WHERE ").append(condition.getConditionString());
-      Object[] objs = condition.getValues();
-      int len=objs.length;
-      for(int i=0;i<len;i++){
-        values.add(objs[i]);
-      }
-    }
-    
-    return new SQL(SQL.UPDATE, sql.toString(), values.toArray());
-  }
-  
-  /**
-   *  @deprecated
-   */
-  SQL constructSQLForUpdate_old1(String tableName, Map columns, Condition condition){
-		if(tableName==null){
-			throw new IllegalArgumentException(
-					"The name of an table cannot be null.");
-		}
-		if(columns.size()==0){
-			throw new IllegalArgumentException(
-					"The value of an columns cannot be empty.");
-		}
-  	
-    String sqlstr = "UPDATE "
-        + tableName
-        + " SET #NAME_AND_VALUES#";
-    
-    List values  = new ArrayList(columns.size()+(condition!=null?condition.size():0));
-    
-    /* 处理被更新的字段 */
-    String namesAndValues = "";
-	  Iterator columnNamesIT = columns.keySet().iterator();
-		while(columnNamesIT.hasNext()){
-			String columnName = (String)columnNamesIT.next();
-			Object value = columns.get(columnName);
-			if(value==null){
-				namesAndValues += "," + columnName + "=NULL";
-			}else{
-				namesAndValues += "," + columnName + "=?";
-				values.add(value);
-			}
-		}
-		namesAndValues = namesAndValues.substring(1);
-		sqlstr = StringHelper.replace(sqlstr, "#NAME_AND_VALUES#", namesAndValues);
-		
-    /* 处理条件 */
-    if(condition!=null && condition.size()>0){
-    	sqlstr += " WHERE "+condition.getConditionString();
-    	Object[] objs = condition.getValues();
-    	int len=objs.length;
-    	for(int i=0;i<len;i++){
-    		values.add(objs[i]);
-    	}
-    }
-		
-    return new SQL(SQL.UPDATE, sqlstr, values.toArray());
-  }
 
   /**
    * 构建更新记录操作的SQL声明
@@ -311,25 +218,6 @@ public class SQLBuilder {
 	}
   
   /**
-   * @deprecated
-   */
-  SQL constructSQLForDelete_old1(String tableName, Condition condition){
-    if(tableName==null){
-      throw new IllegalArgumentException(
-          "The name of an table cannot be null.");
-    }
-    String sqlstr = "DELETE FROM " + tableName;
-    Object[] values = null;
-    if (condition != null && condition.size()>0) {
-      sqlstr += " WHERE " + condition.getConditionString();
-      values = condition.getValues();
-    }else{
-      values = new Object[0];
-    }
-    return new SQL(SQL.UPDATE, sqlstr, values);
-  }
-  
-  /**
    * 构建删除记录操作的SQL声明
    * 
    * @param data 数据对象，只有采用DataObjectResultMaker时此参数才有意义
@@ -368,83 +256,66 @@ public class SQLBuilder {
    *
    * @return 包含SQL串和值的SQL声明
    */
+
   public SQL constructSQLForSelect(String tableName,
                                               boolean distinct,
                                               Column[] columns,
                                               Condition condition,
                                               String groupby, String orderby
                                               ){
-//		if(tableName==null){
-//			throw new IllegalArgumentException(
-//					"The name of an table cannot be null.");
-//		}
-
-    String distinctStr = null;
-    String columnNamesStr = null;
-    String conditionStr = null;
-    String groupbyStr = null;
-    String orderbyStr = null;
-    String fromStr = null;
+    if(tableName==null){
+      throw new IllegalArgumentException(
+          "The name of an table cannot be null.");
+    }
     
+    StringBuffer sqlStr = new StringBuffer("SELECT ");
     List values = new ArrayList();
 
     /* 生成DISTINCT串 */
     if (distinct) {
-      distinctStr = " DISTINCT ";
-    }
-    else {
-      distinctStr = "";
+      sqlStr.append(" DISTINCT ");
     }
     /* 生成返回列的串 */
     if (columns != null && columns.length != 0) {
-    	SQL columnSQL = constructSelectedColumn(columns);
-      columnNamesStr = columnSQL.getSQLString();
-    	Object[] objs = columnSQL.getValues();
-    	int len=objs.length;
-    	for(int i=0;i<len;i++){
-    		values.add(objs[i]);
-    	}
+      
+//      Object[] clmnObjs = constructSelectedColumns(columns);
+//      sqlStr.append((StringBuffer)clmnObjs[0]);
+//      values.addAll((List)clmnObjs[1]);
+      
+      SQL columnSQL = constructSelectedColumn(columns);
+      sqlStr.append(columnSQL.getSQLString());
+      Object[] objs = columnSQL.getValues();
+      int len=objs.length;
+      for(int i=0;i<len;i++){
+        values.add(objs[i]);
+      }
     }else{
-      columnNamesStr = "*";
-    }
-    /* 生成查询条件串 */
-    if (condition != null && condition.size() != 0) {
-      conditionStr = " WHERE " + condition.getConditionString();
-    	Object[] objs = condition.getValues();
-    	int len=objs.length;
-    	for(int i=0;i<len;i++){
-    		values.add(objs[i]);
-    	}      
-    }else{
-      conditionStr = "";
-    }
-    /* 生成GROUP BY串 */
-    if (groupby != null && groupby.length() != 0) {
-      groupbyStr = " GROUP BY " + groupby;
-    }else{
-      groupbyStr = "";
-    }
-    /* 生成ORDER BY串 */
-    if (orderby != null && orderby.length() != 0) {
-      orderbyStr = " ORDER BY " + orderby;
-    }else{
-      orderbyStr = "";
+      sqlStr.append("*");
     }
     
     /* 生成FROM子串, 如果tableName为空,将不构建FROM子句 */
     if (tableName != null && tableName.length() != 0) {
-      fromStr = " FROM " + tableName;
-    }else{
-      fromStr = "";
+      sqlStr.append(" FROM ").append(tableName);
     }
     
-    
-    /* 返回SQL查询串 */
-    String sqlStr = "SELECT " + distinctStr + columnNamesStr
-												        + fromStr + conditionStr 
-                                + groupbyStr + orderbyStr;
-
-    return new SQL(SQL.SELECT, sqlStr, values.toArray());
+    /* 生成查询条件串 */
+    if (condition != null && condition.size() != 0) {
+      sqlStr.append(" WHERE ").append(condition.getConditionString());
+      Object[] objs = condition.getValues();
+      int len=objs.length;
+      for(int i=0;i<len;i++){
+        values.add(objs[i]);
+      }      
+    }
+    /* 生成GROUP BY串 */
+    if (groupby != null && groupby.length() != 0) {
+      sqlStr.append(" GROUP BY ").append(groupby);
+    }
+    /* 生成ORDER BY串 */
+    if (orderby != null && orderby.length() != 0) {
+      sqlStr.append(" ORDER BY ").append(orderby);
+    }
+    return new SQL(SQL.SELECT, sqlStr.toString(), values.toArray());
   }
 
   
@@ -457,10 +328,10 @@ public class SQLBuilder {
    *
    * @return        包含SQL串和值的SQL声明
    *
-   */	
+   */  
   public SQL constructSQLForSelect(String tableName,
                                             Column[] columns,
-																						Condition condition){
+                                            Condition condition){
     return constructSQLForSelect(tableName, false, columns, condition, null, null);
   }
 
@@ -477,17 +348,17 @@ public class SQLBuilder {
    * @param startIndex         开始行记录索引, 此值不能小于0
    * @param len                返回记录的行数, 此值不能小于0
    * 
-   * @return 	包含SQL串和值的SQL声明
+   * @return   包含SQL串和值的SQL声明
    */
   public SQL constructSQLForSelect(String tableName,
                                               boolean distinct,
                                               Column[] columns,
                                               Condition condition,
                                               String groupby, String orderby,
-																							int startIndex, int len
+                                              int startIndex, int len
                                               ){
-		throw new java.lang.UnsupportedOperationException(
-		"Method constructSQLForSelect() not yet implemented.");
+    throw new java.lang.UnsupportedOperationException(
+    "Method constructSQLForSelect() not yet implemented.");
   } 
   
   
@@ -503,17 +374,18 @@ public class SQLBuilder {
    * @return               包含SQL串和值的SQL声明
    */
   public SQL constructSQLForCount(
-  		String tableName, String fieldName, String attrName,Condition condition) {
+      String tableName, String fieldName, String attrName,Condition condition) {
     fieldName = fieldName==null?"*":fieldName;
-    String sqlstr = "SELECT COUNT("+fieldName+") AS " + attrName + " FROM " + tableName;
+    
+    StringBuffer sqlstr = new StringBuffer().append("SELECT COUNT(").append(fieldName).append(") AS ").append(attrName).append(" FROM ").append(tableName);
     Object[] values = null;
     if (condition != null && condition.size() != 0) {
-      sqlstr = sqlstr + " WHERE " + condition.getConditionString();
+      sqlstr.append(" WHERE ").append(condition.getConditionString());
       values = condition.getValues();
     }else{
-    	values = new Object[0]; 
+      values = new Object[0]; 
     }
-    return new SQL(SQL.SELECT, sqlstr, values);
+    return new SQL(SQL.SELECT, sqlstr.toString(), values);
   }
 
   
@@ -525,24 +397,21 @@ public class SQLBuilder {
    * @return  描述列的SQL子语句
    */
   protected SQL constructSelectedColumn(Column[] columns){
-  	String columnsStr = "";
-  	List valuesLT = new ArrayList();
-  	int len = columns.length;
-  	for(int i=0;i<len;i++){
-  		SQL columnSQL = columns[i].getColumn();
-  		columnsStr += ","+columnSQL.getSQLString();
-			Object[] values = columnSQL.getValues();
-			if(values!=null){
-				int vlen = values.length;
-				for(int vi=0;vi<vlen;vi++){
-					valuesLT.add(values[vi]);
-				}
-			}
-  	}
-  	if(columnsStr.length()>0){
-  		columnsStr = columnsStr.substring(1);
-  	}
-  	return new SQL(SQL.UNDEFINED,columnsStr, valuesLT.toArray());
+    StringBuffer columnsStr = new StringBuffer();
+    List valuesLT = new ArrayList();
+    int len = columns.length;
+    for(int i=0;i<len;i++){
+      SQL columnSQL = columns[i].getColumn();
+      columnsStr.append(i==0?"":",").append(columnSQL.getSQLString());
+      Object[] values = columnSQL.getValues();
+      if(values!=null){
+        int vlen = values.length;
+        for(int vi=0;vi<vlen;vi++){
+          valuesLT.add(values[vi]);
+        }
+      }
+    }
+    return new SQL(SQL.UNDEFINED,columnsStr.toString(), valuesLT.toArray());
   }
 
 }
