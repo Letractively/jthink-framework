@@ -28,7 +28,6 @@ public class IOSuite extends TestSuite {
   	System.out.println("批量测试包[org.fto.jfree.io.*]");
     TestSuite suite = new IOSuite("Running all tests");
     suite.addTestSuite( SmartAccessFileTestCase.class);
-    
     return suite;
   }
 

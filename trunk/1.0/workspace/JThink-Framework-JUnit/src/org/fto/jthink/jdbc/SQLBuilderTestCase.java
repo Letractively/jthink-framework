@@ -212,18 +212,51 @@ public class SQLBuilderTestCase extends TestCase {
     Condition condn = new Condition();
     condn.add(new ConditionItem("DEPT_NAME", "IN", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)));
     condn.add(new ConditionItem("DEPT_NO", "IS", "NOT NULL"));
+    condn.add(new ConditionItem("F1", "=", "1"));
+    condn.add(new ConditionItem("F2", "=", "2"));
+    condn.add(new ConditionItem("F3", "=", "3"));
+    condn.add(new ConditionItem("F4", "=", "4"));
+    condn.add(new ConditionItem("F5", "=", "5"));
+    condn.add(new ConditionItem("F6", "in", new Object[]{"1", "2", "3", "4"}));
     
     
     Column[] columns = new Column[]{
         new Column("DEPT_ID"),
         new Column("DEPT_NAME", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)),
+        new Column("F1"),
+        new Column("F2"),
+        new Column("F3"),
+        new Column("F4"),
+        new Column("F5"),
+        new Column("F6"),
     };
     
-    SQL sqlStatement = sqlBuilder.
-    constructSQLForSelect("departments",columns, condn);
-
-      System.out.println(sqlStatement.getSQLString());
-      printObjects(sqlStatement.getValues());   
+    /* constructSQLForSelect测试开始 */
+    {
+      double totalUseTime = 0;
+      int count = 0;
+      for(int i=0;i<200;i++){//在此设置测试次数
+          long stime = System.nanoTime();        
+          
+          /* 测试代码 开始 */
+          sqlBuilder.constructSQLForSelect("departments",false, columns, condn, (String)null, (String)null);
+          /* 测试代码 结束 */
+          
+          double usetime = (System.nanoTime()-stime)/1000000f;
+          if(usetime<0.09 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+              totalUseTime += usetime;
+              count++;
+          }
+      }
+      System.out.println("constructSQLForSelect 测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
+    }  
+    
+    SQL sqlStatement = sqlBuilder.constructSQLForSelect("departments",columns, condn);
+    System.out.println(sqlStatement.getSQLString());
+    if(!"SELECT DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID)AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? ) ".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
+    printObjects(sqlStatement.getValues());   
   }
   
   
@@ -253,6 +286,10 @@ public class SQLBuilderTestCase extends TestCase {
                 true, null, condn, null, null);
     
     System.out.println(sqlStatement.getSQLString());
+    if(!"SELECT  DISTINCT * FROM departments WHERE NOT DeptName like ? AND ( DeptId != ? OR ( DeptId != ? OR DeptId Between ? AND ? ) ) ".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
+    
     printObjects(sqlStatement.getValues());
     
     Condition userNameCDN = new Condition();
@@ -273,12 +310,19 @@ public class SQLBuilderTestCase extends TestCase {
         false, columns, condn, "DeptName", "DeptId");
 
     System.out.println(sqlStatement.getSQLString());
+    if(!"SELECT DeptId,DeptName,(DeptName) AS DeptXXX1,(DeptId*100/6) AS DeptXXX2,DeptXXX3,(SELECT UserName FROM Users WHERE  Users.UserId = Departments.UserId ) AS UserName FROM departments WHERE NOT DeptName like ? AND ( DeptId != ? OR ( DeptId != ? OR DeptId Between ? AND ? ) )  GROUP BY DeptName ORDER BY DeptId".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
     printObjects(sqlStatement.getValues());
 
     sqlStatement = sqlBuilder.
           constructSQLForSelect("departments",null, null);
 
     System.out.println(sqlStatement.getSQLString());
+    if(!"SELECT * FROM departments".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
+    
     printObjects(sqlStatement.getValues());   
   }
 
@@ -302,17 +346,43 @@ public class SQLBuilderTestCase extends TestCase {
     
     condn.add(Condition.AND_NOT, new ConditionItem("DeptName", "like", "%部%"));
     condn.add(Condition.AND, condn1);
-//    condn.add(Condition.AND_NOT, "DeptDesc", "like", "%技术%");
+
+    /* constructSQLForCount测试开始 */
+    {
+      double totalUseTime = 0;
+      int count = 0;
+      for(int i=0;i<200;i++){//在此设置测试次数
+          long stime = System.nanoTime();        
+          
+          /* 测试代码 开始 */
+          sqlBuilder.constructSQLForCount("departments","*", "DeptCount", condn);
+          /* 测试代码 结束 */
+          
+          double usetime = (System.nanoTime()-stime)/1000000f;
+          if(usetime<0.09 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+              totalUseTime += usetime;
+              count++;
+          }
+      }
+      System.out.println("constructSQLForCount 测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
+    }  
 
     SQL sqlStatement = sqlBuilder.
             constructSQLForCount("departments","*", "DeptCount", condn);
     System.out.println(sqlStatement.getSQLString());
+    if(!"SELECT COUNT(*) AS DeptCount FROM departments WHERE NOT DeptName like ? AND ( DeptId != ? OR ( DeptId != ? OR DeptId Between ? AND ? ) ) ".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
+    
     printObjects(sqlStatement.getValues());   
     
     
     sqlStatement = sqlBuilder.
       constructSQLForCount("departments","DeptId", "DeptCount", null);
     System.out.println(sqlStatement.getSQLString());
+    if(!"SELECT COUNT(DeptId) AS DeptCount FROM departments".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
     printObjects(sqlStatement.getValues());   
   }
 
