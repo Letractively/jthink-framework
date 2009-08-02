@@ -1077,7 +1077,49 @@ public class SmartAccessFile {
       return s;
     }
   }
-
+  
+  /* 内部类型 ***********************************************************/
+  /**
+   * 数据缓冲区
+   */
+  class DataBuffer{
+    /* 缓冲区域 */
+    byte [] buf = null;
+    /* 大小 */
+    int size;
+    /* Mask值 */
+    int mask;
+    /* 标识缓冲区是否被更新过，true被更新过 */
+    boolean dirty;
+    /* 被使用大小 */
+    int usedSize;
+    /* 开始位置 */
+    int startPos;
+    /* 结束位置 */
+    int endPos;
+    
+    /**
+     * 构建一个数据缓冲区
+     * @param bitSize 缓冲区大小, 指二进制位数
+     */
+    public DataBuffer(int bitSize){
+      this.size = 1 << bitSize;;
+      this.buf = new byte[size];
+      this.mask = ~(size - 1);
+      this.dirty = false;
+      this.usedSize = 0;
+      this.startPos = -1;
+      this.endPos = -1;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+  }
 }
 
 
