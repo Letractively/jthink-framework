@@ -48,7 +48,8 @@ import org.jdom.Element;
 
 public final class StringHelper {
 
-
+  /** 空串 */
+  public static final String EMPTY = ""; 
 
 	/**
 	 *私有化构造器，使之不能获得对象，该类的所有方法均为静态的
