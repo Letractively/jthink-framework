@@ -21,6 +21,7 @@ import org.fto.jthink.jdbc.Column;
 import org.fto.jthink.jdbc.Condition;
 import org.fto.jthink.jdbc.SQL;
 import org.fto.jthink.jdbc.SQLBuilder;
+import org.fto.jthink.lang.StringBuffered;
  
 /**
  * 构建SQL，针对MS SQL Server数据库。 此类型扩展了SQLBuilder类型，并覆盖了constructSQLForSelect()方法，
@@ -69,7 +70,7 @@ public class MssqlSQLBuilder extends SQLBuilder{
     }
 
     
-    org.fto.jthink.lang.StringBuffer sqlStr = new org.fto.jthink.lang.StringBuffer("SELECT ");
+    StringBuffered sqlStr = new StringBuffered("SELECT ");
     //StringBuffer sqlStr = new StringBuffer("SELECT ");
     List values = new ArrayList();
 
