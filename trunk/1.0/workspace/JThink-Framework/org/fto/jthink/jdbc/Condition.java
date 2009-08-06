@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.fto.jthink.lang.StringBuffered;
+
 /**
  * 条件, 用于描述SQL语句查询条件。
  * 
@@ -137,7 +139,7 @@ public class Condition implements java.io.Serializable{
    */
   public String getConditionString(){
   	Iterator conditionsIT = conditions.iterator();
-  	StringBuffer whereStr = new StringBuffer();
+    StringBuffered whereStr = new StringBuffered();
   	while(conditionsIT.hasNext()){
   		Object[] CondiItem = (Object[])conditionsIT.next();
   		String logicOperator = (String)CondiItem[0];

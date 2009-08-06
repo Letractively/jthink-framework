@@ -28,6 +28,7 @@ import org.fto.jthink.jdbc.SQLBuilder;
  * 构建自定义的SQL的时候.
  *
  */
+import org.fto.jthink.lang.StringBuffered;
 
 /**
  * 构建SQL，针对Mysql数据库。 此类型扩展了SQLBuilder类型，并覆盖了constructSQLForSelect()方法，
@@ -75,7 +76,7 @@ public class MysqlSQLBuilder extends SQLBuilder{
     	throw new JThinkRuntimeException("rowLen不能小于0!");
     }
 
-    StringBuffer sqlStr = new StringBuffer("SELECT ");
+    StringBuffered sqlStr = new StringBuffered("SELECT ");
     List values = new ArrayList();
     
     /* 生成DISTINCT串 */
