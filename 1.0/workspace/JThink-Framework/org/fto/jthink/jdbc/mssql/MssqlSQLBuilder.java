@@ -71,7 +71,6 @@ public class MssqlSQLBuilder extends SQLBuilder{
 
     
     StringBuffered sqlStr = new StringBuffered("SELECT ");
-    //StringBuffer sqlStr = new StringBuffer("SELECT ");
     List values = new ArrayList();
 
     
@@ -82,7 +81,7 @@ public class MssqlSQLBuilder extends SQLBuilder{
     
     /* 生成TOP串 */
     if (rowLen != -1) {
-      sqlStr.append(" TOP ").append(String.valueOf((startIndex + rowLen))).append(" ");
+      sqlStr.append(" TOP ").append((startIndex + rowLen)).append(" ");
     }
     
     /* 生成返回列的串 */

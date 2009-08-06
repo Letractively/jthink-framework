@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.fto.jthink.exception.JThinkRuntimeException;
+import org.fto.jthink.lang.StringBuffered;
 
 /**
  * 构建SQL。 此类型已经提供了构建常用SQL语句的方法，但如果要构建复杂SQL，
@@ -79,8 +80,8 @@ public class SQLBuilder {
           "The value of an columns cannot be empty.");
     }
     
-    StringBuffer names = new StringBuffer();
-    StringBuffer valueStatement = new StringBuffer();
+    StringBuffered names = new StringBuffered();
+    StringBuffered valueStatement = new StringBuffered();
     List values  = new ArrayList(columns.size());
     Iterator columnsIT = columns.entrySet().iterator();
     while(columnsIT.hasNext()){
@@ -97,7 +98,7 @@ public class SQLBuilder {
         values.add(value);
       };      
     }
-    StringBuffer sql = new StringBuffer("INSERT INTO ") 
+    StringBuffered sql = new StringBuffered("INSERT INTO ") 
       .append(tableName)
       .append(" (").append(names)
       .append(") VALUES (").append(valueStatement)
@@ -137,7 +138,7 @@ public class SQLBuilder {
     }
     
     List values  = new ArrayList(columns.size()+(condition!=null?condition.size():0));
-    StringBuffer sql = new StringBuffer("UPDATE ")
+    StringBuffered sql = new StringBuffered("UPDATE ")
     .append(tableName)
     .append(" SET ");
     

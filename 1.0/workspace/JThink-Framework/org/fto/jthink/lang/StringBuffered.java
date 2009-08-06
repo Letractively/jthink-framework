@@ -12,12 +12,6 @@
  */
 package org.fto.jthink.lang;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-
 import org.fto.jthink.util.StringHelper;
 
 /**
@@ -43,6 +37,7 @@ import org.fto.jthink.util.StringHelper;
  * @version  1.0
  * @since    JThink 1.0
  * @see java.lang.StringBuffer
+ * @see java.lang.StringBuilder
  * 
  */
 public class StringBuffered  implements java.io.Serializable {
@@ -51,26 +46,34 @@ public class StringBuffered  implements java.io.Serializable {
   private static final char[] CHARS_TRUE = new char[]{'t','r','u','e'};
   private static final char[] CHARS_FALSE = new char[]{'f','a','l','s','e'};
   
+  private static final int intTableSize = 255;
+  private static char[][] intTable = new char[intTableSize][];
+  static{
+    for(int i=0;i<intTable.length;i++){
+      intTable[i] = Integer.toString(i).toCharArray();
+    }
+  }
+  
   /* 串总长度 */
   private int length = 0;
   /* 串列表 */
-  private List subStrs;
-  //java.lang.StringBuffer s;
+  private Object[] strData;
+  /* 串数量 */
+  private int strCount = 0; 
   /**
-   * 构建一个StringBuffer，串列表大小为48
+   * 构建一个StringBuffer，串列表大小为16
    */
   public StringBuffered(){
-    subStrs = new ArrayList(48);
-    
+    this(16);
   }
   
   /**
    * 构建一个StringBuffer，指定将要被缓冲的字符串数量
    * 
-   * @param count 预计将要被缓冲的字符串数量
+   * @param strCapacity 预计将要被缓冲的字符串数量
    */
-  public StringBuffered(int count){
-    subStrs = new ArrayList(count);
+  public StringBuffered(int strCapacity){
+    strData = new Object[strCapacity];
   }
   
   /**
@@ -90,6 +93,32 @@ public class StringBuffered  implements java.io.Serializable {
     return length;
   }  
   
+
+  void ensureCapacity(int minCapacity) {
+    int oldCapacity = strData.length;
+    if (minCapacity > oldCapacity) {
+        Object oldData[] = strData;
+        int newCapacity = (oldCapacity * 3)/2 + 1;
+        if (newCapacity < minCapacity){
+          newCapacity = minCapacity;
+        }
+        strData = new Object[newCapacity];
+        System.arraycopy(oldData, 0, strData, 0, strCount);
+    }
+  }
+  
+  void add(Object o){
+    ensureCapacity(strCount + 1);
+    strData[strCount++] = o;
+  }
+  
+  void clear(){
+    for (int i = 0; i < strCount; i++){
+        strData[i] = null;
+    }
+    strCount = 0;
+  }
+  
   /**
    * 追加字符串
    * @param s 被追加的字符串
@@ -97,7 +126,7 @@ public class StringBuffered  implements java.io.Serializable {
    */
   public StringBuffered append(String s){
     length+=s.length();
-    subStrs.add(s);
+    add(s);
     return this;
   }
   
@@ -108,7 +137,7 @@ public class StringBuffered  implements java.io.Serializable {
    */
   public StringBuffered append(char[] chars){
     length+=chars.length;
-    subStrs.add(chars);
+    add(chars);
     return this;
   }
   
@@ -119,7 +148,7 @@ public class StringBuffered  implements java.io.Serializable {
    */
   public StringBuffered append(char c){
     length++;;
-    subStrs.add(new Character(c));
+    add(new Character(c));
     return this;
   }
   
@@ -136,7 +165,14 @@ public class StringBuffered  implements java.io.Serializable {
   }
 
   public StringBuffered append(int i) {
-    return append(String.valueOf(i));
+    if(i>=0 && i<=intTableSize){
+      return append(intTable[i]);
+    }else if(i<=-0 && i>=-intTableSize){
+      append("-");
+      append(intTable[-i]);
+      return this;
+    }
+    return append(Integer.toString(i));
   }
   
   public StringBuffered append(long l) {
@@ -151,33 +187,36 @@ public class StringBuffered  implements java.io.Serializable {
     return append(String.valueOf(d));
   }
   
+  public StringBuffered append(StringBuffered sb) {
+    return append(sb);
+  }
   
   /**
    * 到String对象
+   * 
+   * 注：append(StringBuffered sb)的处理还没有做
    */
   public String toString(){
-    int subStrCount = subStrs.size();
     
     /* 是空 */
-    if(subStrCount==0){
+    if(strCount==0){
       return StringHelper.EMPTY;
     }
     
     /* 只有加入了一个对象 */
-    if(subStrCount==1){
-      Object o = subStrs.get(0);
-//      Object o = subStrs.iterator().next();
+    if(strCount==1){
+      Object o = strData[0];
       if(o instanceof String){
         return (String)o;
       }else if(o instanceof char[]){
         String newStr = new String((char[])o);
-        subStrs.clear();
-        subStrs.add(newStr);
+        clear();
+        add(newStr);
         return newStr;
       }else if(o instanceof Character){
         String newStr = ((Character)o).toString();
-        subStrs.clear();
-        subStrs.add(newStr);
+        clear();
+        add(newStr);
         return newStr;
       }
     }
@@ -185,11 +224,8 @@ public class StringBuffered  implements java.io.Serializable {
     /* 加入了多个对象 */
     char[] newChars = new char[length];
     int pos=0;
-//    Iterator it = subStrs.iterator();
-//    while(it.hasNext()){
-//      Object o = it.next();
-    for(int i=0;i<subStrCount;i++){
-      Object o = subStrs.get(i);
+    for(int i=0;i<strCount;i++){
+      Object o = strData[i];
       if(o instanceof String){
         String s = (String)o;
         int clen = s.length(); 
@@ -206,20 +242,11 @@ public class StringBuffered  implements java.io.Serializable {
       }
       
     }
-    subStrs.clear();
+    clear();
     String newStr = new String(newChars);
-    subStrs.add(newStr);
+    add(newStr);
+    
     return newStr;
   }
-
-  
-  final static char[] digits = {
-    '0' , '1' , '2' , '3' , '4' , '5' ,
-    '6' , '7' , '8' , '9' , 'a' , 'b' ,
-    'c' , 'd' , 'e' , 'f' , 'g' , 'h' ,
-    'i' , 'j' , 'k' , 'l' , 'm' , 'n' ,
-    'o' , 'p' , 'q' , 'r' , 's' , 't' ,
-    'u' , 'v' , 'w' , 'x' , 'y' , 'z'
-      };
   
 }
