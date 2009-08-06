@@ -62,7 +62,7 @@ public class SQLBuilderTestCase extends TestCase {
     {
       double totalUseTime = 0;
       int count = 0;
-      for(int i=0;i<100;i++){//在此设置测试次数
+      for(int i=0;i<1000;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
@@ -128,7 +128,7 @@ public class SQLBuilderTestCase extends TestCase {
     {
       double totalUseTime = 0;
       int count = 0;
-      for(int i=0;i<200;i++){//在此设置测试次数
+      for(int i=0;i<2000;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
@@ -423,7 +423,7 @@ public class SQLBuilderTestCase extends TestCase {
     {
       double totalUseTime = 0;
       int count = 0;
-      for(int i=0;i<200;i++){//在此设置测试次数
+      for(int i=0;i<2000;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
@@ -479,7 +479,7 @@ public class SQLBuilderTestCase extends TestCase {
     {
       double totalUseTime = 0;
       int count = 0;
-      for(int i=0;i<200;i++){//在此设置测试次数
+      for(int i=0;i<2000;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
@@ -506,7 +506,7 @@ public class SQLBuilderTestCase extends TestCase {
   }
  
   public void testMysqlSQLBuilder(){
-    System.out.println("\n[正在测试方法: MssqlSQLBuilder.constructSQLForSelect()...]");
+    System.out.println("\n[正在测试方法: MysqlSQLBuilder.constructSQLForSelect()...]");
     
     
     Condition condn = new Condition();
@@ -535,7 +535,7 @@ public class SQLBuilderTestCase extends TestCase {
     {
       double totalUseTime = 0;
       int count = 0;
-      for(int i=0;i<2000;i++){//在此设置测试次数
+      for(int i=0;i<200;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
