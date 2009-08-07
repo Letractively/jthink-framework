@@ -136,6 +136,8 @@ public class Condition implements java.io.Serializable{
    * 返回SQL串形式条件
    * 
    * @return 条件串
+   * 
+   * @deprecated
    */
   public String getConditionString(){
   	Iterator conditionsIT = conditions.iterator();
@@ -165,6 +167,41 @@ public class Condition implements java.io.Serializable{
   	}
   	return whereStr.toString();
   }
+  
+  /**
+   * 返回查询条件
+   * 
+   * @return 条件串
+   */
+  public StringBuffered getConditionStatement(){
+    Iterator conditionsIT = conditions.iterator();
+    StringBuffered whereStr = new StringBuffered();
+    while(conditionsIT.hasNext()){
+      Object[] CondiItem = (Object[])conditionsIT.next();
+      String logicOperator = (String)CondiItem[0];
+      if(whereStr.length()==0){
+        if(logicOperator.equals(AND) || logicOperator.equals(OR)){
+          logicOperator = "";
+        }else if(logicOperator.equals(AND_NOT) || logicOperator.equals(OR_NOT)){
+          logicOperator = "NOT";
+        }
+      }
+      logicOperator = (whereStr.length()==0 && (logicOperator.equals(AND) || logicOperator.equals(OR)))?"":logicOperator;
+      if (CondiItem[1] instanceof ConditionItem) {
+        ConditionItem item = (ConditionItem) CondiItem[1];
+        whereStr.append(logicOperator).append(" ").append(item.getConditionItemStatement());
+      }else{
+        Condition condition = (Condition) CondiItem[1];
+        StringBuffered subCondnStr = condition.getConditionStatement();
+        if(subCondnStr.length()>0){
+          whereStr.append(logicOperator).append(" (").append(subCondnStr).append(") ");
+        }
+      }
+      
+    }
+    return whereStr;
+  }
+  
   
   /**
    * 返回所有条件表达式的值

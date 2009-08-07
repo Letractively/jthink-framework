@@ -87,7 +87,7 @@ public class MysqlSQLBuilder extends SQLBuilder{
     /* 生成返回列的串 */
     if (columns != null && columns.length != 0) {
       SQL columnSQL = constructSelectedColumn(columns);
-      sqlStr.append(columnSQL.getSQLString());
+      sqlStr.append(columnSQL.getSQLStatement());
       Object[] objs = columnSQL.getValues();
       int len=objs.length;
       for(int i=0;i<len;i++){
@@ -102,7 +102,7 @@ public class MysqlSQLBuilder extends SQLBuilder{
     
     /* 生成查询条件串 */
     if (condition != null && condition.size() != 0) {
-      sqlStr.append(" WHERE ").append(condition.getConditionString());
+      sqlStr.append(" WHERE ").append(condition.getConditionStatement());
       Object[] objs = condition.getValues();
       int len=objs.length;
       for(int i=0;i<len;i++){
@@ -125,7 +125,7 @@ public class MysqlSQLBuilder extends SQLBuilder{
       sqlStr.append(" LIMIT ").append(startIndex).append(",").append(rowLen);
     }
     
-    return new SQL(SQL.SELECT, sqlStr.toString(), values.toArray(), startIndex, rowLen);
+    return new SQL(SQL.SELECT, sqlStr, values.toArray(), startIndex, rowLen);
     
   } 
  

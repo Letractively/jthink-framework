@@ -14,6 +14,8 @@
 
 package org.fto.jthink.jdbc;
 
+import org.fto.jthink.lang.StringBuffered;
+
 /**
  * 列, 用于描述Select语句返回的数据列. 构建的列可以是标准的表字段,也可以是一个表达式或一个SQL子查询.
  * 
@@ -129,20 +131,38 @@ public class Column  implements java.io.Serializable{
 	 * @return 描述此列的SQL语句
 	 */
 	public SQL getColumn(){
-		String column=null;
+    StringBuffered column=null;
 		Object[] values=null;
 		if(columnValue==null || columnValue instanceof java.lang.String){
 			if(columnValue==null || columnName.equalsIgnoreCase((String)columnValue)){
-				column = columnName;
+				//column = new StringBuffered(columnName);
+        return new SQL(SQL.UNDEFINED, columnName, values);
 			}else{
-				column = new StringBuffer().append("(").append(columnValue).append(") AS ").append(columnName).toString();
+				column = new StringBuffered().append("(").append(columnValue).append(") AS ").append(columnName);
 			}
 		}else{
 			SQL sql = (SQL)columnValue;
-			column = new StringBuffer().append("(").append(sql.getSQLString()).append(") AS ").append(columnName).toString();
+			column = new StringBuffered().append("(").append(sql.getSQLStatement()).append(") AS ").append(columnName);
 			values = sql.getValues();
 		}
 		return new SQL(SQL.UNDEFINED, column, values);
 	}
 
+//  public SQL getColumn(){
+//    String column=null;
+//    Object[] values=null;
+//    if(columnValue==null || columnValue instanceof java.lang.String){
+//      if(columnValue==null || columnName.equalsIgnoreCase((String)columnValue)){
+//        column = columnName;
+//      }else{
+//        column = new StringBuffered().append("(").append(columnValue).append(") AS ").append(columnName).toString();
+//      }
+//    }else{
+//      SQL sql = (SQL)columnValue;
+//      column = new StringBuffered().append("(").append(sql.getSQLString()).append(") AS ").append(columnName).toString();
+//      values = sql.getValues();
+//    }
+//    return new SQL(SQL.UNDEFINED, column, values);
+//  }
+  
 }

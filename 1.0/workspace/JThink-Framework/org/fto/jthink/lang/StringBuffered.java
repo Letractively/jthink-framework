@@ -12,6 +12,8 @@
  */
 package org.fto.jthink.lang;
 
+import java.util.ArrayList;
+
 import org.fto.jthink.util.StringHelper;
 
 /**
@@ -22,7 +24,10 @@ import org.fto.jthink.util.StringHelper;
  * 
  * <pre>
  *  StringBuffered有那些特点：
- *  
+ *  1. 在append操作时不会对串进行System.arraycopy操作，只在最后toString才进行
+ *  2. 空StringBuffered在toString时直接返回StringHelper.EMPTY, 减少了new String()操作
+ *  3. 如果只有一个子串，就直接返回此子串，减少了new String()操作
+ *  4. 对boolean型数据进行了优化，对int和long型数据进行了优化
  *  
  *  
  * </pre>
@@ -97,11 +102,13 @@ public class StringBuffered  implements java.io.Serializable {
   void ensureCapacity(int minCapacity) {
     int oldCapacity = strData.length;
     if (minCapacity > oldCapacity) {
+        //System.out.println(this.hashCode()+".ensureCapacity.minCapacity:"+minCapacity+", oldCapacity:"+oldCapacity);
         Object oldData[] = strData;
         int newCapacity = (oldCapacity * 3)/2 + 1;
         if (newCapacity < minCapacity){
           newCapacity = minCapacity;
         }
+        //int newCapacity = minCapacity*2;
         strData = new Object[newCapacity];
         System.arraycopy(oldData, 0, strData, 0, strCount);
     }
@@ -111,6 +118,18 @@ public class StringBuffered  implements java.io.Serializable {
     ensureCapacity(strCount + 1);
     strData[strCount++] = o;
   }
+  
+  void add(Object[] data, int start, int len){
+    ensureCapacity(strCount + len);
+    if(len>10){
+      System.arraycopy(data, start, strData, strCount, len);
+      strCount+=len;
+    }else{
+      for(int i=0;i<len;i++){
+        strData[strCount++] = data[i];
+      }
+    }
+  }  
   
   void clear(){
     for (int i = 0; i < strCount; i++){
@@ -152,6 +171,18 @@ public class StringBuffered  implements java.io.Serializable {
     return this;
   }
   
+  public StringBuffered append(StringBuffered sb) {
+    Object[] data = sb.strData;
+//    int len = sb.strCount;
+//    ensureCapacity(strCount + len);
+//    for(int i=0; i<len; i++){
+//      strData[strCount++] = data[i];      
+//    }
+    add(data, 0, sb.strCount);
+    length+=sb.length();
+    return this;
+  }
+  
   public StringBuffered append(boolean b) {
     if(b){
       return append(CHARS_TRUE);
@@ -187,9 +218,7 @@ public class StringBuffered  implements java.io.Serializable {
     return append(String.valueOf(d));
   }
   
-  public StringBuffered append(StringBuffered sb) {
-    return append(sb);
-  }
+
   
   /**
    * 到String对象
