@@ -535,15 +535,15 @@ public class SQLBuilderTestCase extends TestCase {
     {
       double totalUseTime = 0;
       int count = 0;
-      for(int i=0;i<200;i++){//在此设置测试次数
+      for(int i=0;i<2000;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
-          mysqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
+          mysqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20).getSQLString();
           /* 测试代码 结束 */
           
           double usetime = (System.nanoTime()-stime)/1000000f;
-          if(usetime<0.09 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+          if(usetime<0.04 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
               totalUseTime += usetime;
               count++;
           }
