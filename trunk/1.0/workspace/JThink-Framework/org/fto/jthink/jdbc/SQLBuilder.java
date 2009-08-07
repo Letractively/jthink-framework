@@ -398,12 +398,18 @@ public class SQLBuilder {
    * @return  描述列的SQL子语句
    */
   protected SQL constructSelectedColumn(Column[] columns){
-    StringBuffer columnsStr = new StringBuffer();
+    StringBuffered columnsStr = new StringBuffered();
     List valuesLT = new ArrayList();
     int len = columns.length;
     for(int i=0;i<len;i++){
       SQL columnSQL = columns[i].getColumn();
-      columnsStr.append(i==0?"":",").append(columnSQL.getSQLString());
+      columnsStr.append(i==0?"":",");
+      if(columnSQL.isStringBufferedType()){
+        columnsStr.append(columnSQL.getSQLStatement());
+      }else{
+        columnsStr.append(columnSQL.getSQLString());
+      }
+      
       Object[] values = columnSQL.getValues();
       if(values!=null){
         int vlen = values.length;
@@ -412,7 +418,7 @@ public class SQLBuilder {
         }
       }
     }
-    return new SQL(SQL.UNDEFINED,columnsStr.toString(), valuesLT.toArray());
+    return new SQL(SQL.UNDEFINED, columnsStr, valuesLT.toArray());
   }
 
 }

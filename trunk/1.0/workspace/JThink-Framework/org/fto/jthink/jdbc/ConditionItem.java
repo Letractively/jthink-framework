@@ -12,6 +12,8 @@
  */
 package org.fto.jthink.jdbc;
 
+import org.fto.jthink.lang.StringBuffered;
+
 
 /**
  * 条件单项, 用于描述SQL语句查询条件中的一项条件表达式。
@@ -160,22 +162,24 @@ public class ConditionItem implements java.io.Serializable{
 
   /**
    * 返回SQL串形式的条件单项
+   * 
+   * @deprecated
    */
   public String getConditionItemString(){
     if(sql!=null){
-      return new StringBuffer(name).append(" ").append(operator).append(" (").append(sql.getSQLString()).append(")").toString();
+      return new StringBuffered(name).append(" ").append(operator).append(" (").append(sql.getSQLString()).append(")").toString();
     }
     if(isValidOperator(OPERATOR_SIGNS_SINGLE, operator)){
       if(isQuote){
-        return new StringBuffer(name).append(" ").append(operator).append(" ").append(value).append(" ").toString();
+        return new StringBuffered(name).append(" ").append(operator).append(" ").append(value).append(" ").toString();
       }else{
-        return new StringBuffer(name).append(" ").append(operator).append(" ? ").toString();
+        return new StringBuffered(name).append(" ").append(operator).append(" ? ").toString();
       }
     }else{
       if(isValidOperator(OPERATOR_SIGNS_BETWEEN, operator)){
-          return new StringBuffer(name).append(" ").append(operator).append(" ? AND ? ").toString();
+          return new StringBuffered(name).append(" ").append(operator).append(" ? AND ? ").toString();
       }else{
-        StringBuffer valuesStr = new StringBuffer(name).append(" ").append(operator).append(" ("); 
+        StringBuffered valuesStr = new StringBuffered(name).append(" ").append(operator).append(" ("); 
         for(int i=0; i<values.length; i++){
           valuesStr.append(i==0?"? ":",? ");
         }
@@ -184,6 +188,34 @@ public class ConditionItem implements java.io.Serializable{
     }
   }
 	
+  
+  /**
+   * 返回SQL串形式的条件单项
+   */
+  public StringBuffered getConditionItemStatement(){
+    if(sql!=null){
+      return new StringBuffered(name).append(" ").append(operator).append(" (").append(sql.getSQLString()).append(")");
+    }
+    if(isValidOperator(OPERATOR_SIGNS_SINGLE, operator)){
+      if(isQuote){
+        return new StringBuffered(name).append(" ").append(operator).append(" ").append(value).append(" ");
+      }else{
+        return new StringBuffered(name).append(" ").append(operator).append(" ? ");
+      }
+    }else{
+      if(isValidOperator(OPERATOR_SIGNS_BETWEEN, operator)){
+          return new StringBuffered(name).append(" ").append(operator).append(" ? AND ? ");
+      }else{
+        StringBuffered valuesStr = new StringBuffered(name).append(" ").append(operator).append(" ("); 
+        for(int i=0; i<values.length; i++){
+          valuesStr.append(i==0?"? ":",? ");
+        }
+        return valuesStr.append(") ");
+      }
+    }
+  }
+  
+  
 
 	/* 在构建SQL条件单项时用到的运算符号: "=", ">=", "<=", ">", "<", "<>", "!=", "LIKE", "NOT LIKE" ,"IS"*/
 	private final static String[] OPERATOR_SIGNS_SINGLE = {

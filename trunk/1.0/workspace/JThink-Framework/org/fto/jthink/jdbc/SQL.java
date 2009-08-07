@@ -14,6 +14,8 @@
 
 package org.fto.jthink.jdbc;
 
+import org.fto.jthink.lang.StringBuffered;
+
 /**
  * 用于描述一个SQL语句。此SQL语句对象包含有SQL的相关信息，SQL语句类型，SQL语句串，SQL语句中的值，
  * 以及用于SELECT语句的分页信息。SQL类型有如下值：UNDEFINED,UPDATE,SELECT,UNDEFINED_SP,UPDATE_SP,SELECT_SP。
@@ -22,6 +24,8 @@ package org.fto.jthink.jdbc;
  * <p><pre><b>
  * 历史更新记录:</b>
  * 2005-07-15  创建此类型
+ * 2009-09-08  对于SQL语句增加StringBuffered支持
+ * 
  * </pre></p>
  * 
  * 
@@ -33,7 +37,8 @@ package org.fto.jthink.jdbc;
 public class SQL implements java.io.Serializable{
   private static final long serialVersionUID = 6626942489436364862L;
   private int type;
-	private String sql;
+	private StringBuffered sqlBuff;
+  private String sql;
 	private Object[] values;
 	
 	private int rowStartIndex = -1;  //结果集的开始行索引,从0开始
@@ -45,6 +50,7 @@ public class SQL implements java.io.Serializable{
 	 * @param type SQL语句类型
 	 * @param sql SQL语句串, SQL串中的值可用"?"代替
 	 * @param values 与SQL串中"?"对应的值对象数组
+   * 
 	 */
 	public SQL(int type, String sql, Object[] values){
 		if(type<1 ||type>6){
@@ -56,6 +62,25 @@ public class SQL implements java.io.Serializable{
 		this.values = values==null?new Object[0]:values;
 	}
 	
+  /**
+   * 创建一个SQL对象
+   * 
+   * @param type SQL语句类型
+   * @param sql SQL语句串, SQL串中的值可用"?"代替
+   * @param values 与SQL串中"?"对应的值对象数组
+   */
+  public SQL(int type, StringBuffered sqlBuff, Object[] values){
+    if(type<1 ||type>6){
+      throw new IllegalArgumentException(
+          "类型必须是在此类中定义的常量.");
+    }
+    this.type = type;
+    this.sqlBuff = sqlBuff;
+    this.values = values==null?new Object[0]:values;
+  }
+  
+  
+  
 	/**
 	 * 创建一个SQL对象, 此构造方法主要用来创建带有分页信息的SQL语句
 	 * 
@@ -64,6 +89,7 @@ public class SQL implements java.io.Serializable{
 	 * @param values SQL语句中的值数组
 	 * @param rowStartIndex 结果集的开始索引位置
 	 * @param rowLength 结果集的长度
+   * 
 	 */
 	public SQL(int type, String sql, Object[] values, int rowStartIndex, int rowLength){
 		if(type<1 ||type>6){
@@ -77,6 +103,28 @@ public class SQL implements java.io.Serializable{
 		this.rowLength = rowLength;
 	}
 
+  /**
+   * 创建一个SQL对象, 此构造方法主要用来创建带有分页信息的SQL语句
+   * 
+   * @param type SQL语句类型
+   * @param sql SQL语句串
+   * @param values SQL语句中的值数组
+   * @param rowStartIndex 结果集的开始索引位置
+   * @param rowLength 结果集的长度
+   */
+  public SQL(int type, StringBuffered sqlBuff, Object[] values, int rowStartIndex, int rowLength){
+    if(type<1 ||type>6){
+      throw new IllegalArgumentException(
+          "类型必须是在此类中定义的常量.");
+    }
+    this.type = type;
+    this.sqlBuff = sqlBuff;
+    this.values = values==null?new Object[0]:values;
+    this.rowStartIndex = rowStartIndex;
+    this.rowLength = rowLength;
+  }
+  
+  
 	/**
 	 * 返回SQL语句的类型
 	 */
@@ -88,9 +136,24 @@ public class SQL implements java.io.Serializable{
 	 * 返回SQL语句串
 	 */
 	public String getSQLString(){
-		return sql;
+		return sql!=null?sql:sqlBuff.toString();
 	}
+  
+  /**
+   * 返回SQL语句串
+   * 
+   */
+  public StringBuffered getSQLStatement(){
+    return sqlBuff!=null?sqlBuff:new StringBuffered(sql);
+  }
 	
+  /**
+   * 检查SQL语句是否是StringBuffered类型
+   */
+  public boolean isStringBufferedType(){
+    return sqlBuff!=null;
+  }
+  
 	/**
 	 * 返回在SQL语句串中的值数组
 	 */
