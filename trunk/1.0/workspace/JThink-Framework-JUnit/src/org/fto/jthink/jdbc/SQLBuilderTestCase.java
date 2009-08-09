@@ -66,11 +66,11 @@ public class SQLBuilderTestCase extends TestCase {
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
-          sqlBuilder.constructSQLForInsert("departments", columns);
+          sqlBuilder.constructSQLForInsert("departments", columns).getSQLString();
           /* 测试代码 结束 */
           
           double usetime = (System.nanoTime()-stime)/1000000f;
-          if(usetime<0.1 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+          if(usetime<0.05 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
               totalUseTime += usetime;
               count++;
           }
@@ -132,7 +132,7 @@ public class SQLBuilderTestCase extends TestCase {
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
-          sqlBuilder.constructSQLForUpdate("departments", columns, condn);
+          sqlBuilder.constructSQLForUpdate("departments", columns, condn).getSQLString();
           /* 测试代码 结束 */
           
           double usetime = (System.nanoTime()-stime)/1000000f;
@@ -182,11 +182,11 @@ public class SQLBuilderTestCase extends TestCase {
     {
       double totalUseTime = 0;
       int count = 0;
-      for(int i=0;i<200;i++){//在此设置测试次数
+      for(int i=0;i<2000;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
-          sqlBuilder.constructSQLForDelete("departments", condn);
+          sqlBuilder.constructSQLForDelete("departments", condn).getSQLString();
           /* 测试代码 结束 */
           
           double usetime = (System.nanoTime()-stime)/1000000f;
@@ -241,11 +241,11 @@ public class SQLBuilderTestCase extends TestCase {
     {
       double totalUseTime = 0;
       int count = 0;
-      for(int i=0;i<200;i++){//在此设置测试次数
+      for(int i=0;i<2000;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
-          sqlBuilder.constructSQLForSelect("departments",false, columns, condn, (String)null, (String)null);
+          sqlBuilder.constructSQLForSelect("departments",false, columns, condn, (String)null, (String)null).getSQLString();
           /* 测试代码 结束 */
           
           double usetime = (System.nanoTime()-stime)/1000000f;
@@ -259,7 +259,7 @@ public class SQLBuilderTestCase extends TestCase {
     
     SQL sqlStatement = sqlBuilder.constructSQLForSelect("departments",columns, condn);
     System.out.println(sqlStatement.getSQLString());
-    if(!"SELECT DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID)AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? ) ".equals(sqlStatement.getSQLString())){
+    if(!"SELECT DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? ) ".equals(sqlStatement.getSQLString())){
       super.fail();
     }
     printObjects(sqlStatement.getValues());   
@@ -311,10 +311,35 @@ public class SQLBuilderTestCase extends TestCase {
       new Column("UserName", userNameSQL),
     };
 //    new String[]{"DeptId, DeptName, DeptDesc"}
+
+    //System.out.println("str comp:"+("DeptName"=="DeptName"));
+    
+    /* constructSQLForSelect测试开始 */
+    {
+      double totalUseTime = 0;
+      int count = 0;
+      for(int i=0;i<2000;i++){//在此设置测试次数
+          long stime = System.nanoTime();        
+          
+          /* 测试代码 开始 */
+          sqlBuilder.
+          constructSQLForSelect("departments", 
+              false, columns, condn, "DeptName", "DeptId").getSQLString();
+          /* 测试代码 结束 */
+          
+          double usetime = (System.nanoTime()-stime)/1000000f;
+          if(usetime<0.09 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+              totalUseTime += usetime;
+              count++;
+          }
+      }
+      System.out.println("constructSQL_ForSelect 测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
+    } 
+    
     sqlStatement = sqlBuilder.
     constructSQLForSelect("departments", 
         false, columns, condn, "DeptName", "DeptId");
-
+    
     System.out.println(sqlStatement.getSQLString());
     if(!"SELECT DeptId,DeptName,(DeptName) AS DeptXXX1,(DeptId*100/6) AS DeptXXX2,DeptXXX3,(SELECT UserName FROM Users WHERE  Users.UserId = Departments.UserId ) AS UserName FROM departments WHERE NOT DeptName like ? AND ( DeptId != ? OR ( DeptId != ? OR DeptId Between ? AND ? ) )  GROUP BY DeptName ORDER BY DeptId".equals(sqlStatement.getSQLString())){
       super.fail();
@@ -357,15 +382,15 @@ public class SQLBuilderTestCase extends TestCase {
     {
       double totalUseTime = 0;
       int count = 0;
-      for(int i=0;i<200;i++){//在此设置测试次数
+      for(int i=0;i<2000;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
-          sqlBuilder.constructSQLForCount("departments","*", "DeptCount", condn);
+          sqlBuilder.constructSQLForCount("departments","*", "DeptCount", condn).getSQLString();
           /* 测试代码 结束 */
           
           double usetime = (System.nanoTime()-stime)/1000000f;
-          if(usetime<0.09 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+          if(usetime<0.05 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
               totalUseTime += usetime;
               count++;
           }
@@ -427,7 +452,7 @@ public class SQLBuilderTestCase extends TestCase {
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
-          hsqlBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
+          hsqlBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20).getSQLString();
           /* 测试代码 结束 */
           
           double usetime = (System.nanoTime()-stime)/1000000f;
@@ -441,12 +466,16 @@ public class SQLBuilderTestCase extends TestCase {
     
     SQL sqlStatement = hsqlBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
     System.out.println(sqlStatement.getSQLString());
-    if(!"SELECT  LIMIT 5 20 DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID)AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? )  GROUP BY DeptId ORDER BY DeptName".equals(sqlStatement.getSQLString())){
+    if(!"SELECT  LIMIT 5 20 DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? )  GROUP BY DeptId ORDER BY DeptName".equals(sqlStatement.getSQLString())){
       super.fail();
     }
     printObjects(sqlStatement.getValues());   
     
-    
+    sqlStatement = hsqlBuilder.constructSQLForSelect("departments",false, null, null, "DeptId", "DeptName", 5, 20);
+    System.out.println(sqlStatement.getSQLString());
+    if(!"SELECT  LIMIT 5 20 * FROM departments GROUP BY DeptId ORDER BY DeptName".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
   }
   
   public void testMssqlSQLBuilder(){
@@ -483,7 +512,7 @@ public class SQLBuilderTestCase extends TestCase {
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
-          mssqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
+          mssqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20).getSQLString();
           /* 测试代码 结束 */
           
           double usetime = (System.nanoTime()-stime)/1000000f;
@@ -497,10 +526,16 @@ public class SQLBuilderTestCase extends TestCase {
     
     SQL sqlStatement = mssqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
     System.out.println(sqlStatement.getSQLString());
-    if(!"SELECT  TOP 25 DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID)AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? )  GROUP BY DeptId ORDER BY DeptName".equals(sqlStatement.getSQLString())){
+    if(!"SELECT  TOP 25 DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? )  GROUP BY DeptId ORDER BY DeptName".equals(sqlStatement.getSQLString())){
       super.fail();
     }
     printObjects(sqlStatement.getValues());   
+    
+    sqlStatement = mssqlSQLBuilder.constructSQLForSelect("departments",false, null, null, "DeptId", "DeptName", 5, 20);
+    System.out.println(sqlStatement.getSQLString());
+    //if(!"SELECT  TOP 25 DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? )  GROUP BY DeptId ORDER BY DeptName".equals(sqlStatement.getSQLString())){
+    //  super.fail();
+    //}
     
     
   }
@@ -535,7 +570,7 @@ public class SQLBuilderTestCase extends TestCase {
     {
       double totalUseTime = 0;
       int count = 0;
-      for(int i=0;i<2000;i++){//在此设置测试次数
+      for(int i=0;i<500;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
@@ -553,12 +588,13 @@ public class SQLBuilderTestCase extends TestCase {
     
     SQL sqlStatement = mysqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
     System.out.println(sqlStatement.getSQLString());
-    if(!"SELECT DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID)AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? )  GROUP BY DeptId ORDER BY DeptName LIMIT 5,20".equals(sqlStatement.getSQLString())){
+    if(!"SELECT DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? )  GROUP BY DeptId ORDER BY DeptName LIMIT 5,20".equals(sqlStatement.getSQLString())){
       super.fail();
     }
     printObjects(sqlStatement.getValues());   
     
-    
+    sqlStatement = mysqlSQLBuilder.constructSQLForSelect("departments",false, null, null, "DeptId", "DeptName", 5, 20);
+    System.out.println(sqlStatement.getSQLString());
   }
   
   private void printObjects(Object[] objs){
