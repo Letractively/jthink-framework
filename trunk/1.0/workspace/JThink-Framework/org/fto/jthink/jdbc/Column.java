@@ -134,15 +134,16 @@ public class Column  implements java.io.Serializable{
     StringBuffered column=null;
 		Object[] values=null;
 		if(columnValue==null || columnValue instanceof java.lang.String){
-			if(columnValue==null || columnName.equalsIgnoreCase((String)columnValue)){
-				//column = new StringBuffered(columnName);
+			//if(columnValue==null){// || columnName.equalsIgnoreCase((String)columnValue)){
+      if(columnValue==null || columnName==columnValue){
         return new SQL(SQL.UNDEFINED, columnName, values);
 			}else{
-				column = new StringBuffered().append("(").append(columnValue).append(") AS ").append(columnName);
+				column = new StringBuffered(4).append("(").append(columnValue).append(") AS ").append(columnName);
 			}
 		}else{
 			SQL sql = (SQL)columnValue;
-			column = new StringBuffered().append("(").append(sql.getSQLStatement()).append(") AS ").append(columnName);
+      StringBuffered sqlStatement = sql.getSQLStatement();
+			column = new StringBuffered(3+sqlStatement.size()).append("(").append(sqlStatement).append(") AS ").append(columnName);
 			values = sql.getValues();
 		}
 		return new SQL(SQL.UNDEFINED, column, values);

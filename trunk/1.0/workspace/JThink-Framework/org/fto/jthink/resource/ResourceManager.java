@@ -23,7 +23,6 @@ import org.fto.jthink.j2ee.web.HttpRequest;
 import org.fto.jthink.j2ee.web.HttpSession;
 import org.fto.jthink.j2ee.web.WEBApplicationContext;
 import org.fto.jthink.transaction.DefaultTransactionManager;
-import org.fto.jthink.transaction.TransactionFactory;
 import org.fto.jthink.transaction.TransactionManager;
 import org.jdom.Element;
 

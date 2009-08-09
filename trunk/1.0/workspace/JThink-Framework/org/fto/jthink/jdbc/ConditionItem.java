@@ -167,7 +167,7 @@ public class ConditionItem implements java.io.Serializable{
    */
   public String getConditionItemString(){
     if(sql!=null){
-      return new StringBuffered(name).append(" ").append(operator).append(" (").append(sql.getSQLString()).append(")").toString();
+      return new StringBuffered(name).append(" ").append(operator).append(" (").append(sql.getSQLString()).append(") ").toString();
     }
     if(isValidOperator(OPERATOR_SIGNS_SINGLE, operator)){
       if(isQuote){
@@ -194,7 +194,7 @@ public class ConditionItem implements java.io.Serializable{
    */
   public StringBuffered getConditionItemStatement(){
     if(sql!=null){
-      return new StringBuffered(name).append(" ").append(operator).append(" (").append(sql.getSQLString()).append(")");
+      return new StringBuffered(name).append(" ").append(operator).append(" (").append(sql.getSQLString()).append(") ");
     }
     if(isValidOperator(OPERATOR_SIGNS_SINGLE, operator)){
       if(isQuote){
