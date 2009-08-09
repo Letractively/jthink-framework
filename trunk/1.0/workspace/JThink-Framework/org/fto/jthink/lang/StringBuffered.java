@@ -157,6 +157,11 @@ public class StringBuffered  implements java.io.Serializable {
   
   /**
    * 追加字符数组
+   * 
+   * <pre>
+   *   注意：此方法将直接引用chars数组，所以在此之后最好不要修改chars里的数据
+   * </pre>
+   * 
    * @param s 被追加的字符数组
    * @return 这个StringBuffered
    */

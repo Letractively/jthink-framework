@@ -28,6 +28,7 @@ import org.fto.jthink.jdbc.SQLBuilder;
  * 构建自定义的SQL的时候.
  *
  */
+import org.fto.jthink.lang.SimpleList;
 import org.fto.jthink.lang.StringBuffered;
 
 /**
@@ -93,7 +94,7 @@ public class MysqlSQLBuilder extends SQLBuilder{
     
     StringBuffered sqlStr = new StringBuffered(columnSQLStatementSize+conditionStatementSize+14)
       .append("SELECT ");
-    List values = new ArrayList();
+    SimpleList values = new SimpleList();
     
     /* 生成DISTINCT串 */
     if (distinct) {
@@ -142,7 +143,7 @@ public class MysqlSQLBuilder extends SQLBuilder{
       sqlStr.append(" LIMIT ").append(startIndex).append(",").append(rowLen);
     }
     
-    return new SQL(SQL.SELECT, sqlStr, values.toArray(), startIndex, rowLen);
+    return new SQL(SQL.SELECT, sqlStr, values, startIndex, rowLen);
     
   } 
  

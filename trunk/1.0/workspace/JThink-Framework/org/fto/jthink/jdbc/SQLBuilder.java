@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.fto.jthink.exception.JThinkRuntimeException;
+import org.fto.jthink.lang.SimpleList;
 import org.fto.jthink.lang.StringBuffered;
 
 /**
@@ -82,7 +83,7 @@ public class SQLBuilder {
     int size = columns.size();
     StringBuffered names = new StringBuffered(size*2);
     StringBuffered valueStatement = new StringBuffered(size);
-    List values  = new ArrayList(size);
+    SimpleList values  = new SimpleList(size);
     Iterator columnsIT = columns.entrySet().iterator();
     while(columnsIT.hasNext()){
       Map.Entry column = (Map.Entry)columnsIT.next();
@@ -104,7 +105,7 @@ public class SQLBuilder {
       .append(" (").append(names)
       .append(") VALUES (").append(valueStatement)
       .append(") ");
-    return new SQL(SQL.UPDATE, sql, values.toArray());
+    return new SQL(SQL.UPDATE, sql, values);
   } 	
 	
   /**
@@ -145,7 +146,7 @@ public class SQLBuilder {
       conditionStatement = condition.getConditionStatement();
       conditionStatementSize = conditionStatement.size();
     }
-    List values  = new ArrayList(columnsCapacity+conditionSize);
+    SimpleList values  = new SimpleList(columnsCapacity+conditionSize);
     StringBuffered sql = new StringBuffered(columnsCapacity+columnsCapacity+conditionStatementSize+4)
     .append("UPDATE ")
     .append(tableName)
@@ -174,7 +175,7 @@ public class SQLBuilder {
       }
     }
     
-    return new SQL(SQL.UPDATE, sql, values.toArray());
+    return new SQL(SQL.UPDATE, sql, values);
   }  
 
   /**
@@ -226,12 +227,12 @@ public class SQLBuilder {
 		StringBuffered sqlstr = new StringBuffered(3+conditionStatementSize)
       .append("DELETE FROM ")
       .append(tableName);
-		Object[] values = null;
+    SimpleList values = null;
 		if (conditionStatement != null) {
 			sqlstr.append(" WHERE ").append(conditionStatement);
-			values = condition.getValues();
-		}else{
-			values = new Object[0];
+			values = condition.getValueList();
+//		}else{
+//			values = null;
 		}
 		return new SQL(SQL.UPDATE, sqlstr, values);
 	}
@@ -303,7 +304,7 @@ public class SQLBuilder {
     
     StringBuffered sqlStr = new StringBuffered(columnSQLStatementSize+conditionStatementSize+10)
     .append("SELECT ");
-    List values = new ArrayList();
+    SimpleList values = new SimpleList();
 
     /* 生成DISTINCT串 */
     if (distinct) {
@@ -344,7 +345,7 @@ public class SQLBuilder {
     if (orderby != null && orderby.length() != 0) {
       sqlStr.append(" ORDER BY ").append(orderby);
     }
-    return new SQL(SQL.SELECT, sqlStr, values.toArray());
+    return new SQL(SQL.SELECT, sqlStr, values);
   }
 
   
@@ -415,12 +416,10 @@ public class SQLBuilder {
     
     StringBuffered sqlstr = new StringBuffered(conditionStatementSize+7)
       .append("SELECT COUNT(").append(fieldName).append(") AS ").append(attrName).append(" FROM ").append(tableName);
-    Object[] values = null;
+    SimpleList values = null;
     if (conditionStatement != null) {
       sqlstr.append(" WHERE ").append(conditionStatement);
-      values = condition.getValues();
-    }else{
-      values = new Object[0]; 
+      values = condition.getValueList();
     }
     return new SQL(SQL.SELECT, sqlstr, values);
   }
@@ -436,25 +435,32 @@ public class SQLBuilder {
   protected SQL constructSelectedColumn(Column[] columns){
     int len = columns.length;
     StringBuffered columnsStr = new StringBuffered();
-    List valuesLT = new ArrayList();
+    SimpleList valuesLT = new SimpleList();
     for(int i=0;i<len;i++){
-      SQL columnSQL = columns[i].getColumn();
+      Column column = columns[i];
       columnsStr.append(i==0?"":",");
-      if(columnSQL.isStringBufferedType()){
-        columnsStr.append(columnSQL.getSQLStatement());
-      }else{
-        columnsStr.append(columnSQL.getSQLString());
-      }
-      
-      Object[] values = columnSQL.getValues();
-      if(values!=null){
-        int vlen = values.length;
-        for(int vi=0;vi<vlen;vi++){
-          valuesLT.add(values[vi]);
+      if(column.isSimpleColumn()){
+        columnsStr.append(column.getColumnName());
+      }else
+      {
+        SQL columnSQL = column.getColumn();
+        if(columnSQL.isStringBufferedType()){
+          columnsStr.append(columnSQL.getSQLStatement());
+        }else{
+          columnsStr.append(columnSQL.getSQLString());
+        }
+        
+        SimpleList values = columnSQL.getValueList();
+        if(values!=null){
+          valuesLT.addAll(values);
+  //        int vlen = values.length;
+  //        for(int vi=0;vi<vlen;vi++){
+  //          valuesLT.add(values[vi]);
+  //        }
         }
       }
     }
-    return new SQL(SQL.UNDEFINED, columnsStr, valuesLT.toArray());
+    return new SQL(SQL.UNDEFINED, columnsStr, valuesLT);
   }
 
 }

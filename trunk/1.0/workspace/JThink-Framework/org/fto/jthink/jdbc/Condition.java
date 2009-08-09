@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.fto.jthink.lang.SimpleList;
 import org.fto.jthink.lang.StringBuffered;
 
 /**
@@ -140,32 +141,32 @@ public class Condition implements java.io.Serializable{
    * @deprecated
    */
   public String getConditionString(){
-  	Iterator conditionsIT = conditions.iterator();
-    StringBuffered whereStr = new StringBuffered();
-  	while(conditionsIT.hasNext()){
-  		Object[] CondiItem = (Object[])conditionsIT.next();
-  		String logicOperator = (String)CondiItem[0];
-      if(whereStr.length()==0){
-        if(logicOperator.equals(AND) || logicOperator.equals(OR)){
-          logicOperator = "";
-        }else if(logicOperator.equals(AND_NOT) || logicOperator.equals(OR_NOT)){
-          logicOperator = "NOT";
-        }
-      }
-      logicOperator = (whereStr.length()==0 && (logicOperator.equals(AND) || logicOperator.equals(OR)))?"":logicOperator;
-  		if (CondiItem[1] instanceof ConditionItem) {
-  			ConditionItem item = (ConditionItem) CondiItem[1];
-  			whereStr.append(logicOperator).append(" ").append(item.getConditionItemString());
-  		}else{
-  			Condition condition = (Condition) CondiItem[1];
-  			String subCondnStr = condition.getConditionString();
-  			if(subCondnStr.length()>0){
-  				whereStr.append(logicOperator).append(" (").append(subCondnStr).append(") ");
-  			}
-  		}
-  		
-  	}
-  	return whereStr.toString();
+//  	Iterator conditionsIT = conditions.iterator();
+//    StringBuffered whereStr = new StringBuffered();
+//  	while(conditionsIT.hasNext()){
+//  		Object[] CondiItem = (Object[])conditionsIT.next();
+//  		String logicOperator = (String)CondiItem[0];
+//      if(whereStr.length()==0){
+//        if(logicOperator.equals(AND) || logicOperator.equals(OR)){
+//          logicOperator = "";
+//        }else if(logicOperator.equals(AND_NOT) || logicOperator.equals(OR_NOT)){
+//          logicOperator = "NOT";
+//        }
+//      }
+//      logicOperator = (whereStr.length()==0 && (logicOperator.equals(AND) || logicOperator.equals(OR)))?"":logicOperator;
+//  		if (CondiItem[1] instanceof ConditionItem) {
+//  			ConditionItem item = (ConditionItem) CondiItem[1];
+//  			whereStr.append(logicOperator).append(" ").append(item.getConditionItemString());
+//  		}else{
+//  			Condition condition = (Condition) CondiItem[1];
+//  			String subCondnStr = condition.getConditionString();
+//  			if(subCondnStr.length()>0){
+//  				whereStr.append(logicOperator).append(" (").append(subCondnStr).append(") ");
+//  			}
+//  		}
+//  		
+//  	}
+  	return getConditionStatement().toString();
   }
   
   /**
@@ -204,7 +205,7 @@ public class Condition implements java.io.Serializable{
   
   
   /**
-   * 返回所有条件表达式的值
+   * 返回所有条件表达式的值数组
    * 
    * @return 条件值
    */
@@ -233,6 +234,43 @@ public class Condition implements java.io.Serializable{
   	return values.toArray();
   }
   
+  
+  /**
+   * 返回所有条件表达式的值列表
+   * 
+   * @return 条件值
+   */
+  public SimpleList getValueList(){
+    Iterator conditionsIT = conditions.iterator();
+    SimpleList values = new SimpleList();
+    while(conditionsIT.hasNext()){
+      Object[] CondiItem = (Object[])conditionsIT.next();
+      if (CondiItem[1] instanceof ConditionItem) {
+        ConditionItem item = (ConditionItem) CondiItem[1];
+        SimpleList condValues = item.getValueList();
+        if(condValues!=null){
+          values.addAll(condValues);
+        }
+          
+//          int len = objs.length;
+//          for(int i=0;i<len;i++){
+//            values.add(objs[i]);
+//          }
+      }else{
+        Condition condition = (Condition) CondiItem[1];
+        SimpleList condValues = condition.getValueList();
+        if(condValues!=null){
+          values.addAll(condValues);
+        }
+//        int len = objs.length;
+//        for(int i=0;i<len;i++){
+//          values.add(objs[i]);
+//        }
+      }
+      
+    }
+    return values;
+  }
   
   
 }

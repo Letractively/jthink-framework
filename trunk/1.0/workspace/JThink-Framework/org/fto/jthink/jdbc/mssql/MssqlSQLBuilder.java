@@ -21,6 +21,7 @@ import org.fto.jthink.jdbc.Column;
 import org.fto.jthink.jdbc.Condition;
 import org.fto.jthink.jdbc.SQL;
 import org.fto.jthink.jdbc.SQLBuilder;
+import org.fto.jthink.lang.SimpleList;
 import org.fto.jthink.lang.StringBuffered;
  
 /**
@@ -68,25 +69,45 @@ public class MssqlSQLBuilder extends SQLBuilder{
     if(rowLen<0){
     	throw new JThinkRuntimeException("rowLen不能小于0!");
     }
-
+    
     SQL columnSQL = null;
     StringBuffered columnSQLStatement = null;
     int columnSQLStatementSize = 0;
+    SimpleList columnList = null;
     if (columns != null && columns.length != 0) {
       columnSQL = constructSelectedColumn(columns);
       columnSQLStatement = columnSQL.getSQLStatement();
       columnSQLStatementSize = columnSQLStatement.size();
+      columnList = columnSQL.getValueList();
     }
     StringBuffered conditionStatement = null;
     int conditionStatementSize = 0;
+    SimpleList conditionList = null;
     if (condition != null && condition.size() != 0) {
       conditionStatement = condition.getConditionStatement();
       conditionStatementSize = conditionStatement.size();
+      conditionList = condition.getValueList();
+      //condition.getValues();
     }
+    
+    SimpleList values = null;
+    if(columnList!=null && columnList.size()>0 && conditionList!=null && conditionList.size()>0){
+      values = new SimpleList(columnList.size()+conditionList.size());
+      values.addAll(columnList);
+      values.addAll(conditionList);
+    }else if(columnList!=null && columnList.size()>0){
+      values = columnList;
+    }else if(conditionList!=null && conditionList.size()>0){
+      values = conditionList;
+    }
+    
+//    SimpleList values = new SimpleList();
+    
+    
     
     StringBuffered sqlStr = new StringBuffered(columnSQLStatementSize+conditionStatementSize+13)
       .append("SELECT ");
-    List values = new ArrayList();
+    //List values = new ArrayList();
 
     
     /* 生成DISTINCT串 */
@@ -103,11 +124,11 @@ public class MssqlSQLBuilder extends SQLBuilder{
     if (columnSQL != null) {
       //SQL columnSQL = constructSelectedColumn(columns);
       sqlStr.append(columnSQLStatement);
-      Object[] objs = columnSQL.getValues();
-      int len=objs.length;
-      for(int i=0;i<len;i++){
-        values.add(objs[i]);
-      }
+//      Object[] objs = columnSQL.getValues();
+//      int len=objs.length;
+//      for(int i=0;i<len;i++){
+//        values.add(objs[i]);
+//      }
     }else{
       sqlStr.append("*");
     }
@@ -120,11 +141,11 @@ public class MssqlSQLBuilder extends SQLBuilder{
     /* 生成查询条件串 */
     if (conditionStatement != null) {
       sqlStr.append(" WHERE ").append(conditionStatement);
-      Object[] objs = condition.getValues();
-      int len=objs.length;
-      for(int i=0;i<len;i++){
-        values.add(objs[i]);
-      }      
+//      Object[] objs = condition.getValues();
+//      int len=objs.length;
+//      for(int i=0;i<len;i++){
+//        values.add(objs[i]);
+//      }      
     }
     
     /* 生成GROUP BY串 */
@@ -137,7 +158,7 @@ public class MssqlSQLBuilder extends SQLBuilder{
       sqlStr.append(" ORDER BY ").append(orderby);
     }
     
-    return new SQL(SQL.SELECT, sqlStr, values.toArray(), startIndex, rowLen);
+    return new SQL(SQL.SELECT, sqlStr, values, startIndex, rowLen);
 
   }
   

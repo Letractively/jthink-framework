@@ -12,6 +12,10 @@
  */
 package org.fto.jthink.jdbc;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.fto.jthink.lang.SimpleList;
 import org.fto.jthink.lang.StringBuffered;
 
 
@@ -146,7 +150,7 @@ public class ConditionItem implements java.io.Serializable{
 	}
 	
 	/**
-	 * 返回所有条件值
+	 * 返回所有条件值数组
 	 */
 	public Object[] getValues(){
 		if(isQuote){
@@ -160,6 +164,32 @@ public class ConditionItem implements java.io.Serializable{
 		return sql.getValues();
 	}
 
+  
+  /**
+   * 返回所有条件值列表
+   */
+  public SimpleList getValueList(){
+    if(isQuote){
+      return null;
+    }
+    if(value!=null){
+      SimpleList vs = new SimpleList(1);
+      vs.add(value);
+      return vs;
+      //return new Object[]{value};
+    }else if(values!=null){
+      //int len = values.length;
+      return new SimpleList(values);
+      
+//      for(int i=0;i<len;i++){
+//        vs.add(values[i]);
+//      }
+//      return vs;
+    }
+    return sql.getValueList();
+  }
+  
+  
   /**
    * 返回SQL串形式的条件单项
    * 
