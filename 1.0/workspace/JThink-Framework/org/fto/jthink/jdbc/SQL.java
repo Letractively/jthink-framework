@@ -14,6 +14,10 @@
 
 package org.fto.jthink.jdbc;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.fto.jthink.lang.SimpleList;
 import org.fto.jthink.lang.StringBuffered;
 
 /**
@@ -39,7 +43,8 @@ public class SQL implements java.io.Serializable{
   private int type;
 	private StringBuffered sqlBuff;
   private String sql;
-	private Object[] values;
+	//private Object[] values;
+  private SimpleList values;
 	
 	private int rowStartIndex = -1;  //结果集的开始行索引,从0开始
 	private int rowLength = -1;			//结果集的行数, 从索引位置(rowStartIndex)开始的行
@@ -59,7 +64,10 @@ public class SQL implements java.io.Serializable{
 		}
 		this.type = type;
 		this.sql = sql;
-		this.values = values==null?new Object[0]:values;
+		//this.values = values==null?new Object[0]:values;
+    if(values!=null){
+      this.values = new SimpleList(values);
+    }
 	}
 	
   /**
@@ -69,14 +77,15 @@ public class SQL implements java.io.Serializable{
    * @param sql SQL语句串, SQL串中的值可用"?"代替
    * @param values 与SQL串中"?"对应的值对象数组
    */
-  public SQL(int type, StringBuffered sqlBuff, Object[] values){
+  public SQL(int type, StringBuffered sqlBuff, SimpleList values){
     if(type<1 ||type>6){
       throw new IllegalArgumentException(
           "类型必须是在此类中定义的常量.");
     }
     this.type = type;
     this.sqlBuff = sqlBuff;
-    this.values = values==null?new Object[0]:values;
+    //this.values = values==null?new Object[0]:values;
+    this.values = values;
   }
   
   
@@ -98,7 +107,11 @@ public class SQL implements java.io.Serializable{
 		}
 		this.type = type;
 		this.sql = sql;
-		this.values = values==null?new Object[0]:values;
+		//this.values = values==null?new Object[0]:values;
+    if(values!=null){
+      this.values = new SimpleList(values);
+      //this.values.add(values);
+    }
 		this.rowStartIndex = rowStartIndex;
 		this.rowLength = rowLength;
 	}
@@ -112,14 +125,15 @@ public class SQL implements java.io.Serializable{
    * @param rowStartIndex 结果集的开始索引位置
    * @param rowLength 结果集的长度
    */
-  public SQL(int type, StringBuffered sqlBuff, Object[] values, int rowStartIndex, int rowLength){
+  public SQL(int type, StringBuffered sqlBuff, SimpleList values, int rowStartIndex, int rowLength){
     if(type<1 ||type>6){
       throw new IllegalArgumentException(
           "类型必须是在此类中定义的常量.");
     }
     this.type = type;
     this.sqlBuff = sqlBuff;
-    this.values = values==null?new Object[0]:values;
+    //this.values = values==null?new Object[0]:values;
+    this.values = values;
     this.rowStartIndex = rowStartIndex;
     this.rowLength = rowLength;
   }
@@ -156,11 +170,24 @@ public class SQL implements java.io.Serializable{
   
 	/**
 	 * 返回在SQL语句串中的值数组
+   * 
 	 */
 	public  Object[] getValues(){
-		return values;
+    if(values!=null){
+      return values.toArray();
+    }else{
+      return new Object[0];
+    }
 	}
 	
+  
+  /**
+   * 返回在SQL语句串中的值列表, 如果没有，返回null
+   */
+  public  SimpleList getValueList(){
+    return values;
+  }
+  
 	/**
 	 * 返回结果集的开始索引值
 	 */
