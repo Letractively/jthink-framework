@@ -530,6 +530,9 @@ public class SQLBuilderTestCase extends TestCase {
       super.fail();
     }
     printObjects(sqlStatement.getValues());   
+    if(!getObjects(sqlStatement.getValues()).equals("1,2,3,4,5,1,2,3,4,")){
+      super.fail();
+    }
     
     sqlStatement = mssqlSQLBuilder.constructSQLForSelect("departments",false, null, null, "DeptId", "DeptName", 5, 20);
     System.out.println(sqlStatement.getSQLString());
@@ -570,7 +573,7 @@ public class SQLBuilderTestCase extends TestCase {
     {
       double totalUseTime = 0;
       int count = 0;
-      for(int i=0;i<500;i++){//在此设置测试次数
+      for(int i=0;i<2000;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
@@ -578,7 +581,7 @@ public class SQLBuilderTestCase extends TestCase {
           /* 测试代码 结束 */
           
           double usetime = (System.nanoTime()-stime)/1000000f;
-          if(usetime<0.04 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+          if(usetime<0.05 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
               totalUseTime += usetime;
               count++;
           }
@@ -592,9 +595,20 @@ public class SQLBuilderTestCase extends TestCase {
       super.fail();
     }
     printObjects(sqlStatement.getValues());   
+    if(!getObjects(sqlStatement.getValues()).equals("1,2,3,4,5,1,2,3,4,")){
+      super.fail();
+    }
     
     sqlStatement = mysqlSQLBuilder.constructSQLForSelect("departments",false, null, null, "DeptId", "DeptName", 5, 20);
     System.out.println(sqlStatement.getSQLString());
+  }
+  
+  private String getObjects(Object[] objs){
+    String str = "";
+    for(int i=0;i<objs.length;i++){
+      str += (objs[i]+",");
+    }
+    return str;
   }
   
   private void printObjects(Object[] objs){
