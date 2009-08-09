@@ -69,8 +69,23 @@ public class MssqlSQLBuilder extends SQLBuilder{
     	throw new JThinkRuntimeException("rowLen不能小于0!");
     }
 
+    SQL columnSQL = null;
+    StringBuffered columnSQLStatement = null;
+    int columnSQLStatementSize = 0;
+    if (columns != null && columns.length != 0) {
+      columnSQL = constructSelectedColumn(columns);
+      columnSQLStatement = columnSQL.getSQLStatement();
+      columnSQLStatementSize = columnSQLStatement.size();
+    }
+    StringBuffered conditionStatement = null;
+    int conditionStatementSize = 0;
+    if (condition != null && condition.size() != 0) {
+      conditionStatement = condition.getConditionStatement();
+      conditionStatementSize = conditionStatement.size();
+    }
     
-    StringBuffered sqlStr = new StringBuffered("SELECT ");
+    StringBuffered sqlStr = new StringBuffered(columnSQLStatementSize+conditionStatementSize+13)
+      .append("SELECT ");
     List values = new ArrayList();
 
     
@@ -85,14 +100,16 @@ public class MssqlSQLBuilder extends SQLBuilder{
     }
     
     /* 生成返回列的串 */
-    if (columns != null && columns.length != 0) {
-      SQL columnSQL = constructSelectedColumn(columns);
-      sqlStr.append(columnSQL.getSQLString());
+    if (columnSQL != null) {
+      //SQL columnSQL = constructSelectedColumn(columns);
+      sqlStr.append(columnSQLStatement);
       Object[] objs = columnSQL.getValues();
       int len=objs.length;
       for(int i=0;i<len;i++){
         values.add(objs[i]);
       }
+    }else{
+      sqlStr.append("*");
     }
 
     /* 生成FROM子串, 如果tableName为空,将不构建FROM子句 */
@@ -101,8 +118,8 @@ public class MssqlSQLBuilder extends SQLBuilder{
     }
     
     /* 生成查询条件串 */
-    if (condition != null && condition.size() != 0) {
-      sqlStr.append(" WHERE ").append(condition.getConditionString());
+    if (conditionStatement != null) {
+      sqlStr.append(" WHERE ").append(conditionStatement);
       Object[] objs = condition.getValues();
       int len=objs.length;
       for(int i=0;i<len;i++){
@@ -120,7 +137,7 @@ public class MssqlSQLBuilder extends SQLBuilder{
       sqlStr.append(" ORDER BY ").append(orderby);
     }
     
-    return new SQL(SQL.SELECT, sqlStr.toString(), values.toArray(), startIndex, rowLen);
+    return new SQL(SQL.SELECT, sqlStr, values.toArray(), startIndex, rowLen);
 
   }
   

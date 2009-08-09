@@ -79,10 +79,10 @@ public class SQLBuilder {
       throw new IllegalArgumentException(
           "The value of an columns cannot be empty.");
     }
-    
-    StringBuffered names = new StringBuffered();
-    StringBuffered valueStatement = new StringBuffered();
-    List values  = new ArrayList(columns.size());
+    int size = columns.size();
+    StringBuffered names = new StringBuffered(size*2);
+    StringBuffered valueStatement = new StringBuffered(size);
+    List values  = new ArrayList(size);
     Iterator columnsIT = columns.entrySet().iterator();
     while(columnsIT.hasNext()){
       Map.Entry column = (Map.Entry)columnsIT.next();
@@ -98,13 +98,13 @@ public class SQLBuilder {
         values.add(value);
       };      
     }
-    StringBuffered sql = new StringBuffered("INSERT INTO ") 
+    StringBuffered sql = new StringBuffered(5+names.size()+valueStatement.size())
+      .append("INSERT INTO ") 
       .append(tableName)
       .append(" (").append(names)
       .append(") VALUES (").append(valueStatement)
       .append(") ");
-    
-    return new SQL(SQL.UPDATE, sql.toString(), values.toArray());
+    return new SQL(SQL.UPDATE, sql, values.toArray());
   } 	
 	
   /**
@@ -136,9 +136,18 @@ public class SQLBuilder {
       throw new IllegalArgumentException(
           "The value of an columns cannot be empty.");
     }
-    
-    List values  = new ArrayList(columns.size()+(condition!=null?condition.size():0));
-    StringBuffered sql = new StringBuffered("UPDATE ")
+    int columnsCapacity = columns.size();
+    int conditionSize = 0;
+    StringBuffered conditionStatement = null;
+    int conditionStatementSize = 0;
+    if(condition!=null){
+      conditionSize = condition.size();
+      conditionStatement = condition.getConditionStatement();
+      conditionStatementSize = conditionStatement.size();
+    }
+    List values  = new ArrayList(columnsCapacity+conditionSize);
+    StringBuffered sql = new StringBuffered(columnsCapacity+columnsCapacity+conditionStatementSize+4)
+    .append("UPDATE ")
     .append(tableName)
     .append(" SET ");
     
@@ -156,8 +165,8 @@ public class SQLBuilder {
       }
     }
     /* 处理条件 */
-    if(condition!=null && condition.size()>0){
-      sql.append(" WHERE ").append(condition.getConditionString());
+    if(conditionStatement!=null){
+      sql.append(" WHERE ").append(conditionStatement);
       Object[] objs = condition.getValues();
       int len=objs.length;
       for(int i=0;i<len;i++){
@@ -165,7 +174,7 @@ public class SQLBuilder {
       }
     }
     
-    return new SQL(SQL.UPDATE, sql.toString(), values.toArray());
+    return new SQL(SQL.UPDATE, sql, values.toArray());
   }  
 
   /**
@@ -207,15 +216,24 @@ public class SQLBuilder {
 			throw new IllegalArgumentException(
 					"The name of an table cannot be null.");
 		}
-		StringBuffer sqlstr = new StringBuffer("DELETE FROM ").append(tableName);
+    StringBuffered conditionStatement = null;
+    int conditionStatementSize = 0;
+    if (condition != null && condition.size()>0) {
+      conditionStatement = condition.getConditionStatement();
+      conditionStatementSize = conditionStatement.size();
+    }
+    
+		StringBuffered sqlstr = new StringBuffered(3+conditionStatementSize)
+      .append("DELETE FROM ")
+      .append(tableName);
 		Object[] values = null;
-		if (condition != null && condition.size()>0) {
-			sqlstr.append(" WHERE ").append(condition.getConditionString());
+		if (conditionStatement != null) {
+			sqlstr.append(" WHERE ").append(conditionStatement);
 			values = condition.getValues();
 		}else{
 			values = new Object[0];
 		}
-		return new SQL(SQL.UPDATE, sqlstr.toString(), values);
+		return new SQL(SQL.UPDATE, sqlstr, values);
 	}
   
   /**
@@ -268,8 +286,23 @@ public class SQLBuilder {
       throw new IllegalArgumentException(
           "The name of an table cannot be null.");
     }
+    SQL columnSQL = null;
+    StringBuffered columnSQLStatement = null;
+    int columnSQLStatementSize = 0;
+    if (columns != null && columns.length != 0) {
+      columnSQL = constructSelectedColumn(columns);
+      columnSQLStatement = columnSQL.getSQLStatement();
+      columnSQLStatementSize = columnSQLStatement.size();
+    }
+    StringBuffered conditionStatement = null;
+    int conditionStatementSize = 0;
+    if (condition != null && condition.size() != 0) {
+      conditionStatement = condition.getConditionStatement();
+      conditionStatementSize = conditionStatement.size();
+    }
     
-    StringBuffer sqlStr = new StringBuffer("SELECT ");
+    StringBuffered sqlStr = new StringBuffered(columnSQLStatementSize+conditionStatementSize+10)
+    .append("SELECT ");
     List values = new ArrayList();
 
     /* 生成DISTINCT串 */
@@ -277,14 +310,8 @@ public class SQLBuilder {
       sqlStr.append(" DISTINCT ");
     }
     /* 生成返回列的串 */
-    if (columns != null && columns.length != 0) {
-      
-//      Object[] clmnObjs = constructSelectedColumns(columns);
-//      sqlStr.append((StringBuffer)clmnObjs[0]);
-//      values.addAll((List)clmnObjs[1]);
-      
-      SQL columnSQL = constructSelectedColumn(columns);
-      sqlStr.append(columnSQL.getSQLString());
+    if (columnSQL!=null) {
+      sqlStr.append(columnSQLStatement);
       Object[] objs = columnSQL.getValues();
       int len=objs.length;
       for(int i=0;i<len;i++){
@@ -300,8 +327,9 @@ public class SQLBuilder {
     }
     
     /* 生成查询条件串 */
-    if (condition != null && condition.size() != 0) {
-      sqlStr.append(" WHERE ").append(condition.getConditionString());
+    if (conditionStatement != null) {
+      sqlStr.append(" WHERE ")
+            .append(conditionStatement);
       Object[] objs = condition.getValues();
       int len=objs.length;
       for(int i=0;i<len;i++){
@@ -316,7 +344,7 @@ public class SQLBuilder {
     if (orderby != null && orderby.length() != 0) {
       sqlStr.append(" ORDER BY ").append(orderby);
     }
-    return new SQL(SQL.SELECT, sqlStr.toString(), values.toArray());
+    return new SQL(SQL.SELECT, sqlStr, values.toArray());
   }
 
   
@@ -377,16 +405,24 @@ public class SQLBuilder {
   public SQL constructSQLForCount(
       String tableName, String fieldName, String attrName,Condition condition) {
     fieldName = fieldName==null?"*":fieldName;
-    
-    StringBuffer sqlstr = new StringBuffer().append("SELECT COUNT(").append(fieldName).append(") AS ").append(attrName).append(" FROM ").append(tableName);
-    Object[] values = null;
+
+    StringBuffered conditionStatement = null;
+    int conditionStatementSize = 0;
     if (condition != null && condition.size() != 0) {
-      sqlstr.append(" WHERE ").append(condition.getConditionString());
+      conditionStatement = condition.getConditionStatement();
+      conditionStatementSize = conditionStatement.size();
+    }    
+    
+    StringBuffered sqlstr = new StringBuffered(conditionStatementSize+7)
+      .append("SELECT COUNT(").append(fieldName).append(") AS ").append(attrName).append(" FROM ").append(tableName);
+    Object[] values = null;
+    if (conditionStatement != null) {
+      sqlstr.append(" WHERE ").append(conditionStatement);
       values = condition.getValues();
     }else{
       values = new Object[0]; 
     }
-    return new SQL(SQL.SELECT, sqlstr.toString(), values);
+    return new SQL(SQL.SELECT, sqlstr, values);
   }
 
   
@@ -398,9 +434,9 @@ public class SQLBuilder {
    * @return  描述列的SQL子语句
    */
   protected SQL constructSelectedColumn(Column[] columns){
+    int len = columns.length;
     StringBuffered columnsStr = new StringBuffered();
     List valuesLT = new ArrayList();
-    int len = columns.length;
     for(int i=0;i<len;i++){
       SQL columnSQL = columns[i].getColumn();
       columnsStr.append(i==0?"":",");

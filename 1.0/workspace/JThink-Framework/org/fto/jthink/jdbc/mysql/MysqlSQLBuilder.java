@@ -76,7 +76,23 @@ public class MysqlSQLBuilder extends SQLBuilder{
     	throw new JThinkRuntimeException("rowLen不能小于0!");
     }
 
-    StringBuffered sqlStr = new StringBuffered("SELECT ");
+    SQL columnSQL = null;
+    StringBuffered columnSQLStatement = null;
+    int columnSQLStatementSize = 0;
+    if (columns != null && columns.length != 0) {
+      columnSQL = constructSelectedColumn(columns);
+      columnSQLStatement = columnSQL.getSQLStatement();
+      columnSQLStatementSize = columnSQLStatement.size();
+    }
+    StringBuffered conditionStatement = null;
+    int conditionStatementSize = 0;
+    if (condition != null && condition.size() != 0) {
+      conditionStatement = condition.getConditionStatement();
+      conditionStatementSize = conditionStatement.size();
+    }
+    
+    StringBuffered sqlStr = new StringBuffered(columnSQLStatementSize+conditionStatementSize+14)
+      .append("SELECT ");
     List values = new ArrayList();
     
     /* 生成DISTINCT串 */
@@ -85,14 +101,15 @@ public class MysqlSQLBuilder extends SQLBuilder{
     }
     
     /* 生成返回列的串 */
-    if (columns != null && columns.length != 0) {
-      SQL columnSQL = constructSelectedColumn(columns);
-      sqlStr.append(columnSQL.getSQLStatement());
+    if (columnSQL != null) {
+      sqlStr.append(columnSQLStatement);
       Object[] objs = columnSQL.getValues();
       int len=objs.length;
       for(int i=0;i<len;i++){
         values.add(objs[i]);
       }
+    }else{
+      sqlStr.append("*");
     }
 
     /* 生成FROM子串, 如果tableName为空,将不构建FROM子句 */
@@ -101,8 +118,8 @@ public class MysqlSQLBuilder extends SQLBuilder{
     }
     
     /* 生成查询条件串 */
-    if (condition != null && condition.size() != 0) {
-      sqlStr.append(" WHERE ").append(condition.getConditionStatement());
+    if (conditionStatement != null) {
+      sqlStr.append(" WHERE ").append(conditionStatement);
       Object[] objs = condition.getValues();
       int len=objs.length;
       for(int i=0;i<len;i++){

@@ -12,8 +12,6 @@
  */
 package org.fto.jthink.lang;
 
-import java.util.ArrayList;
-
 import org.fto.jthink.util.StringHelper;
 
 /**
@@ -97,6 +95,14 @@ public class StringBuffered  implements java.io.Serializable {
   public int length() {
     return length;
   }  
+  
+  /**
+   * 返回子串数量
+   * @param minCapacity
+   */
+  public int size(){
+    return strCount;
+  }
   
 
   void ensureCapacity(int minCapacity) {
