@@ -16,6 +16,8 @@ import org.fto.jthink.jdbc.Condition;
 import org.fto.jthink.jdbc.ConditionItem;
 import org.fto.jthink.jdbc.SQL;
 import org.fto.jthink.jdbc.SQLBuilder;
+import org.fto.jthink.lang.SimpleList;
+import org.fto.jthink.util.NumberHelper;
 
 import junit.framework.TestCase;
 
@@ -71,7 +73,7 @@ public class ConditionTestCase extends TestCase {
 		condn.add(Condition.AND, condn1);
 		condn.add(Condition.AND_NOT, new ConditionItem("DeptDesc", "like", "%技术%"));
 		System.out.println("getConditionString=("+condn.getConditionString()+")");
-		assertEquals(condn.getConditionString(), " NOT DeptName like ? AND ( DeptId != ? OR ( DeptId = ? OR DeptId Between ? AND ? ) ) AND NOT DeptDesc like ? ");
+		assertEquals(condn.getConditionString(), "NOT DeptName like ? AND ( DeptId != ? OR ( DeptId = ? OR DeptId Between ? AND ? ) ) AND NOT DeptDesc like ? ");
 		printObjects(condn.getValues());
 		
 		Condition deptCondn = new Condition();
@@ -82,9 +84,44 @@ public class ConditionTestCase extends TestCase {
 		condn.add(new ConditionItem("DeptName", "like", "%部%", true));
 		condn.add(new ConditionItem("Depts.DeptId", "=", "Users.DeptId", true));
 		condn.add(new ConditionItem("DeptName", "=", sql));
-		System.out.println("getConditionString=("+condn.getConditionString()+")");
+		System.out.println("getConditionString=("+condn.getConditionStatement()+")");
 		printObjects(condn.getValues());
 		
+    
+    /* Condition测试开始 */
+    {
+      double totalUseTime = 0;
+      int count = 0;
+      for(int i=0;i<2000;i++){//在此设置测试次数
+          long stime = System.nanoTime();        
+          
+          /* 测试代码 开始 */
+          //condn.getConditionString();
+          //condn.getConditionStatement().toString();
+          //condn.getValues();
+          SimpleList list = new SimpleList();
+          
+          //list.addAll(condn.getValueList());
+          SimpleList l = condn.getValueList();
+          int len = l.size();
+          for(int c=0;c<len;c++){
+            list.add(l.get(c));
+          }
+          
+          list.toArray();
+          
+//          condn.getValueList().toArray();
+          
+          /* 测试代码 结束 */
+          
+          double usetime = (System.nanoTime()-stime)/1000000f;
+          if(usetime<0.05 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+              totalUseTime += usetime;
+              count++;
+          }
+      }
+      System.out.println("Condition测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
+    } 
 		
 	}
 
