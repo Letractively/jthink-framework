@@ -87,7 +87,7 @@ public class MssqlSQLBuilder extends SQLBuilder{
       conditionStatement = condition.getConditionStatement();
       conditionStatementSize = conditionStatement.size();
       conditionList = condition.getValueList();
-      //condition.getValues();
+
     }
     
     SimpleList values = null;
@@ -101,9 +101,8 @@ public class MssqlSQLBuilder extends SQLBuilder{
       values = conditionList;
     }
     
-//    SimpleList values = new SimpleList();
-    
-    
+    //values = new SimpleList();
+
     
     StringBuffered sqlStr = new StringBuffered(columnSQLStatementSize+conditionStatementSize+13)
       .append("SELECT ");
@@ -141,10 +140,11 @@ public class MssqlSQLBuilder extends SQLBuilder{
     /* 生成查询条件串 */
     if (conditionStatement != null) {
       sqlStr.append(" WHERE ").append(conditionStatement);
-//      Object[] objs = condition.getValues();
-//      int len=objs.length;
+      //values.addAll(condition.getValueList());
+//      SimpleList objs = condition.getValueList();
+//      int len=objs.size();
 //      for(int i=0;i<len;i++){
-//        values.add(objs[i]);
+//        values.add(objs.get(i));
 //      }      
     }
     

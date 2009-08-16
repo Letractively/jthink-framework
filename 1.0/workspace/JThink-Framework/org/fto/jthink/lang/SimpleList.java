@@ -119,7 +119,9 @@ public class SimpleList {
   
   public Object[] toArray() {
     Object[] result = new Object[size];
-    System.arraycopy(elementData, 0, result, 0, size);
+    if(size>0){
+      System.arraycopy(elementData, 0, result, 0, size);
+    }
     return result;
   }
   
