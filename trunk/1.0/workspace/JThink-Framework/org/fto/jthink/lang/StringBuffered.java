@@ -97,8 +97,7 @@ public class StringBuffered  implements java.io.Serializable {
   }  
   
   /**
-   * 返回子串数量
-   * @param minCapacity
+   * 返回被缓冲子串数量
    */
   public int size(){
     return strCount;
