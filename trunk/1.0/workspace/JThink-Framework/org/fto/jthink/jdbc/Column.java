@@ -16,7 +16,7 @@ package org.fto.jthink.jdbc;
 
 import java.util.List;
 
-import org.fto.jthink.lang.SimpleList;
+import org.fto.jthink.lang.ObjectBuffered;
 import org.fto.jthink.lang.StringBuffered;
 
 /**
@@ -144,7 +144,7 @@ public class Column  implements java.io.Serializable{
 	 */
 	public SQL getColumn(){
     StringBuffered column=null;
-    SimpleList values=null;
+    ObjectBuffered values=null;
 		if(columnValue==null || columnValue instanceof java.lang.String){
       if(columnValue==null || columnName==columnValue){
         return new SQL(SQL.UNDEFINED, columnName, null);

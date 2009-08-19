@@ -22,13 +22,7 @@ import org.fto.jthink.jdbc.Column;
 import org.fto.jthink.jdbc.Condition;
 import org.fto.jthink.jdbc.SQL;
 import org.fto.jthink.jdbc.SQLBuilder;
-/**
- * 构建SQL声明, 在具体应用中扩展类, 以便更灵活的构建SQL, 
- * 特别是需要用constructSQL(String type, HashMap sqlParameters)方法来
- * 构建自定义的SQL的时候.
- *
- */
-import org.fto.jthink.lang.SimpleList;
+import org.fto.jthink.lang.ObjectBuffered;
 import org.fto.jthink.lang.StringBuffered;
 
 /**
@@ -94,7 +88,7 @@ public class MysqlSQLBuilder extends SQLBuilder{
     
     StringBuffered sqlStr = new StringBuffered(columnSQLStatementSize+conditionStatementSize+14)
       .append("SELECT ");
-    SimpleList values = new SimpleList();
+    ObjectBuffered values = new ObjectBuffered();
     
     /* 生成DISTINCT串 */
     if (distinct) {
@@ -107,7 +101,7 @@ public class MysqlSQLBuilder extends SQLBuilder{
       Object[] objs = columnSQL.getValues();
       int len=objs.length;
       for(int i=0;i<len;i++){
-        values.add(objs[i]);
+        values.append(objs[i]);
       }
     }else{
       sqlStr.append("*");
@@ -124,7 +118,7 @@ public class MysqlSQLBuilder extends SQLBuilder{
       Object[] objs = condition.getValues();
       int len=objs.length;
       for(int i=0;i<len;i++){
-        values.add(objs[i]);
+        values.append(objs[i]);
       }      
     }
     

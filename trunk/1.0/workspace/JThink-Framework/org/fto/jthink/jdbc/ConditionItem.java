@@ -15,7 +15,7 @@ package org.fto.jthink.jdbc;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.fto.jthink.lang.SimpleList;
+import org.fto.jthink.lang.ObjectBuffered;
 import org.fto.jthink.lang.StringBuffered;
 
 
@@ -168,23 +168,19 @@ public class ConditionItem implements java.io.Serializable{
   /**
    * 返回所有条件值列表
    */
-  public SimpleList getValueList(){
+  public ObjectBuffered getValueList(){
     if(isQuote){
       return null;
     }
     if(value!=null){
-      SimpleList vs = new SimpleList(1);
-      vs.add(value);
+      ObjectBuffered vs = new ObjectBuffered(1);
+      vs.append(value);
       return vs;
       //return new Object[]{value};
     }else if(values!=null){
-      //int len = values.length;
-      return new SimpleList(values);
-      
-//      for(int i=0;i<len;i++){
-//        vs.add(values[i]);
-//      }
-//      return vs;
+      ObjectBuffered vs = new ObjectBuffered(1);
+      vs.append(values);
+      return vs;
     }
     return sql.getValueList();
   }
