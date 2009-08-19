@@ -21,7 +21,7 @@ import org.fto.jthink.jdbc.Column;
 import org.fto.jthink.jdbc.Condition;
 import org.fto.jthink.jdbc.SQL;
 import org.fto.jthink.jdbc.SQLBuilder;
-import org.fto.jthink.lang.SimpleList;
+import org.fto.jthink.lang.ObjectBuffered;
 import org.fto.jthink.lang.StringBuffered;
  
 /**
@@ -69,39 +69,44 @@ public class MssqlSQLBuilder extends SQLBuilder{
     if(rowLen<0){
     	throw new JThinkRuntimeException("rowLen不能小于0!");
     }
+
+    ObjectBuffered values = null;    
     
     SQL columnSQL = null;
     StringBuffered columnSQLStatement = null;
     int columnSQLStatementSize = 0;
-    SimpleList columnList = null;
+    //ObjectBuffered columnList = null;
     if (columns != null && columns.length != 0) {
       columnSQL = constructSelectedColumn(columns);
       columnSQLStatement = columnSQL.getSQLStatement();
       columnSQLStatementSize = columnSQLStatement.size();
-      columnList = columnSQL.getValueList();
+      values = columnSQL.getValueList();
     }
     StringBuffered conditionStatement = null;
     int conditionStatementSize = 0;
-    SimpleList conditionList = null;
+    //ObjectBuffered conditionList = null;
     if (condition != null && condition.size() != 0) {
       conditionStatement = condition.getConditionStatement();
       conditionStatementSize = conditionStatement.size();
-      conditionList = condition.getValueList();
-
+      if(values!=null){
+        values.append(condition.getValueList());
+      }else{
+        values = condition.getValueList();
+      }
     }
     
-    SimpleList values = null;
-    if(columnList!=null && columnList.size()>0 && conditionList!=null && conditionList.size()>0){
-      values = new SimpleList(columnList.size()+conditionList.size());
-      values.addAll(columnList);
-      values.addAll(conditionList);
-    }else if(columnList!=null && columnList.size()>0){
-      values = columnList;
-    }else if(conditionList!=null && conditionList.size()>0){
-      values = conditionList;
-    }
+//    ObjectBuffered values = null;
+//    if(columnList!=null && columnList.size()>0 && conditionList!=null && conditionList.size()>0){
+//      values = new ObjectBuffered(columnList.size()+conditionList.size());
+//      values.append(columnList);
+//      values.append(conditionList);
+//    }else if(columnList!=null && columnList.size()>0){
+//      values = columnList;
+//    }else if(conditionList!=null && conditionList.size()>0){
+//      values = conditionList;
+//    }
     
-    //values = new SimpleList();
+//    ObjectBuffered values = new ObjectBuffered();
 
     
     StringBuffered sqlStr = new StringBuffered(columnSQLStatementSize+conditionStatementSize+13)
@@ -126,7 +131,7 @@ public class MssqlSQLBuilder extends SQLBuilder{
 //      Object[] objs = columnSQL.getValues();
 //      int len=objs.length;
 //      for(int i=0;i<len;i++){
-//        values.add(objs[i]);
+//        values.append(objs[i]);
 //      }
     }else{
       sqlStr.append("*");
@@ -141,10 +146,10 @@ public class MssqlSQLBuilder extends SQLBuilder{
     if (conditionStatement != null) {
       sqlStr.append(" WHERE ").append(conditionStatement);
       //values.addAll(condition.getValueList());
-//      SimpleList objs = condition.getValueList();
-//      int len=objs.size();
+//      Object[] objs = condition.getValues();
+//      int len=objs.length;
 //      for(int i=0;i<len;i++){
-//        values.add(objs.get(i));
+//        values.append(objs[i]);
 //      }      
     }
     

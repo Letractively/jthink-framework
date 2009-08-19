@@ -20,7 +20,7 @@ package org.fto.jthink.lang;
  * 
  */
 
-public class SimpleList {
+class SimpleList {
 
   private Object[] elementData;
   

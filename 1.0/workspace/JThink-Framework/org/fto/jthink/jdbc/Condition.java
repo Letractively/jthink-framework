@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.fto.jthink.lang.SimpleList;
+import org.fto.jthink.lang.ObjectBuffered;
 import org.fto.jthink.lang.StringBuffered;
 
 /**
@@ -240,34 +240,24 @@ public class Condition implements java.io.Serializable{
    * 
    * @return 条件值
    */
-  public SimpleList getValueList(){
+  public ObjectBuffered getValueList(){
     Iterator conditionsIT = conditions.iterator();
-    SimpleList values = new SimpleList();
+    ObjectBuffered values = new ObjectBuffered(conditions.size());
     while(conditionsIT.hasNext()){
       Object[] CondiItem = (Object[])conditionsIT.next();
       if (CondiItem[1] instanceof ConditionItem) {
         ConditionItem item = (ConditionItem) CondiItem[1];
-        SimpleList condValues = item.getValueList();
+        ObjectBuffered condValues = item.getValueList();
         if(condValues!=null){
-          values.addAll(condValues);
+          values.append(condValues);
         }
-          
-//          int len = objs.length;
-//          for(int i=0;i<len;i++){
-//            values.add(objs[i]);
-//          }
       }else{
         Condition condition = (Condition) CondiItem[1];
-        SimpleList condValues = condition.getValueList();
+        ObjectBuffered condValues = condition.getValueList();
         if(condValues!=null){
-          values.addAll(condValues);
+          values.append(condValues);
         }
-//        int len = objs.length;
-//        for(int i=0;i<len;i++){
-//          values.add(objs[i]);
-//        }
       }
-      
     }
     return values;
   }

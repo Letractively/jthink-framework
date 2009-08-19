@@ -106,7 +106,7 @@ public class ObjectBuffered {
    */
   public ObjectBuffered append(ObjectBuffered ob){
     checkLocked();
-    ob.checkLocked();
+    //ob.checkLocked();
     length += ob.length;
     objData.add(ob);
     ob.lock();
@@ -154,7 +154,7 @@ public class ObjectBuffered {
           ob.getObjects(buffs, off, false);
           off+= ob.length;
           if(isFirstLayer){
-            ob.unlock(); //解锁
+            //ob.unlock(); //解锁
           }
         }else{
           buffs[off++] = o;

@@ -17,7 +17,7 @@ package org.fto.jthink.jdbc;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.fto.jthink.lang.SimpleList;
+import org.fto.jthink.lang.ObjectBuffered;
 import org.fto.jthink.lang.StringBuffered;
 
 /**
@@ -44,7 +44,7 @@ public class SQL implements java.io.Serializable{
 	private StringBuffered sqlBuff;
   private String sql;
 	//private Object[] values;
-  private SimpleList values;
+  private ObjectBuffered values;
 	
 	private int rowStartIndex = -1;  //结果集的开始行索引,从0开始
 	private int rowLength = -1;			//结果集的行数, 从索引位置(rowStartIndex)开始的行
@@ -66,7 +66,8 @@ public class SQL implements java.io.Serializable{
 		this.sql = sql;
 		//this.values = values==null?new Object[0]:values;
     if(values!=null){
-      this.values = new SimpleList(values);
+      this.values = new ObjectBuffered(1);
+      this.values.append(values);
     }
 	}
 	
@@ -77,7 +78,7 @@ public class SQL implements java.io.Serializable{
    * @param sql SQL语句串, SQL串中的值可用"?"代替
    * @param values 与SQL串中"?"对应的值对象数组
    */
-  public SQL(int type, StringBuffered sqlBuff, SimpleList values){
+  public SQL(int type, StringBuffered sqlBuff, ObjectBuffered values){
     if(type<1 ||type>6){
       throw new IllegalArgumentException(
           "类型必须是在此类中定义的常量.");
@@ -109,7 +110,7 @@ public class SQL implements java.io.Serializable{
 		this.sql = sql;
 		//this.values = values==null?new Object[0]:values;
     if(values!=null){
-      this.values = new SimpleList(values);
+      this.values = new ObjectBuffered(values);
       //this.values.add(values);
     }
 		this.rowStartIndex = rowStartIndex;
@@ -125,7 +126,7 @@ public class SQL implements java.io.Serializable{
    * @param rowStartIndex 结果集的开始索引位置
    * @param rowLength 结果集的长度
    */
-  public SQL(int type, StringBuffered sqlBuff, SimpleList values, int rowStartIndex, int rowLength){
+  public SQL(int type, StringBuffered sqlBuff, ObjectBuffered values, int rowStartIndex, int rowLength){
     if(type<1 ||type>6){
       throw new IllegalArgumentException(
           "类型必须是在此类中定义的常量.");
@@ -184,7 +185,7 @@ public class SQL implements java.io.Serializable{
   /**
    * 返回在SQL语句串中的值列表, 如果没有，返回null
    */
-  public  SimpleList getValueList(){
+  public ObjectBuffered getValueList(){
     return values;
   }
   
