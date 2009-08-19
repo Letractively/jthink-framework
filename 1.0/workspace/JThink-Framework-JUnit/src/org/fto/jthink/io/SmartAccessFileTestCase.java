@@ -36,24 +36,30 @@ public class SmartAccessFileTestCase extends TestCase {
 		SmartAccessFile saf = null;
 		try {
 			saf = new SmartAccessFile("SmartAccessFile_testIndexOf.txt", "rw");
-		
+			byte[] safs = new byte[(int)saf.length()];
+			saf.read(safs);
+			this.printBytes("safs:", safs);
+			
+			saf.seek(0);
 			byte[] bs = "pqrstuvwxyz".getBytes();
 			long index = saf.indexOf(bs, 0, bs.length);
-			System.out.println("saf.indexOf(bs):"+index);
+			System.out.println("saf.indexOf(bs) 1:"+index);
 			if(index!=-1){
 			  super.fail();
       }
-      
+			saf.seek(0);
       bs = "0123456789".getBytes();
       index = saf.indexOf(bs, 0, bs.length);
-      System.out.println("saf.indexOf(bs):"+index);
+      System.out.println("saf.indexOf(bs) 2:"+index);
       if(index!=3){
         super.fail();
       }
-      
-      bs = "试索引".getBytes();
+      saf.seek(0);
+      bs = "试索引".getBytes("gb2312");
       index = saf.indexOf(bs, 0, bs.length);
-      System.out.println("saf.indexOf(bs):"+index);
+      this.printBytes("试索引:", bs);
+      
+      System.out.println("saf.indexOf(bs) 3:"+index);
       if(index!=17){
         super.fail();
       }

@@ -61,7 +61,7 @@ public class XMLHelperTestCase  extends TestCase{
     XMLHelper.save(row, "test_row.xml");
     Document doc = new Document();
     doc.setRootElement(root);
-    XMLHelper.save(doc, "test_doc_root.xml");
+    //XMLHelper.save(doc, "test_doc_root.xml");
 
   }
 

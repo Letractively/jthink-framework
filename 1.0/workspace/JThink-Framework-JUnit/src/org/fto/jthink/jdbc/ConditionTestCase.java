@@ -16,7 +16,7 @@ import org.fto.jthink.jdbc.Condition;
 import org.fto.jthink.jdbc.ConditionItem;
 import org.fto.jthink.jdbc.SQL;
 import org.fto.jthink.jdbc.SQLBuilder;
-import org.fto.jthink.lang.SimpleList;
+//import org.fto.jthink.lang.ObjectBuffered;
 import org.fto.jthink.util.NumberHelper;
 
 import junit.framework.TestCase;
@@ -73,7 +73,7 @@ public class ConditionTestCase extends TestCase {
 		condn.add(Condition.AND, condn1);
 		condn.add(Condition.AND_NOT, new ConditionItem("DeptDesc", "like", "%技术%"));
 		System.out.println("getConditionString=("+condn.getConditionString()+")");
-		assertEquals(condn.getConditionString(), "NOT DeptName like ? AND ( DeptId != ? OR ( DeptId = ? OR DeptId Between ? AND ? ) ) AND NOT DeptDesc like ? ");
+		assertEquals(condn.getConditionString().trim(), "NOT DeptName like ? AND ( DeptId != ? OR ( DeptId = ? OR DeptId Between ? AND ? ) ) AND NOT DeptDesc like ?");
 		printObjects(condn.getValues());
 		
 		Condition deptCondn = new Condition();
@@ -84,7 +84,7 @@ public class ConditionTestCase extends TestCase {
 		condn.add(new ConditionItem("DeptName", "like", "%部%", true));
 		condn.add(new ConditionItem("Depts.DeptId", "=", "Users.DeptId", true));
 		condn.add(new ConditionItem("DeptName", "=", sql));
-		System.out.println("getConditionString=("+condn.getConditionStatement()+")");
+//		System.out.println("getConditionString=("+condn.getConditionStatement()+")");
 		printObjects(condn.getValues());
 		
     
@@ -94,23 +94,28 @@ public class ConditionTestCase extends TestCase {
       int count = 0;
       for(int i=0;i<2000;i++){//在此设置测试次数
           long stime = System.nanoTime();        
-          
           /* 测试代码 开始 */
-          //condn.getConditionString();
-          //condn.getConditionStatement().toString();
-          //condn.getValues();
-          SimpleList list = new SimpleList();
           
-          //list.addAll(condn.getValueList());
-          SimpleList l = condn.getValueList();
-          int len = l.size();
-          for(int c=0;c<len;c++){
-            list.add(l.get(c));
-          }
+          condn = new Condition();
+          condn.add(new ConditionItem("DeptName", "like", "%部%", true));
+          condn.add(new ConditionItem("Depts.DeptId", "=", "Users.DeptId", true));
+          condn.add(new ConditionItem("DeptName", "=", sql));
           
-          list.toArray();
-          
-//          condn.getValueList().toArray();
+//          //condn.getConditionString();
+//          //condn.getConditionStatement().toString();
+//          //condn.getValues();
+//          //ObjectBuffered list = new ObjectBuffered();
+//          
+//          //list.addAll(condn.getValueList());
+//          //ObjectBuffered l = condn.getValueList();
+////          int len = l.size();
+////          for(int c=0;c<len;c++){
+////            list.append(l.toArray());
+////          }
+//          
+////          list.toArray();
+//          
+////          condn.getValueList().toArray();
           
           /* 测试代码 结束 */
           

@@ -322,9 +322,10 @@ public class SQLBuilderTestCase extends TestCase {
           long stime = System.nanoTime();        
           
           /* 测试代码 开始 */
-          sqlBuilder.
-          constructSQLForSelect("departments", 
-              false, columns, condn, "DeptName", "DeptId").getSQLString();
+          SQL sql = sqlBuilder.constructSQLForSelect("departments", 
+              false, columns, condn, "DeptName", "DeptId");
+          sql.getSQLString();
+          //sql.getValueList().toArray();
           /* 测试代码 结束 */
           
           double usetime = (System.nanoTime()-stime)/1000000f;
@@ -482,6 +483,51 @@ public class SQLBuilderTestCase extends TestCase {
     System.out.println("\n[正在测试方法: MssqlSQLBuilder.constructSQLForSelect()...]");
     
     
+
+    
+    /* constructSQLForSelect测试开始 */
+    {
+      double totalUseTime = 0;
+      int count = 0;
+      for(int i=0;i<2000;i++){//在此设置测试次数
+          long stime = System.nanoTime();        
+          
+          Condition condn = new Condition();
+          condn.add(new ConditionItem("DEPT_NAME", "IN", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)));
+          condn.add(new ConditionItem("DEPT_NO", "IS", "NOT NULL"));
+          condn.add(new ConditionItem("F1", "=", "1"));
+          condn.add(new ConditionItem("F2", "=", "2"));
+          condn.add(new ConditionItem("F3", "=", "3"));
+          condn.add(new ConditionItem("F4", "=", "4"));
+          condn.add(new ConditionItem("F5", "=", "5"));
+          condn.add(new ConditionItem("F6", "in", new Object[]{"1", "2", "3", "4"}));
+          
+          
+          Column[] columns = new Column[]{
+              new Column("DEPT_ID"),
+              new Column("DEPT_NAME", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)),
+              new Column("F1"),
+              new Column("F2"),
+              new Column("F3"),
+              new Column("F4"),
+              new Column("F5"),
+              new Column("F6"),
+          };
+          
+          /* 测试代码 开始 */
+          mssqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20).getSQLString();
+          /* 测试代码 结束 */
+          
+          double usetime = (System.nanoTime()-stime)/1000000f;
+          if(usetime<0.09 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
+              totalUseTime += usetime;
+              count++;
+          }
+      }
+      System.out.println("constructSQLForSelect 测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
+    }  
+    
+    
     Condition condn = new Condition();
     condn.add(new ConditionItem("DEPT_NAME", "IN", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)));
     condn.add(new ConditionItem("DEPT_NO", "IS", "NOT NULL"));
@@ -504,25 +550,6 @@ public class SQLBuilderTestCase extends TestCase {
         new Column("F6"),
     };
     
-    /* constructSQLForSelect测试开始 */
-    {
-      double totalUseTime = 0;
-      int count = 0;
-      for(int i=0;i<2000;i++){//在此设置测试次数
-          long stime = System.nanoTime();        
-          
-          /* 测试代码 开始 */
-          mssqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20).getSQLString();
-          /* 测试代码 结束 */
-          
-          double usetime = (System.nanoTime()-stime)/1000000f;
-          if(usetime<0.09 && usetime>0){//大于50可认为是随机峰值，不参加统计，可根据情况调整
-              totalUseTime += usetime;
-              count++;
-          }
-      }
-      System.out.println("constructSQLForSelect 测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
-    }  
     
     SQL sqlStatement = mssqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20);
     System.out.println(sqlStatement.getSQLString());
