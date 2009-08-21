@@ -210,24 +210,28 @@ public class Condition implements java.io.Serializable{
    * @return 条件值
    */
   public Object[] getValues(){
-  	Iterator conditionsIT = conditions.iterator();
   	List values = new ArrayList();
-  	while(conditionsIT.hasNext()){
-  		Object[] CondiItem = (Object[])conditionsIT.next();
+    int itemLen = conditions.size();
+    for(int ii=0;ii<itemLen;ii++){
+      Object[] CondiItem = (Object[])conditions.get(ii);
   		if (CondiItem[1] instanceof ConditionItem) {
   			ConditionItem item = (ConditionItem) CondiItem[1];
   				Object[] objs = item.getValues();
-  				int len = objs.length;
-  				for(int i=0;i<len;i++){
-  					values.add(objs[i]);
+  				if(objs!=null){
+    				int len = objs.length;
+    				for(int i=0;i<len;i++){
+    					values.add(objs[i]);
+    				}
   				}
   		}else{
   			Condition condition = (Condition) CondiItem[1];
   			Object[] objs = condition.getValues();
-  			int len = objs.length;
-				for(int i=0;i<len;i++){
-					values.add(objs[i]);
-				}
+  			if(objs!=null){
+    			int len = objs.length;
+  				for(int i=0;i<len;i++){
+  					values.add(objs[i]);
+  				}
+  			}
   		}
   		
   	}
@@ -241,10 +245,10 @@ public class Condition implements java.io.Serializable{
    * @return 条件值
    */
   public ObjectBuffered getValueList(){
-    Iterator conditionsIT = conditions.iterator();
     ObjectBuffered values = new ObjectBuffered(conditions.size());
-    while(conditionsIT.hasNext()){
-      Object[] CondiItem = (Object[])conditionsIT.next();
+    int len = conditions.size();
+    for(int i=0;i<len;i++){
+      Object[] CondiItem = (Object[])conditions.get(i);
       if (CondiItem[1] instanceof ConditionItem) {
         ConditionItem item = (ConditionItem) CondiItem[1];
         ObjectBuffered condValues = item.getValueList();

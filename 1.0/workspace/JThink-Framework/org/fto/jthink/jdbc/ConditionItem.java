@@ -39,8 +39,9 @@ public class ConditionItem implements java.io.Serializable{
   
   private String name;
 	private String operator;
-	private Object[] values;
+	//private Object[] values;
 	private Object value;
+	private ObjectBuffered valueBuff;
 	private boolean isQuote = false;
 	private SQL sql;
 	
@@ -72,6 +73,8 @@ public class ConditionItem implements java.io.Serializable{
 		
 		this.name = name;
 		this.operator = operator;
+		this.valueBuff = new ObjectBuffered(1);
+		this.valueBuff.append(value);
 		this.value = value;
 		if(operator.equalsIgnoreCase("IS")){
 			this.isQuote = true;
@@ -99,7 +102,7 @@ public class ConditionItem implements java.io.Serializable{
 		this.name = name;
 		this.operator = operator;
 		this.sql = sql;
-
+		this.valueBuff = sql.getValueList();
 	}
 
 	
@@ -132,7 +135,8 @@ public class ConditionItem implements java.io.Serializable{
 		
 		this.name = name;
 		this.operator = operator;
-		this.values = values;
+    this.valueBuff = new ObjectBuffered(1);
+    this.valueBuff.append(values);
 	}
 	
 	/**
@@ -150,39 +154,47 @@ public class ConditionItem implements java.io.Serializable{
 	}
 	
 	/**
-	 * 返回所有条件值数组
+	 * 返回所有条件值数组, 如果没有，返回null
 	 */
 	public Object[] getValues(){
 		if(isQuote){
-			return new Object[0];
+			return null;//new Object[0];
 		}
-		if(value!=null){
-			return new Object[]{value};
-		}else if(values!=null){
-			return values;
+		if(valueBuff!=null){
+		  return valueBuff.toArray();
 		}
-		return sql.getValues();
+		return null;
+//		if(value!=null){
+//			return new Object[]{value};
+//		}else if(values!=null){
+//			return values;
+//		}
+//		return sql.getValues();
 	}
 
   
   /**
-   * 返回所有条件值列表
+   * 返回所有条件值列表, 如果没有，返回null
    */
   public ObjectBuffered getValueList(){
     if(isQuote){
       return null;
     }
-    if(value!=null){
-      ObjectBuffered vs = new ObjectBuffered(1);
-      vs.append(value);
-      return vs;
-      //return new Object[]{value};
-    }else if(values!=null){
-      ObjectBuffered vs = new ObjectBuffered(1);
-      vs.append(values);
-      return vs;
+    if(valueBuff!=null){
+      return valueBuff;
     }
-    return sql.getValueList();
+    return null;    
+//    if(value!=null){
+//      ObjectBuffered vs = new ObjectBuffered(1);
+//      vs.append(value);
+//      return vs;
+//      //return new Object[]{value};
+//    }else if(values!=null){
+//      ObjectBuffered vs = new ObjectBuffered(1);
+//      vs.append(values);
+//      return vs;
+//    }
+//    return sql.getValueList();
   }
   
   
@@ -205,8 +217,9 @@ public class ConditionItem implements java.io.Serializable{
       if(isValidOperator(OPERATOR_SIGNS_BETWEEN, operator)){
           return new StringBuffered(name).append(" ").append(operator).append(" ? AND ? ").toString();
       }else{
-        StringBuffered valuesStr = new StringBuffered(name).append(" ").append(operator).append(" ("); 
-        for(int i=0; i<values.length; i++){
+        StringBuffered valuesStr = new StringBuffered(name).append(" ").append(operator).append(" (");
+        int valuesCount = valueBuff.length();
+        for(int i=0; i<valuesCount; i++){
           valuesStr.append(i==0?"? ":",? ");
         }
         return valuesStr.append(") ").toString();
@@ -233,7 +246,8 @@ public class ConditionItem implements java.io.Serializable{
           return new StringBuffered(name).append(" ").append(operator).append(" ? AND ? ");
       }else{
         StringBuffered valuesStr = new StringBuffered(name).append(" ").append(operator).append(" ("); 
-        for(int i=0; i<values.length; i++){
+        int valuesCount = valueBuff.length();
+        for(int i=0; i<valuesCount; i++){
           valuesStr.append(i==0?"? ":",? ");
         }
         return valuesStr.append(") ");
