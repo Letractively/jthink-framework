@@ -101,6 +101,20 @@ public class ConditionTestCase extends TestCase {
           condn.add(new ConditionItem("Depts.DeptId", "=", "Users.DeptId", true));
           condn.add(new ConditionItem("DeptName", "=", sql));
           
+          condn2 = new Condition();
+          condn2.add(Condition.OR, new ConditionItem("DeptId", "=", "1"));
+          condn2.add(new ConditionItem("DeptId", "=", "2"));
+          condn2.add(new ConditionItem("DeptId", "IN", new Object[]{"3", "4", "5"}));
+          condn2.add(Condition.OR, new ConditionItem("DeptId", "Between", new Object[]{"6", "9"}));
+          
+          condn1 = new Condition();
+          condn1.add(new ConditionItem("DeptId", "!=", "3"));
+          condn1.add("OR", condn2);
+          
+          condn.add(Condition.AND, condn1);
+          
+          condn.getValueList();
+          //condn.getValues();
 //          //condn.getConditionString();
 //          //condn.getConditionStatement().toString();
 //          //condn.getValues();
