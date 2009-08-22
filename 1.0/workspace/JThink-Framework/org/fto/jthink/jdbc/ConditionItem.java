@@ -39,9 +39,9 @@ public class ConditionItem implements java.io.Serializable{
   
   private String name;
 	private String operator;
-	//private Object[] values;
-	private Object value;
-	private ObjectBuffered valueBuff;
+	private Object[] values;
+	//private Object value;
+	//private ObjectBuffered valueBuff;
 	private boolean isQuote = false;
 	private SQL sql;
 	
@@ -73,9 +73,9 @@ public class ConditionItem implements java.io.Serializable{
 		
 		this.name = name;
 		this.operator = operator;
-		this.valueBuff = new ObjectBuffered(1);
-		this.valueBuff.append(value);
-		this.value = value;
+		//this.valueBuff = new ObjectBuffered(1);
+		//this.valueBuff.append(value);
+		this.values = new Object[]{value};
 		if(operator.equalsIgnoreCase("IS")){
 			this.isQuote = true;
 			String v = ((String)value).trim();
@@ -102,7 +102,8 @@ public class ConditionItem implements java.io.Serializable{
 		this.name = name;
 		this.operator = operator;
 		this.sql = sql;
-		this.valueBuff = sql.getValueList();
+		//this.valueBuff = sql.getValueList();
+		this.values = sql.getValues();
 	}
 
 	
@@ -135,8 +136,9 @@ public class ConditionItem implements java.io.Serializable{
 		
 		this.name = name;
 		this.operator = operator;
-    this.valueBuff = new ObjectBuffered(1);
-    this.valueBuff.append(values);
+    //this.valueBuff = new ObjectBuffered(1);
+    //this.valueBuff.append(values);
+		this.values = values;
 	}
 	
 	/**
@@ -160,10 +162,10 @@ public class ConditionItem implements java.io.Serializable{
 		if(isQuote){
 			return null;//new Object[0];
 		}
-		if(valueBuff!=null){
-		  return valueBuff.toArray();
-		}
-		return null;
+//		if(values!=null){
+//		  return valueBuff.toArray();
+//		}
+		return values;
 //		if(value!=null){
 //			return new Object[]{value};
 //		}else if(values!=null){
@@ -173,17 +175,17 @@ public class ConditionItem implements java.io.Serializable{
 	}
 
   
-  /**
-   * 返回所有条件值列表, 如果没有，返回null
-   */
-  public ObjectBuffered getValueList(){
-    if(isQuote){
-      return null;
-    }
-    if(valueBuff!=null){
-      return valueBuff;
-    }
-    return null;    
+//  /**
+//   * 返回所有条件值列表, 如果没有，返回null
+//   */
+//  public ObjectBuffered getValueList(){
+//    if(isQuote){
+//      return null;
+//    }
+//    if(valueBuff!=null){
+//      return valueBuff;
+//    }
+//    return null;    
 //    if(value!=null){
 //      ObjectBuffered vs = new ObjectBuffered(1);
 //      vs.append(value);
@@ -195,7 +197,7 @@ public class ConditionItem implements java.io.Serializable{
 //      return vs;
 //    }
 //    return sql.getValueList();
-  }
+//  }
   
   
   /**
@@ -209,7 +211,7 @@ public class ConditionItem implements java.io.Serializable{
     }
     if(isValidOperator(OPERATOR_SIGNS_SINGLE, operator)){
       if(isQuote){
-        return new StringBuffered(name).append(" ").append(operator).append(" ").append(value).append(" ").toString();
+        return new StringBuffered(name).append(" ").append(operator).append(" ").append(values[0]).append(" ").toString();
       }else{
         return new StringBuffered(name).append(" ").append(operator).append(" ? ").toString();
       }
@@ -218,7 +220,7 @@ public class ConditionItem implements java.io.Serializable{
           return new StringBuffered(name).append(" ").append(operator).append(" ? AND ? ").toString();
       }else{
         StringBuffered valuesStr = new StringBuffered(name).append(" ").append(operator).append(" (");
-        int valuesCount = valueBuff.length();
+        int valuesCount = values.length;
         for(int i=0; i<valuesCount; i++){
           valuesStr.append(i==0?"? ":",? ");
         }
@@ -237,7 +239,7 @@ public class ConditionItem implements java.io.Serializable{
     }
     if(isValidOperator(OPERATOR_SIGNS_SINGLE, operator)){
       if(isQuote){
-        return new StringBuffered(name).append(" ").append(operator).append(" ").append(value).append(" ");
+        return new StringBuffered(name).append(" ").append(operator).append(" ").append(values[0]).append(" ");
       }else{
         return new StringBuffered(name).append(" ").append(operator).append(" ? ");
       }
@@ -246,7 +248,7 @@ public class ConditionItem implements java.io.Serializable{
           return new StringBuffered(name).append(" ").append(operator).append(" ? AND ? ");
       }else{
         StringBuffered valuesStr = new StringBuffered(name).append(" ").append(operator).append(" ("); 
-        int valuesCount = valueBuff.length();
+        int valuesCount = values.length;
         for(int i=0; i<valuesCount; i++){
           valuesStr.append(i==0?"? ":",? ");
         }

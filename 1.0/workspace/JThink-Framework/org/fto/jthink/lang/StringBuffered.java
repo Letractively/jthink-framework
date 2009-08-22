@@ -63,6 +63,12 @@ public class StringBuffered  implements java.io.Serializable {
   private Object[] strData;
   /* 串数量 */
   private int strCount = 0; 
+  
+  /* 
+   * 是否被锁定，如果被锁定，就不能再调用append方法，只有当被解锁后才能再使用
+   */
+  private boolean locked  = false;  
+  
   /**
    * 构建一个StringBuffer，串列表大小为16
    */
@@ -149,6 +155,7 @@ public class StringBuffered  implements java.io.Serializable {
    * @return 这个StringBuffer
    */
   public StringBuffered append(String s){
+    checkLocked();
     length+=s.length();
     add(s);
     return this;
@@ -165,6 +172,7 @@ public class StringBuffered  implements java.io.Serializable {
    * @return 这个StringBuffered
    */
   public StringBuffered append(char[] chars){
+    checkLocked();
     length+=chars.length;
     add(chars);
     return this;
@@ -176,20 +184,21 @@ public class StringBuffered  implements java.io.Serializable {
    * @return 这个StringBuffered
    */
   public StringBuffered append(char c){
+    checkLocked();
     length++;;
     add(new Character(c));
     return this;
   }
   
   public StringBuffered append(StringBuffered sb) {
-    Object[] data = sb.strData;
-//    int len = sb.strCount;
-//    ensureCapacity(strCount + len);
-//    for(int i=0; i<len; i++){
-//      strData[strCount++] = data[i];      
-//    }
-    add(data, 0, sb.strCount);
-    length+=sb.length();
+//    Object[] data = sb.strData;
+//    add(data, 0, sb.strCount);
+//    length+=sb.length();
+//    return this;
+    checkLocked();
+    length += sb.length;
+    add(sb);
+    sb.lock();
     return this;
   }
   
@@ -228,15 +237,57 @@ public class StringBuffered  implements java.io.Serializable {
     return append(String.valueOf(d));
   }
   
-
+  
+  private void getChars(char[] newChars, int off){
+    /* 只有加入了一个对象 */
+//    if(strCount==1){
+//      Object o = strData[0];
+//      if(o instanceof String){
+//        newChars[off++] = (String)o;
+//      }else if(o instanceof char[]){
+//        String newStr = new String((char[])o);
+//        clear();
+//        add(newStr);
+//        return newStr;
+//      }else if(o instanceof Character){
+//        String newStr = ((Character)o).toString();
+//        clear();
+//        add(newStr);
+//        return newStr;
+//      }
+//    }
+    
+    /* 加入了多个对象 */
+    //char[] newChars = new char[length];
+    //int pos=0;
+    for(int i=0;i<strCount;i++){
+      Object o = strData[i];
+      if(o instanceof String){
+        String s = (String)o;
+        int clen = s.length(); 
+        s.getChars(0, clen, newChars, off);
+        off+=clen;
+      }else if(o instanceof char[]){
+        char[] s = (char[])o;
+        int clen = s.length; 
+        System.arraycopy(s, 0, newChars, off, clen);
+        off+=clen;
+      }else if(o instanceof Character){
+        newChars[off++]=((Character)o).charValue();
+        //pos++;
+      }else if(o instanceof StringBuffered){
+        StringBuffered sb = (StringBuffered)o;
+        sb.getChars(newChars, off);
+        off+= sb.length;
+      }
+      
+    }
+  }
   
   /**
    * 到String对象
-   * 
-   * 注：append(StringBuffered sb)的处理还没有做
    */
   public String toString(){
-    
     /* 是空 */
     if(strCount==0){
       return StringHelper.EMPTY;
@@ -259,33 +310,25 @@ public class StringBuffered  implements java.io.Serializable {
         return newStr;
       }
     }
-    
-    /* 加入了多个对象 */
+    /* 加入了多个对象或StringBuffered */
     char[] newChars = new char[length];
-    int pos=0;
-    for(int i=0;i<strCount;i++){
-      Object o = strData[i];
-      if(o instanceof String){
-        String s = (String)o;
-        int clen = s.length(); 
-        s.getChars(0, clen, newChars, pos);
-        pos+=clen;
-      }else if(o instanceof char[]){
-        char[] s = (char[])o;
-        int clen = s.length; 
-        System.arraycopy(s, 0, newChars, pos, clen);
-        pos+=clen;
-      }else if(o instanceof Character){
-        newChars[pos]=((Character)o).charValue();
-        pos++;
-      }
-      
-    }
+    getChars(newChars, 0);
+    
+    
     clear();
     String newStr = new String(newChars);
     add(newStr);
-    
     return newStr;
   }
+  
+  private void checkLocked(){
+    if(locked){
+      throw new RuntimeException("This StringBuffered is locked.");
+    }
+  }
+  
+  private void lock(){
+    locked = true;
+  }  
   
 }
