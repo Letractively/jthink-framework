@@ -88,7 +88,7 @@ public class MysqlSQLBuilder extends SQLBuilder{
     
     StringBuffered sqlStr = new StringBuffered(columnSQLStatementSize+conditionStatementSize+14)
       .append("SELECT ");
-    ObjectBuffered values = new ObjectBuffered();
+    ObjectBuffered values = null;//new ObjectBuffered();
     
     /* 生成DISTINCT串 */
     if (distinct) {
@@ -98,11 +98,12 @@ public class MysqlSQLBuilder extends SQLBuilder{
     /* 生成返回列的串 */
     if (columnSQL != null) {
       sqlStr.append(columnSQLStatement);
-      Object[] objs = columnSQL.getValues();
-      int len=objs.length;
-      for(int i=0;i<len;i++){
-        values.append(objs[i]);
-      }
+      values = columnSQL.getValueList();
+//      Object[] objs = columnSQL.getValues();
+//      int len=objs.length;
+//      for(int i=0;i<len;i++){
+//        values.append(objs[i]);
+//      }
     }else{
       sqlStr.append("*");
     }
@@ -115,11 +116,18 @@ public class MysqlSQLBuilder extends SQLBuilder{
     /* 生成查询条件串 */
     if (conditionStatement != null) {
       sqlStr.append(" WHERE ").append(conditionStatement);
-      Object[] objs = condition.getValues();
-      int len=objs.length;
-      for(int i=0;i<len;i++){
-        values.append(objs[i]);
-      }      
+      if(values==null){
+        //System.out.println("values 1");
+        values = condition.getValueList();
+      }else{
+        //System.out.println("values 2");
+        values.append(condition.getValueList());
+      }
+//      Object[] objs = condition.getValues();
+//      int len=objs.length;
+//      for(int i=0;i<len;i++){
+//        values.append(objs[i]);
+//      }      
     }
     
     /* 生成GROUP BY串 */

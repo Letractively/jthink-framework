@@ -16,7 +16,6 @@ public class ObjectBuffered {
   
   /* 
    * 是否被锁定，如果被锁定，就不能再调用append方法，只有当被解锁后才能再使用
-   * 
    */
   private boolean locked  = false;
   
@@ -153,9 +152,9 @@ public class ObjectBuffered {
           ObjectBuffered ob = (ObjectBuffered)o;
           ob.getObjects(buffs, off, false);
           off+= ob.length;
-          if(isFirstLayer){
+          //if(isFirstLayer){
             //ob.unlock(); //解锁
-          }
+          //}
         }else{
           buffs[off++] = o;
         }

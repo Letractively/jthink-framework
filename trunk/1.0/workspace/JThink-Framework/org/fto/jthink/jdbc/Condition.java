@@ -251,7 +251,7 @@ public class Condition implements java.io.Serializable{
       Object[] CondiItem = (Object[])conditions.get(i);
       if (CondiItem[1] instanceof ConditionItem) {
         ConditionItem item = (ConditionItem) CondiItem[1];
-        ObjectBuffered condValues = item.getValueList();
+        Object[] condValues = item.getValues();
         if(condValues!=null){
           values.append(condValues);
         }
