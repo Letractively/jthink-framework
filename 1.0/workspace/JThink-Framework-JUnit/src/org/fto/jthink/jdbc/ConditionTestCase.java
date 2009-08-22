@@ -113,8 +113,12 @@ public class ConditionTestCase extends TestCase {
           
           condn.add(Condition.AND, condn1);
           
-          condn.getValueList();
+          //condn.getValueList();
           //condn.getValues();
+          
+          condn.getConditionStatement();
+          //condn.getConditionString();
+          
 //          //condn.getConditionString();
 //          //condn.getConditionStatement().toString();
 //          //condn.getValues();
