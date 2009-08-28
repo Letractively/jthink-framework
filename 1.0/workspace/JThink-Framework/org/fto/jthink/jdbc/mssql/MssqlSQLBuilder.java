@@ -80,7 +80,7 @@ public class MssqlSQLBuilder extends SQLBuilder{
       columnSQL = constructSelectedColumn(columns);
       columnSQLStatement = columnSQL.getSQLStatement();
       columnSQLStatementSize = columnSQLStatement.size();
-      values = columnSQL.getValueList();
+      values = columnSQL.getValueBuffered();
     }
     StringBuffered conditionStatement = null;
     int conditionStatementSize = 0;
@@ -89,9 +89,9 @@ public class MssqlSQLBuilder extends SQLBuilder{
       conditionStatement = condition.getConditionStatement();
       conditionStatementSize = conditionStatement.size();
       if(values!=null){
-        values.append(condition.getValueList());
+        values.append(condition.getValueBuffered());
       }else{
-        values = condition.getValueList();
+        values = condition.getValueBuffered();
       }
     }
     

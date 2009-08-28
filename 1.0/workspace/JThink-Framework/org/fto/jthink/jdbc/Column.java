@@ -14,8 +14,6 @@
 
 package org.fto.jthink.jdbc;
 
-import java.util.List;
-
 import org.fto.jthink.lang.ObjectBuffered;
 import org.fto.jthink.lang.StringBuffered;
 
@@ -84,6 +82,7 @@ public class Column  implements java.io.Serializable{
 					"The column name cannot be null.");
 		}
 		this.columnName = columnName;
+		this.columnValue = columnName;
 	}
 	
 	/**
@@ -136,17 +135,17 @@ public class Column  implements java.io.Serializable{
     return columnValue==null || columnName==columnValue;
   }
   
-  
 	/**
 	 * 返回列的SQL语句形式
 	 * 
 	 * @return 描述此列的SQL语句
+	 * 
 	 */
 	public SQL getColumn(){
     StringBuffered column=null;
     ObjectBuffered values=null;
-		if(columnValue==null || columnValue instanceof java.lang.String){
-      if(columnValue==null || columnName==columnValue){
+		if(columnValue instanceof java.lang.String){
+      if(columnName==columnValue){
         return new SQL(SQL.UNDEFINED, columnName, null);
 			}else{
 				column = new StringBuffered(4).append("(").append(columnValue).append(") AS ").append(columnName);
@@ -155,45 +154,8 @@ public class Column  implements java.io.Serializable{
 			SQL sql = (SQL)columnValue;
       StringBuffered sqlStatement = sql.getSQLStatement();
 			column = new StringBuffered(3+sqlStatement.size()).append("(").append(sqlStatement).append(") AS ").append(columnName);
-			values = sql.getValueList();
+			values = sql.getValueBuffered();
 		}
 		return new SQL(SQL.UNDEFINED, column, values);
 	}
-
-//  public SQL getColumn(){
-//    StringBuffered column=null;
-//    Object[] values=null;
-//    if(columnValue==null || columnValue instanceof java.lang.String){
-//      //if(columnValue==null){// || columnName.equalsIgnoreCase((String)columnValue)){
-//      if(columnValue==null || columnName==columnValue){
-//        return new SQL(SQL.UNDEFINED, columnName, values);
-//      }else{
-//        column = new StringBuffered(4).append("(").append(columnValue).append(") AS ").append(columnName);
-//      }
-//    }else{
-//      SQL sql = (SQL)columnValue;
-//      StringBuffered sqlStatement = sql.getSQLStatement();
-//      column = new StringBuffered(3+sqlStatement.size()).append("(").append(sqlStatement).append(") AS ").append(columnName);
-//      values = sql.getValues();
-//    }
-//    return new SQL(SQL.UNDEFINED, column, values);
-//  }
-  
-//  public SQL getColumn(){
-//    String column=null;
-//    Object[] values=null;
-//    if(columnValue==null || columnValue instanceof java.lang.String){
-//      if(columnValue==null || columnName.equalsIgnoreCase((String)columnValue)){
-//        column = columnName;
-//      }else{
-//        column = new StringBuffered().append("(").append(columnValue).append(") AS ").append(columnName).toString();
-//      }
-//    }else{
-//      SQL sql = (SQL)columnValue;
-//      column = new StringBuffered().append("(").append(sql.getSQLString()).append(") AS ").append(columnName).toString();
-//      values = sql.getValues();
-//    }
-//    return new SQL(SQL.UNDEFINED, column, values);
-//  }
-  
 }

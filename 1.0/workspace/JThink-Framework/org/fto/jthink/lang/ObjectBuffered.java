@@ -1,15 +1,42 @@
-/**
- * 
+/*
+ * StringBuffered.java 2009-8-3
+ *
+ * 版权所有: 自由思考组织(FTO)软件团队 2000-2005, 保留所有权利.
+ * 这个软件是自由思考组织(FTO)软件团队开发的，如果要使用这个软件，请首先阅读并接受许可协议。
+ *
+ * Copyright 2000-2009 FTO Software Team, Inc. All Rights Reserved.
+ * This software is the proprietary information of FTO Software Team, Inc.
+ * Use is subject to license terms.
+ *
+ * FTO站点：http://www.free-think.org
  */
 package org.fto.jthink.lang;
 
 /**
- * @author Administrator
- *
+ * 用于缓冲连接对象
+ * 
+ * <pre>
+ *  
+ *  
+ * </pre>
+ * 
+ * <p><pre><b>
+ * 历史更新记录:</b>
+ * 2009-08-03  创建此类型
+ * </pre></p>
+ * 
+ * 
+ * @author   wenjian
+ * @version  1.0
+ * @since    JThink 1.0
+ * 
  */
 public class ObjectBuffered {
 
-  SimpleList objData;
+  /* 对象数组 */
+  private Object[] objData;
+  /* 对象数量 */
+  private int objCount = 0; 
   
   /* 对象总长度 */
   private int length = 0;  
@@ -34,7 +61,7 @@ public class ObjectBuffered {
    * @param strCapacity 预计将要被缓冲的对象串数量
    */
   public ObjectBuffered(int strCapacity){
-    objData = new SimpleList(strCapacity);
+    objData = new Object[strCapacity];
   }
   
   /**
@@ -70,7 +97,7 @@ public class ObjectBuffered {
    * @param minCapacity
    */
   public int size(){
-    return objData.size();
+    return objCount;
   }
   
   
@@ -82,7 +109,7 @@ public class ObjectBuffered {
   public ObjectBuffered append(Object o){
     checkLocked();
     length++;
-    objData.add(o);
+    add(o);
     return this;
   }
   
@@ -94,7 +121,7 @@ public class ObjectBuffered {
   public ObjectBuffered append(Object[] o){
     checkLocked();
     length += o.length;
-    objData.add(o);
+    add(o);
     return this;
   }
   
@@ -107,18 +134,16 @@ public class ObjectBuffered {
     checkLocked();
     //ob.checkLocked();
     length += ob.length;
-    objData.add(ob);
+    add(ob);
     ob.lock();
     return this;
   }
   
   
-  private void getObjects(Object[] buffs, int off, boolean isFirstLayer){
+  private void getObjects(Object[] buffs, int off){
     if(length>0){
-      int size = objData.size();
-      //int off = 0;
-      for(int i=0;i<size;i++){
-        Object o = objData.get(i);
+      for(int i=0;i<objCount;i++){
+        Object o = objData[i];
         if(o instanceof Object[]){
           Object[] os = (Object[])o;
           int subObjsLen = os.length;
@@ -143,6 +168,13 @@ public class ObjectBuffered {
               buffs[off++] = os[2];
               buffs[off++] = os[3];
               break;
+            case 5:
+              buffs[off++] = os[0];
+              buffs[off++] = os[1];
+              buffs[off++] = os[2];
+              buffs[off++] = os[3];
+              buffs[off++] = os[4];
+              break;
             default:
               System.arraycopy(os, 0, buffs, off, subObjsLen);
               off+=subObjsLen;
@@ -150,7 +182,7 @@ public class ObjectBuffered {
           
         }else if(o instanceof ObjectBuffered){
           ObjectBuffered ob = (ObjectBuffered)o;
-          ob.getObjects(buffs, off, false);
+          ob.getObjects(buffs, off);
           off+= ob.length;
           //if(isFirstLayer){
             //ob.unlock(); //解锁
@@ -169,10 +201,9 @@ public class ObjectBuffered {
   public Object[] toArray() {
     Object[] result = new Object[length];
     if(length>0){
-      getObjects(result, 0, true);
-      objData.clear();
-      objData.add(result);
-      
+      getObjects(result, 0);
+      clear();
+      add(result);
     }
     return result;
   }
@@ -188,9 +219,33 @@ public class ObjectBuffered {
     locked = true;
   }
   
-  private void unlock(){
-    locked = false;
+//  private void unlock(){
+//    locked = false;
+//  }
+  
+  
+  void ensureCapacity(int minCapacity) {
+    int oldCapacity = objData.length;
+    if (minCapacity > oldCapacity) {
+        Object oldData[] = objData;
+        int newCapacity = (oldCapacity * 3)/2 + 1;
+        if (newCapacity < minCapacity){
+          newCapacity = minCapacity;
+        }
+        objData = new Object[newCapacity];
+        System.arraycopy(oldData, 0, objData, 0, objCount);
+    }
   }
   
+  void add(Object o){
+    ensureCapacity(objCount + 1);
+    objData[objCount++] = o;
+  }
   
+  void clear(){
+    for (int i = 0; i < objCount; i++){
+        objData[i] = null;
+    }
+    objCount = 0;
+  }
 }

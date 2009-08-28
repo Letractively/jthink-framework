@@ -240,24 +240,29 @@ public class Condition implements java.io.Serializable{
   
   
   /**
-   * 返回所有条件表达式的值列表
+   * 返回所有条件表达式的值缓冲
    * 
-   * @return 条件值
+   * @return ObjectBuffered类型的条件值缓冲对象
    */
-  public ObjectBuffered getValueList(){
+  public ObjectBuffered getValueBuffered(){
     ObjectBuffered values = new ObjectBuffered(conditions.size());
     int len = conditions.size();
     for(int i=0;i<len;i++){
       Object[] CondiItem = (Object[])conditions.get(i);
       if (CondiItem[1] instanceof ConditionItem) {
         ConditionItem item = (ConditionItem) CondiItem[1];
-        Object[] condValues = item.getValues();
-        if(condValues!=null){
-          values.append(condValues);
+        ObjectBuffered sqlValues = item.getSQLValues();
+        if(sqlValues!=null){
+          values.append(sqlValues);
+        }else{
+          Object[] condValues = item.getValues();
+          if(condValues!=null){
+            values.append(condValues);
+          }
         }
       }else{
         Condition condition = (Condition) CondiItem[1];
-        ObjectBuffered condValues = condition.getValueList();
+        ObjectBuffered condValues = condition.getValueBuffered();
         if(condValues!=null){
           values.append(condValues);
         }

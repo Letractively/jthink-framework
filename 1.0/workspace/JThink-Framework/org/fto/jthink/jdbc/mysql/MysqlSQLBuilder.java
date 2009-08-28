@@ -98,7 +98,7 @@ public class MysqlSQLBuilder extends SQLBuilder{
     /* 生成返回列的串 */
     if (columnSQL != null) {
       sqlStr.append(columnSQLStatement);
-      values = columnSQL.getValueList();
+      values = columnSQL.getValueBuffered();
 //      Object[] objs = columnSQL.getValues();
 //      int len=objs.length;
 //      for(int i=0;i<len;i++){
@@ -118,10 +118,10 @@ public class MysqlSQLBuilder extends SQLBuilder{
       sqlStr.append(" WHERE ").append(conditionStatement);
       if(values==null){
         //System.out.println("values 1");
-        values = condition.getValueList();
+        values = condition.getValueBuffered();
       }else{
         //System.out.println("values 2");
-        values.append(condition.getValueList());
+        values.append(condition.getValueBuffered());
       }
 //      Object[] objs = condition.getValues();
 //      int len=objs.length;

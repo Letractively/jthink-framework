@@ -113,13 +113,11 @@ public class StringBuffered  implements java.io.Serializable {
   void ensureCapacity(int minCapacity) {
     int oldCapacity = strData.length;
     if (minCapacity > oldCapacity) {
-        //System.out.println(this.hashCode()+".ensureCapacity.minCapacity:"+minCapacity+", oldCapacity:"+oldCapacity);
         Object oldData[] = strData;
         int newCapacity = (oldCapacity * 3)/2 + 1;
         if (newCapacity < minCapacity){
           newCapacity = minCapacity;
         }
-        //int newCapacity = minCapacity*2;
         strData = new Object[newCapacity];
         System.arraycopy(oldData, 0, strData, 0, strCount);
     }
@@ -130,17 +128,17 @@ public class StringBuffered  implements java.io.Serializable {
     strData[strCount++] = o;
   }
   
-  void add(Object[] data, int start, int len){
-    ensureCapacity(strCount + len);
-    if(len>10){
-      System.arraycopy(data, start, strData, strCount, len);
-      strCount+=len;
-    }else{
-      for(int i=0;i<len;i++){
-        strData[strCount++] = data[i];
-      }
-    }
-  }  
+//  void add(Object[] data, int start, int len){
+//    ensureCapacity(strCount + len);
+//    if(len>10){
+//      System.arraycopy(data, start, strData, strCount, len);
+//      strCount+=len;
+//    }else{
+//      for(int i=0;i<len;i++){
+//        strData[strCount++] = data[i];
+//      }
+//    }
+//  }  
   
   void clear(){
     for (int i = 0; i < strCount; i++){
@@ -155,6 +153,7 @@ public class StringBuffered  implements java.io.Serializable {
    * @return 这个StringBuffer
    */
   public StringBuffered append(String s){
+    if(s.length()==0){return this;}
     checkLocked();
     length+=s.length();
     add(s);
@@ -172,6 +171,7 @@ public class StringBuffered  implements java.io.Serializable {
    * @return 这个StringBuffered
    */
   public StringBuffered append(char[] chars){
+    if(chars.length==0){return this;}
     checkLocked();
     length+=chars.length;
     add(chars);
@@ -191,10 +191,7 @@ public class StringBuffered  implements java.io.Serializable {
   }
   
   public StringBuffered append(StringBuffered sb) {
-//    Object[] data = sb.strData;
-//    add(data, 0, sb.strCount);
-//    length+=sb.length();
-//    return this;
+    if(sb.length()==0){return this;}
     checkLocked();
     length += sb.length;
     add(sb);
@@ -239,27 +236,6 @@ public class StringBuffered  implements java.io.Serializable {
   
   
   private void getChars(char[] newChars, int off){
-    /* 只有加入了一个对象 */
-//    if(strCount==1){
-//      Object o = strData[0];
-//      if(o instanceof String){
-//        newChars[off++] = (String)o;
-//      }else if(o instanceof char[]){
-//        String newStr = new String((char[])o);
-//        clear();
-//        add(newStr);
-//        return newStr;
-//      }else if(o instanceof Character){
-//        String newStr = ((Character)o).toString();
-//        clear();
-//        add(newStr);
-//        return newStr;
-//      }
-//    }
-    
-    /* 加入了多个对象 */
-    //char[] newChars = new char[length];
-    //int pos=0;
     for(int i=0;i<strCount;i++){
       Object o = strData[i];
       if(o instanceof String){
@@ -274,13 +250,11 @@ public class StringBuffered  implements java.io.Serializable {
         off+=clen;
       }else if(o instanceof Character){
         newChars[off++]=((Character)o).charValue();
-        //pos++;
       }else if(o instanceof StringBuffered){
         StringBuffered sb = (StringBuffered)o;
         sb.getChars(newChars, off);
         off+= sb.length;
       }
-      
     }
   }
   
@@ -313,7 +287,6 @@ public class StringBuffered  implements java.io.Serializable {
     /* 加入了多个对象或StringBuffered */
     char[] newChars = new char[length];
     getChars(newChars, 0);
-    
     
     clear();
     String newStr = new String(newChars);
