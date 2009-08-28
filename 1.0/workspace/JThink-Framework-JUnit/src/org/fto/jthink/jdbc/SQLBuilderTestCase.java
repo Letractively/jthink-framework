@@ -145,6 +145,8 @@ public class SQLBuilderTestCase extends TestCase {
     }   
     
     SQL sqlStatement = sqlBuilder.constructSQLForUpdate("departments", columns, condn);
+    System.out.println("columns.size()+condn.size():"+(columns.size()*3+4));
+    System.out.println("sqlStatement.getSQLStatement().size():"+sqlStatement.getSQLStatement().size());
     System.out.println(sqlStatement.getSQLString());
     if(!"UPDATE departments SET F1=?,DeptName=?,F5=?,F4=?,F3=?,F2=?,DeptDesc=NULL WHERE NOT DeptName like ? AND ( DeptId != ? OR ( DeptId Between ? AND ? ) ) AND NOT DeptDesc like ? ".equals(sqlStatement.getSQLString())){
       super.fail();
@@ -257,7 +259,11 @@ public class SQLBuilderTestCase extends TestCase {
       System.out.println("constructSQLForSelect 测试 次数："+count+", 总用时："+NumberHelper.formatNumber(totalUseTime, NumberHelper.NUMBER_I_6_0)+", 平均用时（毫秒）:"+NumberHelper.formatNumber((totalUseTime/count), NumberHelper.NUMBER_I_6_0));
     }  
     
-    SQL sqlStatement = sqlBuilder.constructSQLForSelect("departments",columns, condn);
+    SQL sqlStatement = sqlBuilder.constructSQLForSelect("departments", columns, condn);
+    System.out.println("sqlStatement.getValues().length:"+sqlStatement.getValues().length);
+    System.out.println("sqlStatement.getValueBuffered().size():"+sqlStatement.getValueBuffered().size());
+    //System.out.println("sqlStatement.getValueBuffered().length():"+sqlStatement.getValueBuffered().length());
+    //System.out.println("sqlStatement.getSQLStatement().size():"+sqlStatement.getSQLStatement().size());
     System.out.println(sqlStatement.getSQLString());
     if(!"SELECT DEPT_ID,(SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AS DEPT_NAME,F1,F2,F3,F4,F5,F6 FROM departments WHERE  DEPT_NAME IN (SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID) AND DEPT_NO IS NOT NULL AND F1 = ? AND F2 = ? AND F3 = ? AND F4 = ? AND F5 = ? AND F6 in (? ,? ,? ,? ) ".equals(sqlStatement.getSQLString())){
       super.fail();
@@ -401,6 +407,7 @@ public class SQLBuilderTestCase extends TestCase {
 
     SQL sqlStatement = sqlBuilder.
             constructSQLForCount("departments","*", "DeptCount", condn);
+    System.out.println("sqlStatement.getSQLStatement().size():"+sqlStatement.getSQLStatement().size());
     System.out.println(sqlStatement.getSQLString());
     if(!"SELECT COUNT(*) AS DeptCount FROM departments WHERE NOT DeptName like ? AND ( DeptId != ? OR ( DeptId != ? OR DeptId Between ? AND ? ) ) ".equals(sqlStatement.getSQLString())){
       super.fail();
@@ -534,15 +541,16 @@ public class SQLBuilderTestCase extends TestCase {
       for(int i=0;i<2000;i++){//在此设置测试次数
           long stime = System.nanoTime();        
           
-          condn = new Condition();
-          condn.add(new ConditionItem("DEPT_NAME", "IN", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=C.DEPT_ID", null)));
-          condn.add(new ConditionItem("DEPT_NO", "IS", "NOT NULL"));
-          condn.add(new ConditionItem("F1", "=", "1"));
-          condn.add(new ConditionItem("F2", "=", "2"));
-          condn.add(new ConditionItem("F3", "=", "3"));
-          condn.add(new ConditionItem("F4", "=", "4"));
-          condn.add(new ConditionItem("F5", "=", "5"));
-          condn.add(new ConditionItem("F6", "in", new Object[]{"1", "2", "3", "4"}));
+          Condition condnA = new Condition();
+          condnA.add(new ConditionItem("DEPT_NAME", "IN", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID=?", new Object[]{1})));
+          condnA.add(new ConditionItem("DEPT_NAME", "IN", new SQL(SQL.SELECT, "SELECT DEPT_NAME FROM ALL_DEPTS WHERE D.DEPT_ID in (?)", new Object[]{1, 2, 3, 4})));
+          condnA.add(new ConditionItem("DEPT_NO", "IS", "NOT NULL"));
+          condnA.add(new ConditionItem("F1", "=", "1"));
+          condnA.add(new ConditionItem("F2", "=", "2"));
+          condnA.add(new ConditionItem("F3", "=", "3"));
+          condnA.add(new ConditionItem("F4", "=", "4"));
+          condnA.add(new ConditionItem("F5", "=", "5"));
+          condnA.add(new ConditionItem("F6", "in", new Object[]{"1", "2", "3", "4"}));
           
           
           columns = new Column[]{
@@ -557,7 +565,7 @@ public class SQLBuilderTestCase extends TestCase {
           };
           
           /* 测试代码 开始 */
-          mssqlSQLBuilder.constructSQLForSelect("departments",false, columns, condn, "DeptId", "DeptName", 5, 20).getSQLString();
+          mssqlSQLBuilder.constructSQLForSelect("departments",false, columns, condnA, "DeptId", "DeptName", 5, 20).getSQLString();
           /* 测试代码 结束 */
           
           double usetime = (System.nanoTime()-stime)/1000000f;
