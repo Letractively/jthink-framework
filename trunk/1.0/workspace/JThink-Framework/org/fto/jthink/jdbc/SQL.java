@@ -14,9 +14,6 @@
 
 package org.fto.jthink.jdbc;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.fto.jthink.lang.ObjectBuffered;
 import org.fto.jthink.lang.StringBuffered;
 
@@ -66,8 +63,7 @@ public class SQL implements java.io.Serializable{
 		this.sql = sql;
 		//this.values = values==null?new Object[0]:values;
     if(values!=null){
-      this.values = new ObjectBuffered(1);
-      this.values.append(values);
+      this.values = new ObjectBuffered(1).append(values);
     }
 	}
 	
@@ -110,7 +106,7 @@ public class SQL implements java.io.Serializable{
 		this.sql = sql;
 		//this.values = values==null?new Object[0]:values;
     if(values!=null){
-      this.values = new ObjectBuffered(values);
+      this.values = new ObjectBuffered(1).append(values);
       //this.values.add(values);
     }
 		this.rowStartIndex = rowStartIndex;
@@ -170,10 +166,10 @@ public class SQL implements java.io.Serializable{
   }
   
 	/**
-	 * 返回在SQL语句串中的值数组
+	 * 返回在SQL语句串中的值数组, 如果没有，返回空数组
    * 
 	 */
-	public  Object[] getValues(){
+	public Object[] getValues(){
     if(values!=null){
       return values.toArray();
     }else{
@@ -183,9 +179,9 @@ public class SQL implements java.io.Serializable{
 	
   
   /**
-   * 返回在SQL语句串中的值列表, 如果没有，返回null
+   * 返回ObjectBuffered类型的值缓冲, 如果没有，返回null
    */
-  public ObjectBuffered getValueList(){
+  public ObjectBuffered getValueBuffered(){
     return values;
   }
   

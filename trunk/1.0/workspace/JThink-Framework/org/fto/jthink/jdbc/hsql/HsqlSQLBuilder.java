@@ -104,7 +104,7 @@ public class HsqlSQLBuilder extends SQLBuilder{
     if (columns != null && columns.length != 0) {
     	SQL columnSQL = constructSelectedColumn(columns);
       sqlStr.append(columnSQL.getSQLStatement());
-      values = columnSQL.getValueList();
+      values = columnSQL.getValueBuffered();
 //    	Object[] objs = columnSQL.getValues();
 //    	int len=objs.length;
 //    	for(int i=0;i<len;i++){
@@ -122,7 +122,7 @@ public class HsqlSQLBuilder extends SQLBuilder{
     /* 生成查询条件串 */
     if (condition != null && condition.size() != 0) {
       sqlStr.append(" WHERE ").append(condition.getConditionStatement());
-      ObjectBuffered objBuff = condition.getValueList();
+      ObjectBuffered objBuff = condition.getValueBuffered();
       if(values!=null){
         values.append(objBuff);
       }else{

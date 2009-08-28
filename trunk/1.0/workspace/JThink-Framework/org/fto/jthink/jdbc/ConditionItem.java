@@ -102,8 +102,7 @@ public class ConditionItem implements java.io.Serializable{
 		this.name = name;
 		this.operator = operator;
 		this.sql = sql;
-		//this.valueBuff = sql.getValueList();
-		this.values = sql.getValues();
+		//this.values = sql.getValues();
 	}
 
 	
@@ -160,45 +159,26 @@ public class ConditionItem implements java.io.Serializable{
 	 */
 	public Object[] getValues(){
 		if(isQuote){
-			return null;//new Object[0];
+			return null;
 		}
-//		if(values!=null){
-//		  return valueBuff.toArray();
-//		}
+		if(sql!=null){
+		  values = sql.getValues();
+		}
 		return values;
-//		if(value!=null){
-//			return new Object[]{value};
-//		}else if(values!=null){
-//			return values;
-//		}
-//		return sql.getValues();
 	}
 
-  
-//  /**
-//   * 返回所有条件值列表, 如果没有，返回null
-//   */
-//  public ObjectBuffered getValueList(){
-//    if(isQuote){
-//      return null;
-//    }
-//    if(valueBuff!=null){
-//      return valueBuff;
-//    }
-//    return null;    
-//    if(value!=null){
-//      ObjectBuffered vs = new ObjectBuffered(1);
-//      vs.append(value);
-//      return vs;
-//      //return new Object[]{value};
-//    }else if(values!=null){
-//      ObjectBuffered vs = new ObjectBuffered(1);
-//      vs.append(values);
-//      return vs;
-//    }
-//    return sql.getValueList();
-//  }
-  
+	/**
+	 * 返回SQL子查询中的值对象, 如果返回为null, 请使用getValues返回值数组, 
+	 * 此方法主要是用于当条件值为SQL时，直接返回ObjectBuffered类型的值Buff，
+	 * 以减少转换为对象数组操作。
+	 * @return ObjectBuffered
+	 */
+	public ObjectBuffered getSQLValues(){
+	  if(sql==null){
+	    return null;
+	  }
+	  return sql.getValueBuffered();
+	}
   
   /**
    * 返回SQL串形式的条件单项
