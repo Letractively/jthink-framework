@@ -96,7 +96,7 @@ public class Priority {
   }
   
   /**
-   * 判断是否调用
+   * 判断是否调试
    */
   public boolean isDebug(Priority p){
   	return p.level == DEBUG_INT;

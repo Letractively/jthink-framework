@@ -55,7 +55,7 @@ public abstract class DataObject implements java.io.Serializable {
   
   /**
    * 设置DataObject中使用的字段名称大小写与数据库中(返回结果集)的字段名称是否一致的,如果是不致的，请
-   * 设置flag为false，默认true。主要是为了解决有些数据库会将所有的字段名自动变换成大小或小写形式。
+   * 设置flag为false，默认true。主要是为了解决有些数据库JDBC驱动会将所有的字段名自动变换成大写或小写形式的情况。
    * 
    * @param flag
    */
@@ -120,11 +120,21 @@ public abstract class DataObject implements java.io.Serializable {
   /**
    * 设置字段值
    * @param fieldName 字段名称
-   * @param value 字段值
+   * @param value 串类型值
    */
   public void set(String fieldName, String value) {
     values.put(fieldNameCoincident?fieldName:fieldName.toUpperCase(), value);
   }
+  
+  /**
+   * 设置字段值
+   * @param fieldName 字段名称
+   * @param value 对象类型值
+   */
+  public void set(String fieldName, Object value) {
+    values.put(fieldNameCoincident?fieldName:fieldName.toUpperCase(), value);
+  }
+  
   /**
    * 以Map结构返回字段和值
    */
