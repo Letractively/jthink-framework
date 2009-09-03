@@ -160,6 +160,21 @@ public class SQLBuilderTestCase extends TestCase {
     if(!"UPDATE departments SET F1=?,DeptName=?,F5=?,F4=?,F3=?,F2=?,DeptDesc=NULL".equals(sqlStatement.getSQLString())){
       super.fail();
     }
+    
+    DefaultDataObject ddo = new DefaultDataObject();
+    ddo.setTableName("table1");
+    ddo.addPrimaryKey("PK1");
+    ddo.addPrimaryKey("PK2");
+    ddo.set("PK1", "v1");
+    ddo.set("PK2", "v2");
+    ddo.set("F3", "v3");
+    ddo.set("F4", "v4");
+    sqlStatement = sqlBuilder.constructSQLForUpdate(ddo);
+    System.out.println(sqlStatement.getSQLString());
+    if(!"UPDATE table1 SET F4=?,F3=?,PK1=?,PK2=? WHERE  PK1 = ? AND PK2 = ? ".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
+    
     printObjects(sqlStatement.getValues());
   }
 
@@ -207,7 +222,17 @@ public class SQLBuilderTestCase extends TestCase {
       super.fail();
     }
     
-    
+    DefaultDataObject ddo = new DefaultDataObject();
+    ddo.setTableName("table1");
+    ddo.addPrimaryKey("PK1");
+    ddo.addPrimaryKey("PK2");
+    ddo.set("PK1", "v1");
+    ddo.set("PK2", "v2");
+    sqlStatement = sqlBuilder.constructSQLForDelete(ddo);
+    System.out.println(sqlStatement.getSQLString());
+    if(!"DELETE FROM table1 WHERE  PK1 = ? AND PK2 = ? ".equals(sqlStatement.getSQLString())){
+      super.fail();
+    }
     
     printObjects(sqlStatement.getValues());
   }
