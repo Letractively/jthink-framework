@@ -86,10 +86,20 @@ public abstract class DataObject implements java.io.Serializable {
   }
   
   /**
-   * 设置主键
+   * 设置主键, 可设置多个主键
    * @param fieldName 字段名，将此字段名设置为主键
+   * 
+   * @deprecated 请使用addPrimaryKey方法添加主键
    */
   public void setPrimaryKey(String fieldName){
+    addPrimaryKey(fieldName);
+  }
+  
+  /**
+   * 添加主键, 可设置多个主键
+   * @param fieldName 字段名，将此字段名设置为主键
+   */
+  public void addPrimaryKey(String fieldName){
     if(fieldName==null || fieldName.trim().length()==0){
       throw new IllegalArgumentException(
       "The field name cannot be null.");

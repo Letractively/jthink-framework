@@ -14,11 +14,11 @@ package org.fto.jthink.jdbc;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.fto.jthink.exception.JThinkErrorCode;
 import org.fto.jthink.exception.JThinkRuntimeException;
+import org.fto.jthink.lang.ObjectBuffered;
 import org.fto.jthink.util.ReflectHelper;
 import org.jdom.Element;
 
@@ -309,11 +309,11 @@ public class SQLExecutor {
 			pstmt.execute();
 			rs = pstmt.getResultSet();
 			if (rs != null) {
-			  if(doClazz==null){
-			    return getResultMaker().create(rs);
-			  }else{
+//			  if(doClazz==null){
+//			    return getResultMaker().create(rs);
+//			  }else{
 			    return getResultMaker().create(rs, doClazz);
-			  }
+//			  }
 			} else {
 				return null;
 			}
@@ -362,11 +362,11 @@ public class SQLExecutor {
 			pstmt.execute();
 			rs = pstmt.getResultSet();
 			if (rs != null) {
-			  if(doClazz==null){
-			    return getResultMaker().create(rs);
-			  }else{
+//			  if(doClazz==null){
+//			    return getResultMaker().create(rs);
+//			  }else{
 			    return getResultMaker().create(rs, doClazz);
-			  }
+//			  }
 			} else {
 				return new Integer(pstmt.getUpdateCount());
 			}
@@ -468,11 +468,11 @@ public class SQLExecutor {
 				}
 			}
 			rs = pstmt.executeQuery();
-			if(doClazz==null){
-			  return getResultMaker().create(rs);
-			}else{
+//			if(doClazz==null){
+//			  return getResultMaker().create(rs);
+//			}else{
 			  return getResultMaker().create(rs, doClazz);
-			}
+//			}
 		} catch (SQLException ex) {
 			throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_DB_EXEC_SQL_EXCEPTION,
 					ex);
@@ -509,11 +509,11 @@ public class SQLExecutor {
 			executeCommand(sql, SQL.SELECT);
 			pstmt = prepareStatement(sql);
 			rs = pstmt.executeQuery();
-			if(doClazz==null){
-			  return getResultMaker().create(rs);
-			}else{
+//			if(doClazz==null){
+//			  return getResultMaker().create(rs);
+//			}else{
 			  return getResultMaker().create(rs, doClazz);
-			}
+//			}
 			
 		} catch (SQLException ex) {
 			throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_DB_EXEC_SQL_EXCEPTION,
@@ -617,11 +617,11 @@ public class SQLExecutor {
 			cstmt.execute();
 			rs = cstmt.getResultSet();
 			if (rs != null) {
-			  if(doClazz==null){
-			    return getResultMaker().create(rs);
-			  }else{
+//			  if(doClazz==null){
+//			    return getResultMaker().create(rs);
+//			  }else{
 			    return getResultMaker().create(rs, doClazz);
-			  }
+//			  }
 			} else {
 				return new Integer(cstmt.getUpdateCount());
 			}
@@ -657,59 +657,55 @@ public class SQLExecutor {
   public Object execute(SQL sql)  {
     return execute(sql, null);
   }
-	/**
-	 * 执行SQL语句对象, sql是由SQLBuilder构建的SQL语句
-	 *
-	 * 
-	 * @param sql SQL对象
-	 * @param doClazz 数据对象类型，只有采用DataObjectResultMaker时此参数才有意义,
-	 *                并且只针对SQL.type为SQL.SELECT或SQL.SELECT_SP
 
-	 * @return  结果集或Integer类型的更新记录数量
-	 */
-	public Object execute(SQL sql, Class doClazz)  {
-		int type = sql.getType();
-		if(type==SQL.UPDATE){
-			int rs = executeUpdate(sql.getSQLString(), sql.getValues());
-			return new Integer(rs);
-			
-		}else if(type==SQL.SELECT){
-			int startIndex = sql.getRowStartIndex();
-			int length = sql.getRowLength();
-			if(startIndex>=0 && length>=0){
-			  if(doClazz!=null){
-			    return executeQuery(sql.getSQLString(), sql.getValues(), startIndex, length, doClazz);
-			  }else{
-			    return executeQuery(sql.getSQLString(), sql.getValues(), startIndex, length);
-			  }
-			}else{
-				return executeQuery(sql.getSQLString(), sql.getValues(), doClazz);
-			}
-			
-		}else if(type==SQL.UNDEFINED){
-			return execute(sql.getSQLString(), sql.getValues(), doClazz);
-			
-		}else if(type==SQL.UPDATE_SP){
-			return executeStoredProcedure(sql.getSQLString(), sql.getValues());
-		
-		}else if(type==SQL.SELECT_SP){
-			int startIndex = sql.getRowStartIndex();
-			int length = sql.getRowLength();
-			if(startIndex>=0 && length>=0){
-				List values = Arrays.asList(sql.getValues());
-				values.add(new Integer(startIndex));
-				values.add(new Integer(length));
-				return executeStoredProcedure(sql.getSQLString(), values.toArray(), doClazz);
-			}else{
-				return executeStoredProcedure(sql.getSQLString(), sql.getValues(), doClazz);
-			}
-		}else if(type==SQL.UNDEFINED_SP){
-			return executeStoredProcedure(sql.getSQLString(), sql.getValues(), doClazz);
-		}
-		//return null;
-		throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_DB_EXEC_SQL_EXCEPTION, "错误的SQL类型!");
-	}
+  /**
+   * 执行SQL语句对象, sql是由SQLBuilder构建的SQL语句
+   *
+   * 
+   * @param sql SQL对象
+   * @param doClazz 数据对象类型，只有采用DataObjectResultMaker时此参数才有意义,
+   *                并且只针对SQL.type为SQL.SELECT或SQL.SELECT_SP
 
+   * @return  结果集或Integer类型的更新记录数量
+   */
+  public Object execute(SQL sql, Class doClazz)  {
+    int startIndex;
+    int length;
+    switch(sql.getType()){
+      case SQL.UPDATE:
+        int rs = executeUpdate(sql.getSQLString(), sql.getValues());
+        return new Integer(rs);
+      case SQL.SELECT:
+        startIndex = sql.getRowStartIndex();
+        length = sql.getRowLength();
+        if(startIndex>=0 && length>=0){
+          return executeQuery(sql.getSQLString(), sql.getValues(), startIndex, length, doClazz);
+        }else{
+          return executeQuery(sql.getSQLString(), sql.getValues(), doClazz);
+        }
+      case SQL.UNDEFINED:
+        return execute(sql.getSQLString(), sql.getValues(), doClazz);
+      case SQL.UPDATE_SP:
+        return executeStoredProcedure(sql.getSQLString(), sql.getValues());
+      case SQL.SELECT_SP:
+        startIndex = sql.getRowStartIndex();
+        length = sql.getRowLength();
+        if(startIndex>=0 && length>=0){
+          //List values = Arrays.asList(sql.getValues());
+          ObjectBuffered values = sql.getValueBuffered();
+          values.append(new Integer(startIndex));
+          values.append(new Integer(length));
+          return executeStoredProcedure(sql.getSQLString(), values.toArray(), doClazz);
+        }else{
+          return executeStoredProcedure(sql.getSQLString(), sql.getValues(), doClazz);
+        }
+      case SQL.UNDEFINED_SP:
+        return executeStoredProcedure(sql.getSQLString(), sql.getValues(), doClazz);
+    }
+    throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_DB_EXEC_SQL_EXCEPTION, "错误的SQL类型!");
+  }
+	
+	
 //  /**
 //   * 执行更新操作的SQL，只针对Insert
 //   *

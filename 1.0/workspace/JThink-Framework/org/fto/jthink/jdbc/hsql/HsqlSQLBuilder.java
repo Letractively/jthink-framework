@@ -13,10 +13,6 @@
  */
 package org.fto.jthink.jdbc.hsql;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.fto.jthink.exception.JThinkRuntimeException;
 import org.fto.jthink.jdbc.Column;
 import org.fto.jthink.jdbc.Condition;
@@ -71,21 +67,6 @@ public class HsqlSQLBuilder extends SQLBuilder{
     	throw new JThinkRuntimeException("rowLen不能小于0!");
     }
 
-//    SQL columnSQL = null;
-//    StringBuffered columnSQLStatement = null;
-//    int columnSQLStatementSize = 0;
-//    if (columns != null && columns.length != 0) {
-//      columnSQL = constructSelectedColumn(columns);
-//      columnSQLStatement = columnSQL.getSQLStatement();
-//      columnSQLStatementSize = columnSQLStatement.size();
-//    }
-//    StringBuffered conditionStatement = null;
-//    int conditionStatementSize = 0;
-//    if (condition != null && condition.size() != 0) {
-//      conditionStatement = condition.getConditionStatement();
-//      conditionStatementSize = conditionStatement.size();
-//    }
-    
     StringBuffered sqlStr = new StringBuffered(17)
       .append("SELECT ");
     ObjectBuffered values = null;//new ObjectBuffered();
@@ -105,11 +86,6 @@ public class HsqlSQLBuilder extends SQLBuilder{
     	SQL columnSQL = constructSelectedColumn(columns);
       sqlStr.append(columnSQL.getSQLStatement());
       values = columnSQL.getValueBuffered();
-//    	Object[] objs = columnSQL.getValues();
-//    	int len=objs.length;
-//    	for(int i=0;i<len;i++){
-//    		values.append(objs[i]);
-//    	}
     }else{
       sqlStr.append("*");
     }
@@ -128,11 +104,6 @@ public class HsqlSQLBuilder extends SQLBuilder{
       }else{
         values = objBuff;
       }
-//      Object[] objs = condition.getValues();
-//      int len=objs.length;
-//      for(int i=0;i<len;i++){
-//        values.append(objs[i]);
-//      }      
     }
     
     /* 生成GROUP BY串 */

@@ -14,9 +14,6 @@
 package org.fto.jthink.jdbc.mysql;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.fto.jthink.exception.JThinkRuntimeException;
 import org.fto.jthink.jdbc.Column;
 import org.fto.jthink.jdbc.Condition;
@@ -71,22 +68,22 @@ public class MysqlSQLBuilder extends SQLBuilder{
     	throw new JThinkRuntimeException("rowLen不能小于0!");
     }
 
-    SQL columnSQL = null;
-    StringBuffered columnSQLStatement = null;
-    int columnSQLStatementSize = 0;
-    if (columns != null && columns.length != 0) {
-      columnSQL = constructSelectedColumn(columns);
-      columnSQLStatement = columnSQL.getSQLStatement();
-      columnSQLStatementSize = columnSQLStatement.size();
-    }
-    StringBuffered conditionStatement = null;
-    int conditionStatementSize = 0;
-    if (condition != null && condition.size() != 0) {
-      conditionStatement = condition.getConditionStatement();
-      conditionStatementSize = conditionStatement.size();
-    }
+//    SQL columnSQL = null;
+//    StringBuffered columnSQLStatement = null;
+//    int columnSQLStatementSize = 0;
+//    if (columns != null && columns.length != 0) {
+//      columnSQL = constructSelectedColumn(columns);
+//      columnSQLStatement = columnSQL.getSQLStatement();
+//      columnSQLStatementSize = columnSQLStatement.size();
+//    }
+//    StringBuffered conditionStatement = null;
+//    int conditionStatementSize = 0;
+//    if (condition != null && condition.size() != 0) {
+//      conditionStatement = condition.getConditionStatement();
+//      conditionStatementSize = conditionStatement.size();
+//    }
     
-    StringBuffered sqlStr = new StringBuffered(columnSQLStatementSize+conditionStatementSize+14)
+    StringBuffered sqlStr = new StringBuffered(17)
       .append("SELECT ");
     ObjectBuffered values = null;//new ObjectBuffered();
     
@@ -96,14 +93,10 @@ public class MysqlSQLBuilder extends SQLBuilder{
     }
     
     /* 生成返回列的串 */
-    if (columnSQL != null) {
-      sqlStr.append(columnSQLStatement);
+    if (columns != null && columns.length != 0) {
+      SQL columnSQL = constructSelectedColumn(columns);
+      sqlStr.append(columnSQL.getSQLStatement());
       values = columnSQL.getValueBuffered();
-//      Object[] objs = columnSQL.getValues();
-//      int len=objs.length;
-//      for(int i=0;i<len;i++){
-//        values.append(objs[i]);
-//      }
     }else{
       sqlStr.append("*");
     }
@@ -114,20 +107,13 @@ public class MysqlSQLBuilder extends SQLBuilder{
     }
     
     /* 生成查询条件串 */
-    if (conditionStatement != null) {
-      sqlStr.append(" WHERE ").append(conditionStatement);
+    if (condition != null && condition.size() != 0) {
+      sqlStr.append(" WHERE ").append(condition.getConditionStatement());
       if(values==null){
-        //System.out.println("values 1");
         values = condition.getValueBuffered();
       }else{
-        //System.out.println("values 2");
         values.append(condition.getValueBuffered());
       }
-//      Object[] objs = condition.getValues();
-//      int len=objs.length;
-//      for(int i=0;i<len;i++){
-//        values.append(objs[i]);
-//      }      
     }
     
     /* 生成GROUP BY串 */
