@@ -105,7 +105,7 @@ public class SampleFinder {
 //      condition.add(new ConditionItem("Id","=",id));
       
       /* 通过SQLBuilder来构建SQL语句 */
-      SQL sql = sqlBuilder.constructSQLForSelect("Messages",false,new Column[]{new Column("SUBJECT"),new Column("SENDER")},condition,null,null,0,20);
+      SQL sql = sqlBuilder.constructSQLForSelect("Messages",false,new Column[]{new Column("SUBJECT"),new Column("SENDER")},condition,null,null,3,2);
       //SQL sql = sqlBuilder.constructSQLForSelect("Messages",true,null,condition,null,null);
       
       logger.debug("通过SQLBuilder构建的SQL: " + sql.getSQLString());
