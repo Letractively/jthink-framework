@@ -83,7 +83,9 @@ public class SQLBuilder {
     StringBuffered valueStatement = new StringBuffered(size);
     ObjectBuffered values  = new ObjectBuffered(size);
     Iterator columnsIT = columns.entrySet().iterator();
-    while(columnsIT.hasNext()){
+    
+    for(int i=0;i<size;i++){
+    //while(columnsIT.hasNext()){
       Map.Entry column = (Map.Entry)columnsIT.next();
       Object value = column.getValue();
       if(value!=null){
@@ -142,10 +144,11 @@ public class SQLBuilder {
     .append("UPDATE ")
     .append(tableName)
     .append(" SET ");
-    
+
     /* 处理被更新的字段 */
     Iterator columnsIT = columns.entrySet().iterator();
-    while(columnsIT.hasNext()){
+    //while(columnsIT.hasNext()){
+    for(int i=0;i<columnsCapacity;i++){
       Map.Entry column = (Map.Entry)columnsIT.next();
       Object value = column.getValue();
       int valuesSize = values.size();
@@ -161,7 +164,6 @@ public class SQLBuilder {
       sql.append(" WHERE ").append(condition.getConditionStatement());
       values.append(condition.getValueBuffered());
     }
-    
     return new SQL(SQL.UPDATE, sql, values);
   }  
 
@@ -174,8 +176,11 @@ public class SQLBuilder {
    */
   public SQL constructSQLForUpdate(DataObject data){
     Condition condition = new Condition();
-    Iterator pks = data.getPrimaryKeys().entrySet().iterator();
-    while(pks.hasNext()){
+    Map pkeys = data.getPrimaryKeys();
+    int size = pkeys.size();
+    Iterator pks = pkeys.entrySet().iterator();
+    //while(pks.hasNext()){
+    for(int i=0;i<size;i++){
       Map.Entry pk = (Map.Entry)pks.next();
       Object value = pk.getValue();
       if(value==null){
@@ -204,19 +209,12 @@ public class SQLBuilder {
 			throw new IllegalArgumentException(
 					"The name of an table cannot be null.");
 		}
-    StringBuffered conditionStatement = null;
-    int conditionStatementSize = 0;
-    if (condition != null && condition.size()>0) {
-      conditionStatement = condition.getConditionStatement();
-      conditionStatementSize = conditionStatement.size();
-    }
-    
-		StringBuffered sqlstr = new StringBuffered(3+conditionStatementSize)
+		StringBuffered sqlstr = new StringBuffered(4)
       .append("DELETE FROM ")
       .append(tableName);
 		ObjectBuffered values = null;
-		if (conditionStatement != null) {
-			sqlstr.append(" WHERE ").append(conditionStatement);
+		if (condition != null && condition.size()>0) {
+			sqlstr.append(" WHERE ").append(condition.getConditionStatement());
 			values = condition.getValueBuffered();
 		}
 		return new SQL(SQL.UPDATE, sqlstr, values);
@@ -231,8 +229,11 @@ public class SQLBuilder {
    */
   public SQL constructSQLForDelete(DataObject data){
     Condition condition = new Condition();
-    Iterator pks = data.getPrimaryKeys().entrySet().iterator();
-    while(pks.hasNext()){
+    Map pkeys = data.getPrimaryKeys();
+    int size = pkeys.size();    
+    Iterator pks = pkeys.entrySet().iterator();
+    //while(pks.hasNext()){
+    for(int i=0; i<size; i++){
       Map.Entry pk = (Map.Entry)pks.next();
       Object value = pk.getValue();
       if(value==null){
@@ -272,16 +273,6 @@ public class SQLBuilder {
       throw new IllegalArgumentException(
           "The name of an table cannot be null.");
     }
-    SQL columnSQL = null;
-    StringBuffered columnSQLStatement = null;
-    if (columns != null && columns.length != 0) {
-      columnSQL = constructSelectedColumn(columns);
-      columnSQLStatement = columnSQL.getSQLStatement();
-    }
-    StringBuffered conditionStatement = null;
-    if (condition != null && condition.size() != 0) {
-      conditionStatement = condition.getConditionStatement();
-    }
     
     StringBuffered sqlStr = new StringBuffered(11)
     .append("SELECT ");
@@ -292,8 +283,9 @@ public class SQLBuilder {
       sqlStr.append(" DISTINCT ");
     }
     /* 生成返回列的串 */
-    if (columnSQL!=null) {
-      sqlStr.append(columnSQLStatement);
+    if (columns != null && columns.length != 0) {
+      SQL columnSQL = constructSelectedColumn(columns);
+      sqlStr.append(columnSQL.getSQLStatement());
       values = columnSQL.getValueBuffered();
     }else{
       sqlStr.append("*");
@@ -305,9 +297,9 @@ public class SQLBuilder {
     }
     
     /* 生成查询条件串 */
-    if (conditionStatement != null) {
+    if (condition != null && condition.size() != 0) {
       sqlStr.append(" WHERE ")
-            .append(conditionStatement);
+            .append(condition.getConditionStatement());
       if(values==null){
         values = condition.getValueBuffered();
       }else{
@@ -322,7 +314,6 @@ public class SQLBuilder {
     if (orderby != null && orderby.length() != 0) {
       sqlStr.append(" ORDER BY ").append(orderby);
     }
-
     return new SQL(SQL.SELECT, sqlStr, values);
   }
 

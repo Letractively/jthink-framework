@@ -12,15 +12,7 @@
  */
 package org.fto.jthink.jdbc.mysql;
 
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.fto.jthink.exception.JThinkErrorCode;
-import org.fto.jthink.exception.JThinkRuntimeException;
 import org.fto.jthink.jdbc.JDBCTransaction;
-import org.fto.jthink.jdbc.SQL;
 import org.fto.jthink.jdbc.SQLExecutor;
 
 /**
@@ -63,26 +55,26 @@ public class MysqlSQLExecutor extends SQLExecutor {
    *
    */
 	public Object executeQuery(String sql, Object[] values, int startIndex, int rowlen, Class doClazz)  {
-			
-    PreparedStatement pstmt = null;
-    ResultSet rs = null;
-    try {
-    	executeCommand(sql, values, SQL.SELECT);
-      pstmt = prepareStatement(sql);
-      if(values!=null){
-				for (int i = 0; i < values.length; i++) {
-					pstmt.setObject(i + 1, values[i]);
-				}
-      }
-      rs = pstmt.executeQuery();
-      return getResultMaker().create(rs, doClazz);
-    }
-    catch (SQLException ex) {
-      throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_DB_EXEC_SQL_EXCEPTION, ex);
-    }
-    finally {
-      releaseResultSet(rs);
-      releasePreparedStatement(pstmt);
-    }
+	  return super.executeQuery(sql, values, doClazz);
+//    PreparedStatement pstmt = null;
+//    ResultSet rs = null;
+//    try {
+//    	executeCommand(sql, values, SQL.SELECT);
+//      pstmt = prepareStatement(sql);
+//      if(values!=null){
+//				for (int i = 0; i < values.length; i++) {
+//					pstmt.setObject(i + 1, values[i]);
+//				}
+//      }
+//      rs = pstmt.executeQuery();
+//      return getResultMaker().create(rs, doClazz);
+//    }
+//    catch (SQLException ex) {
+//      throw new JThinkRuntimeException(JThinkErrorCode.ERRCODE_DB_EXEC_SQL_EXCEPTION, ex);
+//    }
+//    finally {
+//      releaseResultSet(rs);
+//      releasePreparedStatement(pstmt);
+//    }
 	}
 }

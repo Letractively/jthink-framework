@@ -13,9 +13,6 @@
  */
 package org.fto.jthink.jdbc.mssql;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.fto.jthink.exception.JThinkRuntimeException;
 import org.fto.jthink.jdbc.Column;
 import org.fto.jthink.jdbc.Condition;
@@ -71,49 +68,10 @@ public class MssqlSQLBuilder extends SQLBuilder{
     }
 
     ObjectBuffered values = null;    
-    
-    SQL columnSQL = null;
-    StringBuffered columnSQLStatement = null;
-    int columnSQLStatementSize = 0;
-    //ObjectBuffered columnList = null;
-    if (columns != null && columns.length != 0) {
-      columnSQL = constructSelectedColumn(columns);
-      columnSQLStatement = columnSQL.getSQLStatement();
-      columnSQLStatementSize = columnSQLStatement.size();
-      values = columnSQL.getValueBuffered();
-    }
-    StringBuffered conditionStatement = null;
-    int conditionStatementSize = 0;
-    //ObjectBuffered conditionList = null;
-    if (condition != null && condition.size() != 0) {
-      conditionStatement = condition.getConditionStatement();
-      conditionStatementSize = conditionStatement.size();
-      if(values!=null){
-        values.append(condition.getValueBuffered());
-      }else{
-        values = condition.getValueBuffered();
-      }
-    }
-    
-//    ObjectBuffered values = null;
-//    if(columnList!=null && columnList.size()>0 && conditionList!=null && conditionList.size()>0){
-//      values = new ObjectBuffered(columnList.size()+conditionList.size());
-//      values.append(columnList);
-//      values.append(conditionList);
-//    }else if(columnList!=null && columnList.size()>0){
-//      values = columnList;
-//    }else if(conditionList!=null && conditionList.size()>0){
-//      values = conditionList;
-//    }
-    
-//    ObjectBuffered values = new ObjectBuffered();
 
-    
-    StringBuffered sqlStr = new StringBuffered(columnSQLStatementSize+conditionStatementSize+13)
+    StringBuffered sqlStr = new StringBuffered(16)
       .append("SELECT ");
-    //List values = new ArrayList();
 
-    
     /* 生成DISTINCT串 */
     if (distinct) {
       sqlStr.append(" DISTINCT ");
@@ -125,14 +83,10 @@ public class MssqlSQLBuilder extends SQLBuilder{
     }
     
     /* 生成返回列的串 */
-    if (columnSQL != null) {
-      //SQL columnSQL = constructSelectedColumn(columns);
-      sqlStr.append(columnSQLStatement);
-//      Object[] objs = columnSQL.getValues();
-//      int len=objs.length;
-//      for(int i=0;i<len;i++){
-//        values.append(objs[i]);
-//      }
+    if (columns != null && columns.length != 0) {
+      SQL columnSQL = constructSelectedColumn(columns);
+      sqlStr.append(columnSQL.getSQLStatement());
+      values = columnSQL.getValueBuffered();
     }else{
       sqlStr.append("*");
     }
@@ -143,14 +97,13 @@ public class MssqlSQLBuilder extends SQLBuilder{
     }
     
     /* 生成查询条件串 */
-    if (conditionStatement != null) {
-      sqlStr.append(" WHERE ").append(conditionStatement);
-      //values.addAll(condition.getValueList());
-//      Object[] objs = condition.getValues();
-//      int len=objs.length;
-//      for(int i=0;i<len;i++){
-//        values.append(objs[i]);
-//      }      
+    if (condition != null && condition.size() != 0) {
+      sqlStr.append(" WHERE ").append(condition.getConditionStatement());
+      if(values==null){
+        values = condition.getValueBuffered();
+      }else{
+        values.append(condition.getValueBuffered());
+      }
     }
     
     /* 生成GROUP BY串 */
